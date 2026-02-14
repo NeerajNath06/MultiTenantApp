@@ -1,0 +1,118 @@
+@model SecurityAgencyApp.Web.Models.Api.ClientDetailDto
+@{
+    ViewData["Title"] = "Client Details";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Client Details</h1>
+            <p class="page-subtitle">View client information</p>
+        </div>
+        <div>
+            <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Edit
+            </a>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Client Information</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Client Code</label>
+                        <p class="mb-0">@Model.ClientCode</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Company Name</label>
+                        <p class="mb-0">@Model.CompanyName</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Contact Person</label>
+                        <p class="mb-0">@(Model.ContactPerson ?? "-")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Status</label>
+                        <p class="mb-0">
+                            <span class="badge bg-@(Model.Status == "Active" ? "success" : "secondary")">
+                                @Model.Status
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Email</label>
+                        <p class="mb-0">@(Model.Email ?? "-")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Phone Number</label>
+                        <p class="mb-0">@(Model.PhoneNumber ?? "-")</p>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold text-muted">Address</label>
+                        <p class="mb-0">@Model.Address</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold text-muted">City</label>
+                        <p class="mb-0">@Model.City</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold text-muted">State</label>
+                        <p class="mb-0">@Model.State</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold text-muted">Pin Code</label>
+                        <p class="mb-0">@Model.PinCode</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">GST Number</label>
+                        <p class="mb-0">@(Model.GSTNumber ?? "-")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">PAN Number</label>
+                        <p class="mb-0">@(Model.PANNumber ?? "-")</p>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Notes))
+                    {
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-muted">Notes</label>
+                            <p class="mb-0">@Model.Notes</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Additional Information</h5>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Created Date</label>
+                    <p class="mb-0">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</p>
+                </div>
+                @if (Model.ModifiedDate.HasValue)
+                {
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted">Last Modified</label>
+                        <p class="mb-0">@Model.ModifiedDate.Value.ToString("dd MMM yyyy HH:mm")</p>
+                    </div>
+                }
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Status</label>
+                    <p class="mb-0">
+                        <span class="badge bg-@(Model.IsActive ? "success" : "danger")">
+                            @(Model.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

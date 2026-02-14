@@ -1,0 +1,212 @@
+@model SecurityAgencyApp.Web.Models.Api.CreateFormTemplateRequest
+@{
+    ViewData["Title"] = "Create Form Template";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Create Form Template</h1>
+    <p class="page-subtitle">Build dynamic forms with custom fields</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form id="formTemplateForm" method="post" asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <!-- Form Template Information -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="Name" class="form-label fw-semibold">Form Name <span class="text-danger">*</span></label>
+                    <input asp-for="Name" class="form-control" placeholder="Enter form name" required />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Code" class="form-label fw-semibold">Form Code <span class="text-danger">*</span></label>
+                    <input asp-for="Code" class="form-control" placeholder="Enter unique code" required />
+                    <span asp-validation-for="Code" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="2" placeholder="Enter form description"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Category" class="form-label fw-semibold">Category</label>
+                    <input asp-for="Category" class="form-control" placeholder="e.g., Registration, Application" />
+                </div>
+            </div>
+
+            <!-- Form Fields -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Form Fields</h5>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="addField()">
+                        <i class="fas fa-plus me-1"></i>Add Field
+                    </button>
+                </div>
+                <div id="fieldsContainer">
+                    <!-- Fields will be added here dynamically -->
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Create Form Template
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let fieldIndex = 0;
+        const fieldTypes = [
+            { value: 'TextBox', label: 'Text Box' },
+            { value: 'TextArea', label: 'Text Area' },
+            { value: 'Number', label: 'Number' },
+            { value: 'Email', label: 'Email' },
+            { value: 'Phone', label: 'Phone' },
+            { value: 'Date', label: 'Date' },
+            { value: 'DateTime', label: 'Date & Time' },
+            { value: 'CheckBox', label: 'Checkbox' },
+            { value: 'Radio', label: 'Radio Button' },
+            { value: 'DropDown', label: 'Dropdown' },
+            { value: 'MultiSelect', label: 'Multi Select' },
+            { value: 'FileUpload', label: 'File Upload' }
+        ];
+
+        function addField() {
+            const container = document.getElementById('fieldsContainer');
+            const fieldHtml = `
+                <div class="card mb-3 field-item" data-index="${fieldIndex}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Field ${fieldIndex + 1}</h6>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="removeField(${fieldIndex})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Field Name <span class="text-danger">*</span></label>
+                                <input type="text" name="Fields[${fieldIndex}].FieldName" class="form-control" placeholder="fieldName" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Field Label <span class="text-danger">*</span></label>
+                                <input type="text" name="Fields[${fieldIndex}].FieldLabel" class="form-control" placeholder="Field Label" required />
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-4">
+                                <label class="form-label">Field Type <span class="text-danger">*</span></label>
+                                <select name="Fields[${fieldIndex}].FieldType" class="form-select" onchange="handleFieldTypeChange(${fieldIndex}, this.value)" required>
+                                    ${fieldTypes.map(t => `<option value="${t.value}">${t.label}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Order</label>
+                                <input type="number" name="Fields[${fieldIndex}].FieldOrder" class="form-control" value="${fieldIndex}" />
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check mt-4">
+                                    <input type="checkbox" name="Fields[${fieldIndex}].IsRequired" class="form-check-input" />
+                                    <label class="form-check-label">Required</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-6">
+                                <label class="form-label">Placeholder</label>
+                                <input type="text" name="Fields[${fieldIndex}].Placeholder" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Default Value</label>
+                                <input type="text" name="Fields[${fieldIndex}].DefaultValue" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-2" id="optionsRow_${fieldIndex}" style="display: none;">
+                            <div class="col-md-12">
+                                <label class="form-label">Options (JSON format for Dropdown/Radio)</label>
+                                <textarea name="Fields[${fieldIndex}].Options" class="form-control" rows="2" placeholder='[{"value":"option1","label":"Option 1"}]'></textarea>
+                                <small class="text-muted">For Dropdown/Radio/MultiSelect fields</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', fieldHtml);
+            fieldIndex++;
+        }
+
+        function removeField(index) {
+            const field = document.querySelector(`.field-item[data-index="${index}"]`);
+            if (field) {
+                field.remove();
+                // Re-index all remaining fields
+                reindexFields();
+            }
+        }
+
+        function reindexFields() {
+            const fields = document.querySelectorAll('.field-item');
+            fields.forEach((field, newIndex) => {
+                const oldIndex = field.getAttribute('data-index');
+                field.setAttribute('data-index', newIndex);
+                
+                // Update all input names
+                field.querySelectorAll('input, select, textarea').forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name && name.includes(`[${oldIndex}]`)) {
+                        input.setAttribute('name', name.replace(`[${oldIndex}]`, `[${newIndex}]`));
+                    }
+                });
+                
+                // Update field number display
+                const fieldNumber = field.querySelector('h6');
+                if (fieldNumber) {
+                    fieldNumber.textContent = `Field ${newIndex + 1}`;
+                }
+                
+                // Update options row ID
+                const optionsRow = field.querySelector(`#optionsRow_${oldIndex}`);
+                if (optionsRow) {
+                    optionsRow.id = `optionsRow_${newIndex}`;
+                }
+                
+                // Update onchange handlers
+                const fieldTypeSelect = field.querySelector('select[name*="FieldType"]');
+                if (fieldTypeSelect) {
+                    fieldTypeSelect.setAttribute('onchange', `handleFieldTypeChange(${newIndex}, this.value)`);
+                }
+                
+                // Update remove button
+                const removeBtn = field.querySelector('button[onclick*="removeField"]');
+                if (removeBtn) {
+                    removeBtn.setAttribute('onclick', `removeField(${newIndex})`);
+                }
+            });
+            fieldIndex = fields.length;
+        }
+
+        function handleFieldTypeChange(index, fieldType) {
+            const optionsRow = document.getElementById(`optionsRow_${index}`);
+            if (['DropDown', 'Radio', 'MultiSelect'].includes(fieldType)) {
+                optionsRow.style.display = 'block';
+            } else {
+                optionsRow.style.display = 'none';
+            }
+        }
+
+        // Add first field on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            addField();
+        });
+    </script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

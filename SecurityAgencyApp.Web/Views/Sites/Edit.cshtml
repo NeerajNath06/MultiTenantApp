@@ -1,0 +1,135 @@
+@model SecurityAgencyApp.Web.Models.Api.UpdateSiteRequest
+@{
+    ViewData["Title"] = "Edit Site";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Edit Site</h1>
+    <p class="page-subtitle">Update site information</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="SiteCode" class="form-label fw-semibold">Site Code <span class="text-danger">*</span></label>
+                    <input asp-for="SiteCode" class="form-control" required />
+                    <span asp-validation-for="SiteCode" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SiteName" class="form-label fw-semibold">Site Name <span class="text-danger">*</span></label>
+                    <input asp-for="SiteName" class="form-control" required />
+                    <span asp-validation-for="SiteName" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-12">
+                    <label asp-for="ClientName" class="form-label fw-semibold">Client Name <span class="text-danger">*</span></label>
+                    <input asp-for="ClientName" class="form-control" required />
+                    <span asp-validation-for="ClientName" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-12">
+                    <label asp-for="Address" class="form-label fw-semibold">Address <span class="text-danger">*</span></label>
+                    <input asp-for="Address" class="form-control" required />
+                    <span asp-validation-for="Address" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                    <label asp-for="City" class="form-label fw-semibold">City <span class="text-danger">*</span></label>
+                    <input asp-for="City" class="form-control" required />
+                    <span asp-validation-for="City" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="State" class="form-label fw-semibold">State <span class="text-danger">*</span></label>
+                    <input asp-for="State" class="form-control" required />
+                    <span asp-validation-for="State" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PinCode" class="form-label fw-semibold">Pin Code <span class="text-danger">*</span></label>
+                    <input asp-for="PinCode" class="form-control" required />
+                    <span asp-validation-for="PinCode" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="ContactPerson" class="form-label fw-semibold">Contact Person <span class="text-danger">*</span></label>
+                    <input asp-for="ContactPerson" class="form-control" required />
+                    <span asp-validation-for="ContactPerson" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ContactPhone" class="form-label fw-semibold">Contact Phone <span class="text-danger">*</span></label>
+                    <input asp-for="ContactPhone" class="form-control" required />
+                    <span asp-validation-for="ContactPhone" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="ContactEmail" class="form-label fw-semibold">Contact Email</label>
+                    <input asp-for="ContactEmail" type="email" class="form-control" />
+                    <span asp-validation-for="ContactEmail" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check mt-4">
+                        <input asp-for="IsActive" type="checkbox" class="form-check-input" />
+                        <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Site Supervisors</label>
+                    <p class="small text-muted">Assign supervisors to this site. They will see only this site and its guards when logged in.</p>
+                    <select asp-for="SupervisorIds" class="form-select" asp-items="ViewBag.Supervisors" multiple style="min-height: 120px;"></select>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-12">
+                    <h6 class="fw-semibold text-muted border-bottom pb-2">Location &amp; Geofence (for check-in/check-out)</h6>
+                    <p class="small text-muted">Set site center and radius so guards can check-in only when within range. Get coordinates from Google Maps (right-click on map → coordinates).</p>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Latitude" class="form-label fw-semibold">Latitude</label>
+                    <input asp-for="Latitude" type="number" step="any" class="form-control" placeholder="e.g. 28.6139" />
+                    <span asp-validation-for="Latitude" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Longitude" class="form-label fw-semibold">Longitude</label>
+                    <input asp-for="Longitude" type="number" step="any" class="form-control" placeholder="e.g. 77.2090" />
+                    <span asp-validation-for="Longitude" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="GeofenceRadiusMeters" class="form-label fw-semibold">Geofence radius (meters)</label>
+                    <input asp-for="GeofenceRadiusMeters" type="number" min="0" class="form-control" placeholder="e.g. 100" />
+                    <span asp-validation-for="GeofenceRadiusMeters" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Update Site
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

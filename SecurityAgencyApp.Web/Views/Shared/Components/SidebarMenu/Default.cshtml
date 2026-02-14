@@ -1,0 +1,18 @@
+@model IEnumerable<SecurityAgencyApp.Web.Models.Api.MenuDto>
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+}
+@foreach (var menu in Model ?? Enumerable.Empty<SecurityAgencyApp.Web.Models.Api.MenuDto>())
+{
+    if (!menu.IsActive) { continue; }
+    var route = menu.Route ?? menu.Name;
+    var isActive = string.Equals(route, controller, StringComparison.OrdinalIgnoreCase);
+    var url = Url.Action("Index", route) ?? "#";
+    <a href="@url" class="menu-item @(isActive ? "active" : "")">
+        @if (!string.IsNullOrEmpty(menu.Icon))
+        {
+            <i class="@menu.Icon"></i>
+        }
+        <span>@(menu.DisplayName ?? menu.Name)</span>
+    </a>
+}

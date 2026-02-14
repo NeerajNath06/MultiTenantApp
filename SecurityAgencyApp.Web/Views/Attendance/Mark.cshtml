@@ -1,0 +1,83 @@
+@model SecurityAgencyApp.Web.Models.Api.MarkAttendanceRequest
+@{
+    ViewData["Title"] = "Mark Attendance";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Mark Attendance</h1>
+    <p class="page-subtitle">Record guard attendance</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Mark" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Guard <span class="text-danger">*</span></label>
+                    <select asp-for="GuardId" class="form-select" asp-items="ViewBag.Guards" required id="guardSelect">
+                        <option value="">-- Select Guard --</option>
+                    </select>
+                    <span asp-validation-for="GuardId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Assignment <span class="text-danger">*</span></label>
+                    <select asp-for="AssignmentId" class="form-select" asp-items="ViewBag.Assignments" required>
+                        <option value="">-- Select Assignment --</option>
+                    </select>
+                    <span asp-validation-for="AssignmentId" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="AttendanceDate" class="form-label fw-semibold">Attendance Date <span class="text-danger">*</span></label>
+                    <input asp-for="AttendanceDate" type="date" class="form-control" required />
+                    <span asp-validation-for="AttendanceDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Status" class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
+                    <select asp-for="Status" class="form-select" asp-items="ViewBag.StatusList" required>
+                        <option value="">-- Select Status --</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="CheckInTime" class="form-label fw-semibold">Check In Time</label>
+                    <input asp-for="CheckInTime" type="datetime-local" class="form-control" />
+                    <span asp-validation-for="CheckInTime" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="CheckOutTime" class="form-label fw-semibold">Check Out Time</label>
+                    <input asp-for="CheckOutTime" type="datetime-local" class="form-control" />
+                    <span asp-validation-for="CheckOutTime" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-12">
+                    <label asp-for="Remarks" class="form-label fw-semibold">Remarks</label>
+                    <textarea asp-for="Remarks" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Remarks" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Mark Attendance
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

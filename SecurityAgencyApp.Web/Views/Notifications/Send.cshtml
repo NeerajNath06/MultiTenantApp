@@ -1,0 +1,89 @@
+@model SecurityAgencyApp.Web.Models.Api.SendNotificationRequest
+@{
+    ViewData["Title"] = "Send Notification";
+    var recipients = ViewBag.Recipients as MultiSelectList;
+    var guardUserIds = ViewBag.GuardUserIds as List<string> ?? new List<string>();
+    var supervisorUserIds = ViewBag.SupervisorUserIds as List<string> ?? new List<string>();
+    var allUserIds = ViewBag.AllUserIds as List<string> ?? new List<string>();
+}
+
+<div class="page-header">
+    <h1 class="page-title">Send Notification</h1>
+    <p class="page-subtitle">Send to guards, supervisors or other users</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Send" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Recipients <span class="text-danger">*</span></label>
+                    <div class="mb-2">
+                        <span class="me-2 small text-muted">Quick select:</span>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="btnSelectGuards" title="Select all guards">
+                            <i class="fas fa-user-shield me-1"></i>All Guards
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-info" id="btnSelectSupervisors" title="Select supervisors only">
+                            <i class="fas fa-user-tie me-1"></i>Supervisors Only
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnSelectAll" title="Select all users">
+                            <i class="fas fa-users me-1"></i>Select All
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnClear">
+                            <i class="fas fa-times me-1"></i>Clear
+                        </button>
+                    </div>
+                    <select asp-for="UserIds" id="recipientsSelect" class="form-select" asp-items="recipients" multiple="multiple" size="10"></select>
+                    <small class="text-muted">Hold Ctrl/Cmd to select multiple. Or use quick select buttons above.</small>
+                    <span asp-validation-for="UserIds" class="text-danger small"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Title" class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+                    <input asp-for="Title" class="form-control" placeholder="Short subject" required />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Type" class="form-label fw-semibold">Type</label>
+                    <select asp-for="Type" class="form-select">
+                        <option value="Info">Info</option>
+                        <option value="Warning">Warning</option>
+                        <option value="Success">Success</option>
+                        <option value="Error">Error</option>
+                        <option value="Alert">Alert</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Body" class="form-label fw-semibold">Message</label>
+                    <textarea asp-for="Body" class="form-control" rows="4" placeholder="Notification message"></textarea>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane me-2"></i>Send</button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var guardIds = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(guardUserIds));
+            var supervisorIds = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(supervisorUserIds));
+            var allIds = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(allUserIds));
+            var sel = document.getElementById('recipientsSelect');
+            function setSelection(ids) {
+                if (!sel) return;
+                for (var i = 0; i < sel.options.length; i++) {
+                    sel.options[i].selected = ids.indexOf(sel.options[i].value) !== -1;
+                }
+            }
+            document.getElementById('btnSelectGuards')?.addEventListener('click', function () { setSelection(guardIds); });
+            document.getElementById('btnSelectSupervisors')?.addEventListener('click', function () { setSelection(supervisorIds); });
+            document.getElementById('btnSelectAll')?.addEventListener('click', function () { setSelection(allIds); });
+            document.getElementById('btnClear')?.addEventListener('click', function () { setSelection([]); });
+        })();
+    </script>
+}

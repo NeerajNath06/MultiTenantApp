@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "Security Guard App",
+    "slug": "security-guard-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1E3A8A"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.securityapp.guard",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app requires camera access to take photos during check-in and incident reporting.",
+        "NSLocationWhenInUseUsageDescription": "This app requires location access to verify your check-in location.",
+        "NSLocationAlwaysUsageDescription": "This app requires location access to track patrol routes.",
+        "NSPhotoLibraryUsageDescription": "This app requires photo library access to upload evidence for incidents."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1E3A8A"
+      },
+      "package": "com.securityapp.guard",
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Security Guard App to access your camera for check-in verification and incident reporting."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Security Guard App to use your location for attendance verification."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Security Guard App to access your photos for uploading incident evidence."
+        }
+      ]
+    ]
+  }
+}

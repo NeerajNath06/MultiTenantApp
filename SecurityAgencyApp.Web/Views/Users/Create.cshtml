@@ -1,0 +1,96 @@
+@model SecurityAgencyApp.Web.Models.Api.CreateUserRequest
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Create New User</h1>
+    <p class="page-subtitle">Add a new user to the system</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="UserName" class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
+                    <input asp-for="UserName" class="form-control" placeholder="Enter username" />
+                    <span asp-validation-for="UserName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="Enter email address" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="Password" class="form-label fw-semibold">Password <span class="text-danger">*</span></label>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Enter password" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="Enter phone number" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="FirstName" class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
+                    <input asp-for="FirstName" class="form-control" placeholder="Enter first name" />
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="LastName" class="form-label fw-semibold">Last Name</label>
+                    <input asp-for="LastName" class="form-control" placeholder="Enter last name" />
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Roles</label>
+                    <p class="text-muted small mb-2">Select roles for this user. Choose <strong>Supervisor</strong> to create a supervisor who can manage assigned guards.</p>
+                    <div class="d-flex flex-wrap gap-3">
+@{
+                                var rolesList = ViewBag.Roles as IEnumerable<SecurityAgencyApp.Web.Models.Api.RoleDto>;
+                            }
+                            @if (rolesList != null && rolesList.Any())
+                            {
+                                @foreach (var role in rolesList)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="RoleIds" value="@role.Id" id="role_@role.Id"
+                                               @(Model?.RoleIds != null && Model.RoleIds.Contains(role.Id) ? "checked" : "") />
+                                        <label class="form-check-label" for="role_@role.Id">@role.Name (@role.Code)</label>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted small">No roles available. Create roles from <a href="@Url.Action("Index", "Roles")">Roles</a> first.</span>
+                            }
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Create User
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,138 @@
+@model SecurityAgencyApp.Web.Models.Api.CreateEquipmentRequest
+@{
+    ViewData["Title"] = "Add Equipment";
+    var sites = ViewBag.Sites as List<SecurityAgencyApp.Web.Models.Api.SiteDto>;
+    var guards = ViewBag.Guards as List<SecurityAgencyApp.Web.Models.Api.GuardItemDto>;
+}
+
+<div class="page-header">
+    <h1 class="page-title">Add Equipment</h1>
+    <p class="page-subtitle">Add new equipment to inventory</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="EquipmentCode" class="form-label fw-semibold">Equipment Code <span class="text-danger">*</span></label>
+                    <input asp-for="EquipmentCode" class="form-control" required />
+                    <span asp-validation-for="EquipmentCode" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="EquipmentName" class="form-label fw-semibold">Equipment Name <span class="text-danger">*</span></label>
+                    <input asp-for="EquipmentName" class="form-control" required />
+                    <span asp-validation-for="EquipmentName" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label asp-for="Category" class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                    <select asp-for="Category" class="form-select" required>
+                        <option value="">Select Category</option>
+                        <option value="Uniform">Uniform</option>
+                        <option value="Weapon">Weapon</option>
+                        <option value="Communication">Communication</option>
+                        <option value="Vehicle">Vehicle</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <span asp-validation-for="Category" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Manufacturer" class="form-label fw-semibold">Manufacturer</label>
+                    <input asp-for="Manufacturer" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="ModelNumber" class="form-label fw-semibold">Model Number</label>
+                    <input asp-for="ModelNumber" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label asp-for="SerialNumber" class="form-label fw-semibold">Serial Number</label>
+                    <input asp-for="SerialNumber" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PurchaseDate" class="form-label fw-semibold">Purchase Date</label>
+                    <input asp-for="PurchaseDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PurchaseCost" class="form-label fw-semibold">Purchase Cost</label>
+                    <input asp-for="PurchaseCost" type="number" step="0.01" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label asp-for="Status" class="form-label fw-semibold">Status</label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="Available">Available</option>
+                        <option value="Assigned">Assigned</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Damaged">Damaged</option>
+                        <option value="Retired">Retired</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="AssignedToGuardId" class="form-label fw-semibold">Assign to Guard</label>
+                    <select asp-for="AssignedToGuardId" class="form-select">
+                        <option value="">Not Assigned</option>
+                        @if (guards != null)
+                        {
+                            @foreach (var guard in guards)
+                            {
+                                <option value="@guard.Id">@guard.GuardCode - @guard.FirstName @guard.LastName</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="AssignedToSiteId" class="form-label fw-semibold">Assign to Site</label>
+                    <select asp-for="AssignedToSiteId" class="form-select">
+                        <option value="">Not Assigned</option>
+                        @if (sites != null)
+                        {
+                            @foreach (var site in sites)
+                            {
+                                <option value="@site.Id">@site.SiteName</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="LastMaintenanceDate" class="form-label fw-semibold">Last Maintenance Date</label>
+                    <input asp-for="LastMaintenanceDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="NextMaintenanceDate" class="form-label fw-semibold">Next Maintenance Date</label>
+                    <input asp-for="NextMaintenanceDate" type="date" class="form-control" />
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Notes" class="form-label fw-semibold">Notes</label>
+                <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Add Equipment
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

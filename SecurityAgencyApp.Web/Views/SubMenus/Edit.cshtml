@@ -1,0 +1,73 @@
+@model SecurityAgencyApp.Web.Models.Api.UpdateSubMenuRequest
+@{
+    ViewData["Title"] = "Edit SubMenu";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Edit SubMenu</h1>
+    <p class="page-subtitle">Update submenu details</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Name" class="form-label fw-semibold">SubMenu Name <span class="text-danger">*</span></label>
+                    <input asp-for="Name" class="form-control" placeholder="Enter submenu name" required />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DisplayName" class="form-label fw-semibold">Display Name</label>
+                    <input asp-for="DisplayName" class="form-control" placeholder="Enter display name" />
+                    <span asp-validation-for="DisplayName" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="Icon" class="form-label fw-semibold">Icon (Font Awesome class)</label>
+                    <input asp-for="Icon" class="form-control" placeholder="fas fa-file" />
+                    <small class="text-muted">Example: fas fa-file, fas fa-list</small>
+                    <span asp-validation-for="Icon" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Route" class="form-label fw-semibold">Route</label>
+                    <input asp-for="Route" class="form-control" placeholder="/users" />
+                    <span asp-validation-for="Route" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="DisplayOrder" class="form-label fw-semibold">Display Order</label>
+                    <input asp-for="DisplayOrder" type="number" class="form-control" />
+                    <span asp-validation-for="DisplayOrder" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check mt-4">
+                        <input asp-for="IsActive" type="checkbox" class="form-check-input" />
+                        <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Update SubMenu
+                </button>
+                <a href="@Url.Action("Index", new { menuId = Model.MenuId })" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

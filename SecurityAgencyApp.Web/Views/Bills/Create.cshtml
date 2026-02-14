@@ -1,0 +1,271 @@
+@model SecurityAgencyApp.Web.Models.Api.CreateBillRequest
+@{
+    ViewData["Title"] = "Create Bill";
+    var sites = ViewBag.Sites as List<SecurityAgencyApp.Web.Models.Api.SiteDto>;
+}
+
+<div class="page-header">
+    <h1 class="page-title">Create Bill</h1>
+    <p class="page-subtitle">Generate a new bill for client</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Create" method="post" id="billForm">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label asp-for="BillNumber" class="form-label fw-semibold">Bill Number <span class="text-danger">*</span></label>
+                    <input asp-for="BillNumber" class="form-control" required />
+                    <span asp-validation-for="BillNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="BillDate" class="form-label fw-semibold">Bill Date <span class="text-danger">*</span></label>
+                    <input asp-for="BillDate" type="date" class="form-control" required />
+                    <span asp-validation-for="BillDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Status" class="form-label fw-semibold">Status</label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="Draft">Draft</option>
+                        <option value="Sent">Sent</option>
+                        <option value="Paid">Paid</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="SiteId" class="form-label fw-semibold">Site (Optional)</label>
+                    <select asp-for="SiteId" class="form-select">
+                        <option value="">Select Site</option>
+                        @if (sites != null)
+                        {
+                            @foreach (var site in sites)
+                            {
+                                <option value="@site.Id">@site.SiteName - @site.ClientName</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ClientName" class="form-label fw-semibold">Client Name <span class="text-danger">*</span></label>
+                    <input asp-for="ClientName" class="form-control" required />
+                    <span asp-validation-for="ClientName" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="DueDate" class="form-label fw-semibold">Due Date</label>
+                    <input asp-for="DueDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PaymentTerms" class="form-label fw-semibold">Payment Terms</label>
+                    <input asp-for="PaymentTerms" class="form-control" placeholder="e.g., Net 30" />
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+            </div>
+
+            <!-- Bill Items -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Bill Items</h5>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="addBillItem()">
+                        <i class="fas fa-plus me-1"></i>Add Item
+                    </button>
+                </div>
+                <div id="billItemsContainer">
+                    <!-- Items will be added here dynamically -->
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="TaxAmount" class="form-label fw-semibold">Additional Tax Amount</label>
+                    <input asp-for="TaxAmount" type="number" step="0.01" class="form-control" value="0" onchange="calculateTotal()" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DiscountAmount" class="form-label fw-semibold">Additional Discount</label>
+                    <input asp-for="DiscountAmount" type="number" step="0.01" class="form-control" value="0" onchange="calculateTotal()" />
+                </div>
+            </div>
+
+            <div class="card bg-light mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Sub Total:</strong> <span id="subTotal">₹0.00</span><br>
+                            <strong>Tax:</strong> <span id="taxTotal">₹0.00</span><br>
+                            <strong>Discount:</strong> <span id="discountTotal">₹0.00</span>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <h4>Total: <span id="grandTotal">₹0.00</span></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Notes" class="form-label fw-semibold">Notes</label>
+                <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Create Bill
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let itemIndex = 0;
+
+        function addBillItem() {
+            const container = document.getElementById('billItemsContainer');
+            const itemHtml = `
+                <div class="card mb-3 bill-item" data-index="${itemIndex}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Item ${itemIndex + 1}</h6>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="removeBillItem(${itemIndex})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Item Name <span class="text-danger">*</span></label>
+                                <input type="text" name="Items[${itemIndex}].ItemName" class="form-control" required />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                                <input type="number" name="Items[${itemIndex}].Quantity" class="form-control" min="1" value="1" required onchange="calculateItemTotal(${itemIndex})" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Unit Price <span class="text-danger">*</span></label>
+                                <input type="number" name="Items[${itemIndex}].UnitPrice" class="form-control" step="0.01" min="0" value="0" required onchange="calculateItemTotal(${itemIndex})" />
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-4">
+                                <label class="form-label">Tax Rate (%)</label>
+                                <input type="number" name="Items[${itemIndex}].TaxRate" class="form-control" step="0.01" min="0" max="100" value="0" onchange="calculateItemTotal(${itemIndex})" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Discount Amount</label>
+                                <input type="number" name="Items[${itemIndex}].DiscountAmount" class="form-control" step="0.01" min="0" value="0" onchange="calculateItemTotal(${itemIndex})" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Description</label>
+                                <input type="text" name="Items[${itemIndex}].Description" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', itemHtml);
+            itemIndex++;
+        }
+
+        function removeBillItem(index) {
+            const item = document.querySelector(`.bill-item[data-index="${index}"]`);
+            if (item) {
+                item.remove();
+                reindexBillItems();
+                calculateTotal();
+            }
+        }
+
+        function reindexBillItems() {
+            const items = document.querySelectorAll('.bill-item');
+            items.forEach((item, newIndex) => {
+                const oldIndex = item.getAttribute('data-index');
+                item.setAttribute('data-index', newIndex);
+                
+                item.querySelectorAll('input, select, textarea').forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name && name.includes(`[${oldIndex}]`)) {
+                        input.setAttribute('name', name.replace(`[${oldIndex}]`, `[${newIndex}]`));
+                        if (input.getAttribute('onchange')) {
+                            input.setAttribute('onchange', input.getAttribute('onchange').replace(oldIndex, newIndex));
+                        }
+                    }
+                });
+                
+                const itemNumber = item.querySelector('h6');
+                if (itemNumber) {
+                    itemNumber.textContent = `Item ${newIndex + 1}`;
+                }
+                
+                const removeBtn = item.querySelector('button[onclick*="removeBillItem"]');
+                if (removeBtn) {
+                    removeBtn.setAttribute('onclick', `removeBillItem(${newIndex})`);
+                }
+            });
+            itemIndex = items.length;
+        }
+
+        function calculateItemTotal(index) {
+            const item = document.querySelector(`.bill-item[data-index="${index}"]`);
+            if (!item) return;
+            
+            const quantity = parseFloat(item.querySelector('input[name*="Quantity"]').value) || 0;
+            const unitPrice = parseFloat(item.querySelector('input[name*="UnitPrice"]').value) || 0;
+            const taxRate = parseFloat(item.querySelector('input[name*="TaxRate"]').value) || 0;
+            const discount = parseFloat(item.querySelector('input[name*="DiscountAmount"]').value) || 0;
+            
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let subTotal = 0;
+            let taxTotal = 0;
+            let discountTotal = 0;
+            
+            document.querySelectorAll('.bill-item').forEach(item => {
+                const quantity = parseFloat(item.querySelector('input[name*="Quantity"]').value) || 0;
+                const unitPrice = parseFloat(item.querySelector('input[name*="UnitPrice"]').value) || 0;
+                const taxRate = parseFloat(item.querySelector('input[name*="TaxRate"]').value) || 0;
+                const discount = parseFloat(item.querySelector('input[name*="DiscountAmount"]').value) || 0;
+                
+                const itemSubTotal = quantity * unitPrice;
+                const itemAfterDiscount = itemSubTotal - discount;
+                const itemTax = itemAfterDiscount * (taxRate / 100);
+                
+                subTotal += itemSubTotal;
+                discountTotal += discount;
+                taxTotal += itemTax;
+            });
+            
+            const additionalTax = parseFloat(document.querySelector('input[name="TaxAmount"]').value) || 0;
+            const additionalDiscount = parseFloat(document.querySelector('input[name="DiscountAmount"]').value) || 0;
+            
+            taxTotal += additionalTax;
+            discountTotal += additionalDiscount;
+            
+            const grandTotal = subTotal - discountTotal + taxTotal;
+            
+            document.getElementById('subTotal').textContent = '₹' + subTotal.toFixed(2);
+            document.getElementById('taxTotal').textContent = '₹' + taxTotal.toFixed(2);
+            document.getElementById('discountTotal').textContent = '₹' + discountTotal.toFixed(2);
+            document.getElementById('grandTotal').textContent = '₹' + grandTotal.toFixed(2);
+        }
+
+        // Add first item on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            addBillItem();
+        });
+    </script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

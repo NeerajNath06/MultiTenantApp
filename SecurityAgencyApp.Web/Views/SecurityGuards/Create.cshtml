@@ -1,0 +1,147 @@
+@model SecurityAgencyApp.Web.Models.Api.CreateGuardRequest
+@{
+    ViewData["Title"] = "Create Security Guard";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Create Security Guard</h1>
+    <p class="page-subtitle">Add a new security guard</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="FirstName" class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
+                    <input asp-for="FirstName" class="form-control" required />
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="LastName" class="form-label fw-semibold">Last Name <span class="text-danger">*</span></label>
+                    <input asp-for="LastName" class="form-control" required />
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label fw-semibold">Email</label>
+                    <input asp-for="Email" type="email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
+                    <input asp-for="PhoneNumber" class="form-control" required />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="DateOfBirth" class="form-label fw-semibold">Date of Birth <span class="text-danger">*</span></label>
+                    <input asp-for="DateOfBirth" type="date" class="form-control" required />
+                    <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Gender" class="form-label fw-semibold">Gender <span class="text-danger">*</span></label>
+                    <select asp-for="Gender" class="form-select" asp-items="Html.GetEnumSelectList<SecurityAgencyApp.Domain.Enums.Gender>()" required>
+                        <option value="">-- Select --</option>
+                    </select>
+                    <span asp-validation-for="Gender" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-12">
+                    <label asp-for="Address" class="form-label fw-semibold">Address <span class="text-danger">*</span></label>
+                    <input asp-for="Address" class="form-control" required />
+                    <span asp-validation-for="Address" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                    <label asp-for="City" class="form-label fw-semibold">City <span class="text-danger">*</span></label>
+                    <input asp-for="City" class="form-control" required />
+                    <span asp-validation-for="City" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="State" class="form-label fw-semibold">State <span class="text-danger">*</span></label>
+                    <input asp-for="State" class="form-control" required />
+                    <span asp-validation-for="State" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PinCode" class="form-label fw-semibold">Pin Code <span class="text-danger">*</span></label>
+                    <input asp-for="PinCode" class="form-control" required />
+                    <span asp-validation-for="PinCode" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="EmergencyContactName" class="form-label fw-semibold">Emergency Contact Name <span class="text-danger">*</span></label>
+                    <input asp-for="EmergencyContactName" class="form-control" required />
+                    <span asp-validation-for="EmergencyContactName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="EmergencyContactPhone" class="form-label fw-semibold">Emergency Contact Phone <span class="text-danger">*</span></label>
+                    <input asp-for="EmergencyContactPhone" class="form-control" required />
+                    <span asp-validation-for="EmergencyContactPhone" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="JoiningDate" class="form-label fw-semibold">Joining Date <span class="text-danger">*</span></label>
+                    <input asp-for="JoiningDate" type="date" class="form-control" required />
+                    <span asp-validation-for="JoiningDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SupervisorId" class="form-label fw-semibold">Supervisor</label>
+                    <select asp-for="SupervisorId" class="form-select" asp-items="ViewBag.Supervisors">
+                        <option value="">-- No Supervisor --</option>
+                    </select>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+            <h6 class="fw-semibold mb-3">Mobile App Login (optional)</h6>
+            <p class="text-muted small">Create credentials so this guard can login to the mobile app as Security Guard.</p>
+            <div class="form-check mb-3">
+                <input asp-for="CreateLoginAccount" class="form-check-input" type="checkbox" id="createLogin" />
+                <label class="form-check-label" for="createLogin">Create login account for mobile app</label>
+            </div>
+            <div id="loginFields" class="row g-3" style="display: none;">
+                <div class="col-md-6">
+                    <label asp-for="LoginUserName" class="form-label fw-semibold">Login username / email</label>
+                    <input asp-for="LoginUserName" class="form-control" placeholder="Guard will use this to login" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="LoginPassword" class="form-label fw-semibold">Password (min 6 characters)</label>
+                    <input asp-for="LoginPassword" type="password" class="form-control" minlength="6" placeholder="Min 6 characters" />
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Create Guard
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.getElementById('createLogin').addEventListener('change', function() {
+            document.getElementById('loginFields').style.display = this.checked ? 'flex' : 'none';
+        });
+    </script>
+}

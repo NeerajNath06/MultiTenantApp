@@ -1,0 +1,141 @@
+@model SecurityAgencyApp.Web.Models.Api.SubmitFormRequest
+@{
+    var template = ViewBag.Template as SecurityAgencyApp.Application.Features.FormBuilder.Queries.GetFormTemplateById.FormTemplateDto;
+    ViewData["Title"] = $"Submit Form - {template?.Name}";
+}
+
+<div class="page-header">
+    <h1 class="page-title">@template?.Name</h1>
+    <p class="page-subtitle">@template?.Description</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form method="post" asp-action="Submit">
+            <input type="hidden" asp-for="FormTemplateId" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            @if (template?.Fields != null && template.Fields.Any())
+            {
+                @foreach (var field in template.Fields.OrderBy(f => f.FieldOrder))
+                {
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            @field.FieldLabel
+                            @if (field.IsRequired)
+                            {
+                                <span class="text-danger">*</span>
+                            }
+                        </label>
+
+                        @switch (field.FieldType)
+                        {
+                            case "TextBox":
+                                <input type="text" name="Data[@field.FieldName]" class="form-control" 
+                                       placeholder="@field.Placeholder" 
+                                       value="@field.DefaultValue"
+                                       @(field.IsRequired ? "required" : "") />
+                                break;
+                            case "TextArea":
+                                <textarea name="Data[@field.FieldName]" class="form-control" rows="3"
+                                          placeholder="@field.Placeholder"
+                                          @(field.IsRequired ? "required" : "")>@field.DefaultValue</textarea>
+                                break;
+                            case "Number":
+                                <input type="number" name="Data[@field.FieldName]" class="form-control"
+                                       placeholder="@field.Placeholder"
+                                       value="@field.DefaultValue"
+                                       @(field.IsRequired ? "required" : "") />
+                                break;
+                            case "Email":
+                                <input type="email" name="Data[@field.FieldName]" class="form-control"
+                                       placeholder="@field.Placeholder"
+                                       value="@field.DefaultValue"
+                                       @(field.IsRequired ? "required" : "") />
+                                break;
+                            case "Phone":
+                                <input type="tel" name="Data[@field.FieldName]" class="form-control"
+                                       placeholder="@field.Placeholder"
+                                       value="@field.DefaultValue"
+                                       @(field.IsRequired ? "required" : "") />
+                                break;
+                            case "Date":
+                                <input type="date" name="Data[@field.FieldName]" class="form-control"
+                                       value="@field.DefaultValue"
+                                       @(field.IsRequired ? "required" : "") />
+                                break;
+                            case "DateTime":
+                                <input type="datetime-local" name="Data[@field.FieldName]" class="form-control"
+                                       value="@field.DefaultValue"
+                                       @(field.IsRequired ? "required" : "") />
+                                break;
+                            case "CheckBox":
+                                <div class="form-check">
+                                    <input type="checkbox" name="Data[@field.FieldName]" class="form-check-input" value="true"
+                                           @(field.DefaultValue == "true" ? "checked" : "") />
+                                    <label class="form-check-label">@field.FieldLabel</label>
+                                </div>
+                                break;
+                            case "Radio":
+                            case "DropDown":
+                                @if (!string.IsNullOrEmpty(field.Options))
+                                {
+                                    try
+                                    {
+                                        var options = System.Text.Json.JsonSerializer.Deserialize<List<Dictionary<string, string>>>(field.Options);
+                                        <select name="Data[@field.FieldName]" class="form-select" @(field.IsRequired ? "required" : "")>
+                                            <option value="">-- Select --</option>
+                                            @if (options != null)
+                                            {
+                                                @foreach (var option in options)
+                                                {
+                                                    <option value="@option.GetValueOrDefault("value")">@option.GetValueOrDefault("label")</option>
+                                                }
+                                            }
+                                        </select>
+                                    }
+                                    catch
+                                    {
+                                        <input type="text" name="Data[@field.FieldName]" class="form-control" placeholder="Enter value" />
+                                    }
+                                }
+                                else
+                                {
+                                    <input type="text" name="Data[@field.FieldName]" class="form-control" placeholder="Enter value" />
+                                }
+                                break;
+                            case "FileUpload":
+                                <input type="file" name="Data[@field.FieldName]" class="form-control"
+                                       @(field.IsRequired ? "required" : "") />
+                                break;
+                            default:
+                                <input type="text" name="Data[@field.FieldName]" class="form-control"
+                                       placeholder="@field.Placeholder"
+                                       value="@field.DefaultValue"
+                                       @(field.IsRequired ? "required" : "") />
+                                break;
+                        }
+                    </div>
+                }
+            }
+
+            <div class="mb-3">
+                <label asp-for="Remarks" class="form-label fw-semibold">Remarks</label>
+                <textarea asp-for="Remarks" class="form-control" rows="3" placeholder="Any additional remarks"></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-2"></i>Submit Form
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

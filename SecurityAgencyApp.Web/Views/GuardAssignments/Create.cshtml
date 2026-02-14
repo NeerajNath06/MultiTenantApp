@@ -1,0 +1,85 @@
+@model SecurityAgencyApp.Web.Models.Api.CreateAssignmentRequest
+@{
+    ViewData["Title"] = "Assign Guard";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Assign Guard to Site</h1>
+    <p class="page-subtitle">Create a new guard assignment</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Guard <span class="text-danger">*</span></label>
+                    <select asp-for="GuardId" class="form-select" asp-items="ViewBag.Guards" required>
+                        <option value="">-- Select Guard --</option>
+                    </select>
+                    <span asp-validation-for="GuardId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Site <span class="text-danger">*</span></label>
+                    <select asp-for="SiteId" class="form-select" asp-items="ViewBag.Sites" required>
+                        <option value="">-- Select Site --</option>
+                    </select>
+                    <span asp-validation-for="SiteId" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Shift <span class="text-danger">*</span></label>
+                    <select asp-for="ShiftId" class="form-select" asp-items="ViewBag.Shifts" required>
+                        <option value="">-- Select Shift --</option>
+                    </select>
+                    <span asp-validation-for="ShiftId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Supervisor</label>
+                    <select asp-for="SupervisorId" class="form-select" asp-items="ViewBag.Supervisors">
+                        <option value="">-- Select Supervisor --</option>
+                    </select>
+                    <span asp-validation-for="SupervisorId" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="AssignmentStartDate" class="form-label fw-semibold">Start Date <span class="text-danger">*</span></label>
+                    <input asp-for="AssignmentStartDate" type="date" class="form-control" required />
+                    <span asp-validation-for="AssignmentStartDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="AssignmentEndDate" class="form-label fw-semibold">End Date</label>
+                    <input asp-for="AssignmentEndDate" type="date" class="form-control" />
+                    <span asp-validation-for="AssignmentEndDate" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-12">
+                    <label asp-for="Remarks" class="form-label fw-semibold">Remarks</label>
+                    <textarea asp-for="Remarks" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Remarks" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Assign Guard
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

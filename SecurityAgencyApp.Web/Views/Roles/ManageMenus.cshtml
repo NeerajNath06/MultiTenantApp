@@ -1,0 +1,110 @@
+@{
+    var role = ViewBag.Role as SecurityAgencyApp.Web.Models.Api.RoleDto;
+    var menus = ViewBag.Menus as List<SecurityAgencyApp.Web.Models.Api.MenuDto>;
+    ViewData["Title"] = $"Manage Menus - {role?.Name}";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Manage Menus & SubMenus</h1>
+    <p class="page-subtitle">Assign menus and submenus to role: <strong>@role?.Name</strong></p>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form method="post" asp-action="ManageMenus" asp-route-id="@role?.Id">
+            <div class="row">
+                @if (menus != null && menus.Any())
+                {
+                    @foreach (var menu in menus.OrderBy(m => m.DisplayOrder))
+                    {
+                        <div class="col-md-6 mb-4">
+                            <div class="card border">
+                                <div class="card-header bg-light">
+                                    <div class="form-check">
+                                        <input class="form-check-input menu-checkbox" 
+                                               type="checkbox" 
+                                               name="menuIds" 
+                                               value="@menu.Id" 
+                                               id="menu_@menu.Id"
+                                               data-menu-id="@menu.Id"
+                                               @(role?.MenuIds?.Contains(menu.Id) == true ? "checked" : "") />
+                                        <label class="form-check-label fw-semibold" for="menu_@menu.Id">
+                                            @if (!string.IsNullOrEmpty(menu.Icon))
+                                            {
+                                                <i class="@menu.Icon me-2"></i>
+                                            }
+                                            @(menu.DisplayName ?? menu.Name)
+                                        </label>
+                                    </div>
+                                </div>
+                                @if (menu.SubMenus != null && menu.SubMenus.Any())
+                                {
+                                    <div class="card-body">
+                                        <small class="text-muted d-block mb-2">SubMenus:</small>
+                                        @foreach (var subMenu in menu.SubMenus.OrderBy(sm => sm.DisplayOrder))
+                                        {
+                                            <div class="form-check ms-3 mb-2">
+                                                <input class="form-check-input submenu-checkbox" 
+                                                       type="checkbox" 
+                                                       name="subMenuIds" 
+                                                       value="@subMenu.Id" 
+                                                       id="submenu_@subMenu.Id"
+                                                       data-menu-id="@menu.Id"
+                                                       @(role?.SubMenuIds?.Contains(subMenu.Id) == true ? "checked" : "") />
+                                                <label class="form-check-label" for="submenu_@subMenu.Id">
+                                                    @if (!string.IsNullOrEmpty(subMenu.Icon))
+                                                    {
+                                                        <i class="@subMenu.Icon me-1"></i>
+                                                    }
+                                                    @(subMenu.DisplayName ?? subMenu.Name)
+                                                </label>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12">
+                        <p class="text-muted">No menus available.</p>
+                    </div>
+                }
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Menus & SubMenus
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-check submenus when parent menu is checked
+        document.querySelectorAll('.menu-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const menuId = this.dataset.menuId;
+                const subMenus = document.querySelectorAll(`.submenu-checkbox[data-menu-id="${menuId}"]`);
+                subMenus.forEach(subMenu => {
+                    subMenu.checked = this.checked;
+                });
+            });
+        });
+    </script>
+}

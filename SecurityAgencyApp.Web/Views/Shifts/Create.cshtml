@@ -1,0 +1,56 @@
+@model SecurityAgencyApp.Web.Models.Api.CreateShiftRequest
+@{
+    ViewData["Title"] = "Create Shift";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Create Shift</h1>
+    <p class="page-subtitle">Add a new work shift</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="ShiftName" class="form-label fw-semibold">Shift Name <span class="text-danger">*</span></label>
+                    <input asp-for="ShiftName" class="form-control" placeholder="e.g., Day Shift, Night Shift" required />
+                    <span asp-validation-for="ShiftName" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                    <label asp-for="StartTime" class="form-label fw-semibold">Start Time <span class="text-danger">*</span></label>
+                    <input asp-for="StartTime" type="time" class="form-control" required />
+                    <span asp-validation-for="StartTime" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="EndTime" class="form-label fw-semibold">End Time <span class="text-danger">*</span></label>
+                    <input asp-for="EndTime" type="time" class="form-control" required />
+                    <span asp-validation-for="EndTime" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="BreakDuration" class="form-label fw-semibold">Break Duration (minutes)</label>
+                    <input asp-for="BreakDuration" type="number" class="form-control" min="0" />
+                    <span asp-validation-for="BreakDuration" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Create Shift
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

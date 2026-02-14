@@ -1,0 +1,81 @@
+@model SecurityAgencyApp.Web.Models.Api.NotificationListResponse
+@{
+    ViewData["Title"] = "My Notifications";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">My Notifications</h1>
+            <p class="page-subtitle">@(Model?.UnreadCount ?? 0) unread</p>
+        </div>
+        <div>
+            <a href="@Url.Action("Send")" class="btn btn-primary me-2">
+                <i class="fas fa-paper-plane me-2"></i>Send Notification
+            </a>
+            @if (Model?.UnreadCount > 0)
+            {
+                <form asp-action="MarkAllAsRead" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-secondary">Mark all read</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        @if (Model?.Items != null && Model.Items.Any())
+        {
+            <div class="list-group list-group-flush">
+                @foreach (var n in Model.Items)
+                {
+                    <div class="list-group-item border-0 px-0 py-3 @(n.IsRead ? "" : "bg-light")">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1 @(n.IsRead ? "text-muted fw-normal" : "fw-semibold")">
+                                    @n.Title
+                                    @if (!n.IsRead) { <span class="badge bg-primary ms-2">New</span> }
+                                </h6>
+                                <p class="mb-0 text-muted small">@n.Body</p>
+                                <small class="text-muted">@n.CreatedAt.ToString("dd MMM yyyy HH:mm") · @n.Type</small>
+                            </div>
+                            @if (!n.IsRead)
+                            {
+                                <form asp-action="MarkAsRead" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@n.Id" />
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Mark read</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No notifications</h5>
+                <a href="@Url.Action("Send")" class="btn btn-primary mt-3"><i class="fas fa-paper-plane me-2"></i>Send Notification</a>
+            </div>
+        }
+    </div>
+</div>

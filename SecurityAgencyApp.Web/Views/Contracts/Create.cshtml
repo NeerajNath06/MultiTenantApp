@@ -1,0 +1,121 @@
+@model SecurityAgencyApp.Web.Models.Api.CreateContractRequest
+@{
+    ViewData["Title"] = "Create Contract";
+    var clients = ViewBag.Clients as List<SecurityAgencyApp.Web.Models.Api.ClientItemDto>;
+    var sites = ViewBag.Sites as List<SecurityAgencyApp.Web.Models.Api.SiteDto>;
+}
+
+<div class="page-header">
+    <h1 class="page-title">Create Contract</h1>
+    <p class="page-subtitle">Create a new contract with client</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Create" method="post" id="contractForm">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="ContractNumber" class="form-label fw-semibold">Contract Number <span class="text-danger">*</span></label>
+                    <input asp-for="ContractNumber" class="form-control" required />
+                    <span asp-validation-for="ContractNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ClientId" class="form-label fw-semibold">Client <span class="text-danger">*</span></label>
+                    <select asp-for="ClientId" class="form-select" required>
+                        <option value="">Select Client</option>
+                        @if (clients != null)
+                        {
+                            @foreach (var client in clients)
+                            {
+                                <option value="@client.Id">@client.CompanyName</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="ClientId" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-12">
+                    <label asp-for="Title" class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+                    <input asp-for="Title" class="form-control" required />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="StartDate" class="form-label fw-semibold">Start Date <span class="text-danger">*</span></label>
+                    <input asp-for="StartDate" type="date" class="form-control" required />
+                    <span asp-validation-for="StartDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="EndDate" class="form-label fw-semibold">End Date <span class="text-danger">*</span></label>
+                    <input asp-for="EndDate" type="date" class="form-control" required />
+                    <span asp-validation-for="EndDate" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label asp-for="ContractValue" class="form-label fw-semibold">Contract Value</label>
+                    <input asp-for="ContractValue" type="number" step="0.01" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="MonthlyAmount" class="form-label fw-semibold">Monthly Amount</label>
+                    <input asp-for="MonthlyAmount" type="number" step="0.01" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="BillingCycle" class="form-label fw-semibold">Billing Cycle</label>
+                    <select asp-for="BillingCycle" class="form-select">
+                        <option value="Monthly">Monthly</option>
+                        <option value="Quarterly">Quarterly</option>
+                        <option value="Yearly">Yearly</option>
+                        <option value="OneTime">One Time</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="Status" class="form-label fw-semibold">Status</label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="Draft">Draft</option>
+                        <option value="Active">Active</option>
+                        <option value="Expired">Expired</option>
+                        <option value="Terminated">Terminated</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="NumberOfGuards" class="form-label fw-semibold">Number of Guards</label>
+                    <input asp-for="NumberOfGuards" type="number" class="form-control" />
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="PaymentTerms" class="form-label fw-semibold">Payment Terms</label>
+                <input asp-for="PaymentTerms" class="form-control" placeholder="e.g., Net 30" />
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Create Contract
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,114 @@
+@model SecurityAgencyApp.Web.Models.Api.BillListResponse
+@{
+    ViewData["Title"] = "Bills Management";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Bills</h1>
+            <p class="page-subtitle">Manage client bills</p>
+        </div>
+        <a href="@Url.Action("Create")" class="btn btn-primary">
+            <i class="fas fa-file-invoice me-2"></i>Create New Bill
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        @if (Model?.Items != null && Model.Items.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Bill Number</th>
+                            <th>Bill Date</th>
+                            <th>Client Name</th>
+                            <th>Site</th>
+                            <th class="text-end">Total Amount</th>
+                            <th>Status</th>
+                            <th>Due Date</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var bill in Model.Items)
+                        {
+                            <tr>
+                                <td><strong>@bill.BillNumber</strong></td>
+                                <td>@bill.BillDate.ToString("dd MMM yyyy")</td>
+                                <td>@bill.ClientName</td>
+                                <td>@(bill.SiteName ?? "-")</td>
+                                <td class="text-end"><strong>₹@bill.TotalAmount.ToString("N2")</strong></td>
+                                <td>
+                                    <span class="badge bg-@(bill.Status == "Paid" ? "success" : bill.Status == "Overdue" ? "danger" : bill.Status == "Sent" ? "info" : "secondary")">
+                                        @bill.Status
+                                    </span>
+                                </td>
+                                <td>@(bill.DueDate?.ToString("dd MMM yyyy") ?? "-")</td>
+                                <td class="text-end">
+                                    <a href="@Url.Action("Details", new { id = bill.Id })" class="btn btn-sm btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="@Url.Action("Edit", new { id = bill.Id })" class="btn btn-sm btn-outline-secondary" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        @if (Model.PageNumber > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize, search = ViewBag.Search, status = ViewBag.Status })">
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </a>
+                            </li>
+                        }
+                        @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
+                        {
+                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = i, pageSize = Model.PageSize, search = ViewBag.Search, status = ViewBag.Status })">@i</a>
+                            </li>
+                        }
+                        @if (Model.PageNumber < Model.TotalPages)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize, search = ViewBag.Search, status = ViewBag.Status })">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No bills found</h5>
+                <a href="@Url.Action("Create")" class="btn btn-primary mt-3">
+                    <i class="fas fa-file-invoice me-2"></i>Create New Bill
+                </a>
+            </div>
+        }
+    </div>
+</div>

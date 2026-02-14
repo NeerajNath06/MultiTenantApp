@@ -1,0 +1,78 @@
+@{
+    var role = ViewBag.Role as SecurityAgencyApp.Web.Models.Api.RoleDto;
+    var permissions = ViewBag.Permissions as List<SecurityAgencyApp.Web.Models.Api.PermissionDto>;
+    ViewData["Title"] = $"Manage Permissions - {role?.Name}";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Manage Permissions</h1>
+    <p class="page-subtitle">Assign permissions to role: <strong>@role?.Name</strong></p>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form method="post" asp-action="ManagePermissions" asp-route-id="@role?.Id">
+            <div class="row">
+                @if (permissions != null && permissions.Any())
+                {
+                    var groupedPermissions = permissions.GroupBy(p => p.Resource).OrderBy(g => g.Key);
+                    
+                    @foreach (var group in groupedPermissions)
+                    {
+                        <div class="col-md-6 mb-4">
+                            <div class="card border">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0 fw-semibold">
+                                        <i class="fas fa-folder me-2"></i>@group.Key
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    @foreach (var permission in group.OrderBy(p => p.Action))
+                                    {
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   name="permissionIds" 
+                                                   value="@permission.Id" 
+                                                   id="perm_@permission.Id"
+                                                   @(role?.PermissionIds?.Contains(permission.Id) == true ? "checked" : "") />
+                                            <label class="form-check-label" for="perm_@permission.Id">
+                                                <strong>@permission.Action</strong>
+                                                @if (!string.IsNullOrEmpty(permission.Description))
+                                                {
+                                                    <br /><small class="text-muted">@permission.Description</small>
+                                                }
+                                            </label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12">
+                        <p class="text-muted">No permissions available.</p>
+                    </div>
+                }
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Permissions
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

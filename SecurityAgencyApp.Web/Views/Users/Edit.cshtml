@@ -1,0 +1,111 @@
+@model SecurityAgencyApp.Web.Models.Api.UpdateUserRequest
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Edit User</h1>
+    <p class="page-subtitle">Update user information</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="FirstName" class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
+                    <input asp-for="FirstName" class="form-control" placeholder="Enter first name" required />
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="LastName" class="form-label fw-semibold">Last Name <span class="text-danger">*</span></label>
+                    <input asp-for="LastName" class="form-control" placeholder="Enter last name" required />
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="Enter email" required />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="Enter phone number" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="DepartmentId" class="form-label fw-semibold">Department</label>
+                    <select asp-for="DepartmentId" class="form-select" asp-items="ViewBag.Departments">
+                        <option value="">-- Select Department --</option>
+                    </select>
+                    <span asp-validation-for="DepartmentId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DesignationId" class="form-label fw-semibold">Designation</label>
+                    <select asp-for="DesignationId" class="form-select" asp-items="ViewBag.Designations">
+                        <option value="">-- Select Designation --</option>
+                    </select>
+                    <span asp-validation-for="DesignationId" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <div class="form-check mt-4">
+                        <input asp-for="IsActive" type="checkbox" class="form-check-input" />
+                        <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Roles</label>
+                    <p class="text-muted small mb-2">Assign roles (e.g. <strong>Supervisor</strong> to allow managing assigned guards).</p>
+                    <div class="d-flex flex-wrap gap-3">
+                        @{
+                            var editRolesList = ViewBag.Roles as IEnumerable<SecurityAgencyApp.Web.Models.Api.RoleDto>;
+                        }
+                        @if (editRolesList != null && editRolesList.Any())
+                        {
+                            @foreach (var role in editRolesList)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="RoleIds" value="@role.Id" id="editrole_@role.Id"
+                                           @(Model?.RoleIds != null && Model.RoleIds.Contains(role.Id) ? "checked" : "") />
+                                    <label class="form-check-label" for="editrole_@role.Id">@role.Name (@role.Code)</label>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted small">No roles available.</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Update User
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

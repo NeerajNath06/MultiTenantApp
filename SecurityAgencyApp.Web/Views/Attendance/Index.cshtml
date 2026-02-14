@@ -1,0 +1,220 @@
+@model SecurityAgencyApp.Web.Models.Api.AttendanceListResponse
+@{
+    ViewData["Title"] = "Attendance";
+    var guards = ViewBag.Guards as SelectList;
+    var currentSort = Model?.SortBy ?? "";
+    var currentDirection = Model?.SortDirection ?? "desc";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Attendance</h1>
+            <p class="page-subtitle">View and manage guard attendance</p>
+        </div>
+        <a href="@Url.Action("Mark")" class="btn btn-primary">
+            <i class="fas fa-calendar-check me-2"></i>Mark Attendance
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <input type="hidden" name="pageNumber" value="1" />
+            <input type="hidden" name="pageSize" value="@(Model?.PageSize ?? 10)" />
+            <input type="hidden" name="sortBy" value="@currentSort" />
+            <input type="hidden" name="sortDirection" value="@currentDirection" />
+            <div class="col-md-3">
+                <label class="form-label">Filter by Guard</label>
+                <select name="guardId" class="form-select" asp-items="guards">
+                    <option value="">All Guards</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Start Date</label>
+                <input type="date" name="startDate" class="form-control" value="@(ViewContext.HttpContext.Request.Query["startDate"].ToString() != "" ? ViewContext.HttpContext.Request.Query["startDate"].ToString() : DateTime.Today.AddDays(-30).ToString("yyyy-MM-dd"))" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">End Date</label>
+                <input type="date" name="endDate" class="form-control" value="@(ViewContext.HttpContext.Request.Query["endDate"].ToString() != "" ? ViewContext.HttpContext.Request.Query["endDate"].ToString() : DateTime.Today.ToString("yyyy-MM-dd"))" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" placeholder="Search by guard name, code..." value="@Model?.Search" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        @if (Model?.Items != null && Model.Items.Any())
+        {
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <span class="text-muted">Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to @(Math.Min(Model.PageNumber * Model.PageSize, Model.TotalCount)) of @Model.TotalCount records</span>
+                </div>
+                <div>
+                    <select class="form-select form-select-sm d-inline-block" style="width: auto;" onchange="changePageSize(this.value)">
+                        <option value="10" selected="@(Model.PageSize == 10)">10 per page</option>
+                        <option value="25" selected="@(Model.PageSize == 25)">25 per page</option>
+                        <option value="50" selected="@(Model.PageSize == 50)">50 per page</option>
+                        <option value="100" selected="@(Model.PageSize == 100)">100 per page</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>
+                                <a href="@Url.Action("Index", new { pageNumber = Model.PageNumber, pageSize = Model.PageSize, search = Model.Search, sortBy = "date", sortDirection = currentSort == "date" && currentDirection == "asc" ? "desc" : "asc", guardId = ViewContext.HttpContext.Request.Query["guardId"], startDate = ViewContext.HttpContext.Request.Query["startDate"], endDate = ViewContext.HttpContext.Request.Query["endDate"] })" class="text-decoration-none text-dark">
+                                    Date
+                                    @if (currentSort == "date")
+                                    {
+                                        <i class="fas fa-sort-@(currentDirection == "asc" ? "up" : "down")"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-sort text-muted"></i>
+                                    }
+                                </a>
+                            </th>
+                            <th>Guard</th>
+                            <th>Site</th>
+                            <th>
+                                <a href="@Url.Action("Index", new { pageNumber = Model.PageNumber, pageSize = Model.PageSize, search = Model.Search, sortBy = "checkin", sortDirection = currentSort == "checkin" && currentDirection == "asc" ? "desc" : "asc", guardId = ViewContext.HttpContext.Request.Query["guardId"], startDate = ViewContext.HttpContext.Request.Query["startDate"], endDate = ViewContext.HttpContext.Request.Query["endDate"] })" class="text-decoration-none text-dark">
+                                    Check In
+                                    @if (currentSort == "checkin")
+                                    {
+                                        <i class="fas fa-sort-@(currentDirection == "asc" ? "up" : "down")"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-sort text-muted"></i>
+                                    }
+                                </a>
+                            </th>
+                            <th>Check Out</th>
+                            <th>
+                                <a href="@Url.Action("Index", new { pageNumber = Model.PageNumber, pageSize = Model.PageSize, search = Model.Search, sortBy = "status", sortDirection = currentSort == "status" && currentDirection == "asc" ? "desc" : "asc", guardId = ViewContext.HttpContext.Request.Query["guardId"], startDate = ViewContext.HttpContext.Request.Query["startDate"], endDate = ViewContext.HttpContext.Request.Query["endDate"] })" class="text-decoration-none text-dark">
+                                    Status
+                                    @if (currentSort == "status")
+                                    {
+                                        <i class="fas fa-sort-@(currentDirection == "asc" ? "up" : "down")"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-sort text-muted"></i>
+                                    }
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var attendance in Model.Items)
+                        {
+                            <tr>
+                                <td>@attendance.AttendanceDate.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    <div class="fw-semibold">@attendance.GuardName</div>
+                                    <small class="text-muted">@attendance.GuardCode</small>
+                                </td>
+                                <td>@attendance.SiteName</td>
+                                <td>@(attendance.CheckInTime?.ToString("HH:mm") ?? "-")</td>
+                                <td>@(attendance.CheckOutTime?.ToString("HH:mm") ?? "-")</td>
+                                <td>
+                                    @if (attendance.Status == "Present")
+                                    {
+                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Present</span>
+                                    }
+                                    else if (attendance.Status == "Absent")
+                                    {
+                                        <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Absent</span>
+                                    }
+                                    else if (attendance.Status == "Late")
+                                    {
+                                        <span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Late</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info"><i class="fas fa-clock me-1"></i>Half Day</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        @if (Model.PageNumber > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize, search = Model.Search, sortBy = Model.SortBy, sortDirection = Model.SortDirection, guardId = ViewContext.HttpContext.Request.Query["guardId"], startDate = ViewContext.HttpContext.Request.Query["startDate"], endDate = ViewContext.HttpContext.Request.Query["endDate"] })">
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </a>
+                            </li>
+                        }
+                        @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
+                        {
+                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = i, pageSize = Model.PageSize, search = Model.Search, sortBy = Model.SortBy, sortDirection = Model.SortDirection, guardId = ViewContext.HttpContext.Request.Query["guardId"], startDate = ViewContext.HttpContext.Request.Query["startDate"], endDate = ViewContext.HttpContext.Request.Query["endDate"] })">@i</a>
+                            </li>
+                        }
+                        @if (Model.PageNumber < Model.TotalPages)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize, search = Model.Search, sortBy = Model.SortBy, sortDirection = Model.SortDirection, guardId = ViewContext.HttpContext.Request.Query["guardId"], startDate = ViewContext.HttpContext.Request.Query["startDate"], endDate = ViewContext.HttpContext.Request.Query["endDate"] })">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No attendance records found</h5>
+                @if (!string.IsNullOrEmpty(Model?.Search))
+                {
+                    <p class="text-muted">No results found for "@Model.Search"</p>
+                }
+                <a href="@Url.Action("Mark")" class="btn btn-primary mt-3">
+                    <i class="fas fa-calendar-check me-2"></i>Mark Attendance
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    function changePageSize(size) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('pageSize', size);
+        url.searchParams.set('pageNumber', '1');
+        window.location.href = url.toString();
+    }
+</script>

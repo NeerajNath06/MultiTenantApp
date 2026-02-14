@@ -1,0 +1,241 @@
+@model SecurityAgencyApp.Web.Models.Api.SiteListResponse
+@{
+    ViewData["Title"] = "Sites";
+    var currentSort = Model?.SortBy ?? "";
+    var currentDirection = Model?.SortDirection ?? "asc";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Sites</h1>
+            <p class="page-subtitle">Manage client sites</p>
+        </div>
+        <a href="@Url.Action("Create")" class="btn btn-primary">
+            <i class="fas fa-building me-2"></i>Add New Site
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <input type="hidden" name="pageNumber" value="1" />
+            <input type="hidden" name="pageSize" value="@(Model?.PageSize ?? 10)" />
+            <input type="hidden" name="sortBy" value="@currentSort" />
+            <input type="hidden" name="sortDirection" value="@currentDirection" />
+            <div class="col-md-10">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" name="search" class="form-control" placeholder="Search by site name, code, client, city..." value="@Model?.Search" />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        @if (Model?.Items != null && Model.Items.Any())
+        {
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <span class="text-muted">Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to @(Math.Min(Model.PageNumber * Model.PageSize, Model.TotalCount)) of @Model.TotalCount sites</span>
+                </div>
+                <div>
+                    <select class="form-select form-select-sm d-inline-block" style="width: auto;" onchange="changePageSize(this.value)">
+                        <option value="10" selected="@(Model.PageSize == 10)">10 per page</option>
+                        <option value="25" selected="@(Model.PageSize == 25)">25 per page</option>
+                        <option value="50" selected="@(Model.PageSize == 50)">50 per page</option>
+                        <option value="100" selected="@(Model.PageSize == 100)">100 per page</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>
+                                <a href="@Url.Action("Index", new { pageNumber = Model.PageNumber, pageSize = Model.PageSize, search = Model.Search, sortBy = "code", sortDirection = currentSort == "code" && currentDirection == "asc" ? "desc" : "asc" })" class="text-decoration-none text-dark">
+                                    Site Code
+                                    @if (currentSort == "code")
+                                    {
+                                        <i class="fas fa-sort-@(currentDirection == "asc" ? "up" : "down")"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-sort text-muted"></i>
+                                    }
+                                </a>
+                            </th>
+                            <th>
+                                <a href="@Url.Action("Index", new { pageNumber = Model.PageNumber, pageSize = Model.PageSize, search = Model.Search, sortBy = "name", sortDirection = currentSort == "name" && currentDirection == "asc" ? "desc" : "asc" })" class="text-decoration-none text-dark">
+                                    Site Name
+                                    @if (currentSort == "name")
+                                    {
+                                        <i class="fas fa-sort-@(currentDirection == "asc" ? "up" : "down")"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-sort text-muted"></i>
+                                    }
+                                </a>
+                            </th>
+                            <th>
+                                <a href="@Url.Action("Index", new { pageNumber = Model.PageNumber, pageSize = Model.PageSize, search = Model.Search, sortBy = "client", sortDirection = currentSort == "client" && currentDirection == "asc" ? "desc" : "asc" })" class="text-decoration-none text-dark">
+                                    Client
+                                    @if (currentSort == "client")
+                                    {
+                                        <i class="fas fa-sort-@(currentDirection == "asc" ? "up" : "down")"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-sort text-muted"></i>
+                                    }
+                                </a>
+                            </th>
+                            <th>
+                                <a href="@Url.Action("Index", new { pageNumber = Model.PageNumber, pageSize = Model.PageSize, search = Model.Search, sortBy = "city", sortDirection = currentSort == "city" && currentDirection == "asc" ? "desc" : "asc" })" class="text-decoration-none text-dark">
+                                    Location
+                                    @if (currentSort == "city")
+                                    {
+                                        <i class="fas fa-sort-@(currentDirection == "asc" ? "up" : "down")"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-sort text-muted"></i>
+                                    }
+                                </a>
+                            </th>
+                            <th>Contact</th>
+                            <th>Guards</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var site in Model.Items)
+                        {
+                            <tr>
+                                <td><span class="badge bg-secondary">@site.SiteCode</span></td>
+                                <td><div class="fw-semibold">@site.SiteName</div></td>
+                                <td>@site.ClientName</td>
+                                <td>
+                                    <small>@site.City, @site.State</small><br />
+                                    <small class="text-muted">@site.PinCode</small>
+                                </td>
+                                <td>
+                                    <small>@site.ContactPerson</small><br />
+                                    <small class="text-muted">@site.ContactPhone</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-user-shield me-1"></i>@site.GuardCount
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (site.IsActive)
+                                    {
+                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Inactive</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                        <a href="@Url.Action("Edit", new { id = site.Id })" class="btn btn-sm btn-outline-warning" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Are you sure?');">
+                                            <input type="hidden" name="id" value="@site.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        @if (Model.PageNumber > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize, search = Model.Search, sortBy = Model.SortBy, sortDirection = Model.SortDirection })">
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </a>
+                            </li>
+                        }
+                        @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
+                        {
+                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = i, pageSize = Model.PageSize, search = Model.Search, sortBy = Model.SortBy, sortDirection = Model.SortDirection })">@i</a>
+                            </li>
+                        }
+                        @if (Model.PageNumber < Model.TotalPages)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize, search = Model.Search, sortBy = Model.SortBy, sortDirection = Model.SortDirection })">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No sites found</h5>
+                @if (!string.IsNullOrEmpty(Model?.Search))
+                {
+                    <p class="text-muted">No results found for "@Model.Search"</p>
+                }
+                <a href="@Url.Action("Create")" class="btn btn-primary mt-3">
+                    <i class="fas fa-building me-2"></i>Add New Site
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    function changePageSize(size) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('pageSize', size);
+        url.searchParams.set('pageNumber', '1');
+        window.location.href = url.toString();
+    }
+</script>

@@ -1,0 +1,95 @@
+@model SecurityAgencyApp.Web.Models.Api.PatrolScanListResponse
+@{
+    ViewData["Title"] = "Patrol Scans";
+    var guards = ViewBag.Guards as SelectList;
+    var sites = ViewBag.Sites as SelectList;
+}
+
+<div class="page-header">
+    <h1 class="page-title">Patrol Scan History</h1>
+    <p class="page-subtitle">View patrol checkpoint scans by guard</p>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <input type="hidden" name="pageNumber" value="1" />
+            <div class="col-md-3">
+                <label class="form-label">Guard <span class="text-danger">*</span></label>
+                <select name="guardId" class="form-select" asp-items="guards" required>
+                    <option value="">-- Select Guard --</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Site</label>
+                <select name="siteId" class="form-select" asp-items="sites">
+                    <option value="">All Sites</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">From Date</label>
+                <input type="date" name="dateFrom" class="form-control" value="@ViewContext.HttpContext.Request.Query["dateFrom"]" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">To Date</label>
+                <input type="date" name="dateTo" class="form-control" value="@ViewContext.HttpContext.Request.Query["dateTo"]" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-2"></i>View</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        @if (Model?.Items != null && Model.Items.Any())
+        {
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted">@Model.TotalCount scan(s)</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Scanned At</th>
+                            <th>Location</th>
+                            <th>Checkpoint</th>
+                            <th>Site</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in Model.Items)
+                        {
+                            <tr>
+                                <td>@s.ScannedAt.ToString("dd MMM yyyy HH:mm:ss")</td>
+                                <td>@s.LocationName</td>
+                                <td>@(s.CheckpointCode ?? "-")</td>
+                                <td>@(s.SiteName ?? "-")</td>
+                                <td><span class="badge bg-success">@s.Status</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (Model.TotalCount > (Model.Items?.Count ?? 0))
+            {
+                <nav aria-label="Page navigation" class="mt-3">
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item active"><span class="page-link">Showing @(Model.Items?.Count ?? 0) of @Model.TotalCount</span></li>
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-qrcode fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No patrol scans found</h5>
+                <p class="text-muted">Select a guard and click View to see scan history.</p>
+            </div>
+        }
+    </div>
+</div>

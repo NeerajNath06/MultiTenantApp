@@ -1,0 +1,114 @@
+@model SecurityAgencyApp.Web.Models.Api.TrainingRecordListResponse
+@{
+    ViewData["Title"] = "Training Records";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Training Records</h1>
+            <p class="page-subtitle">Manage guard training and certifications</p>
+        </div>
+        <a href="@Url.Action("Create")" class="btn btn-primary">
+            <i class="fas fa-graduation-cap me-2"></i>Add Training Record
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        @if (Model?.Items != null && Model.Items.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Guard</th>
+                            <th>Training Type</th>
+                            <th>Training Name</th>
+                            <th>Training Date</th>
+                            <th>Expiry Date</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var training in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@training.GuardCode</strong><br>
+                                    <small class="text-muted">@training.GuardName</small>
+                                </td>
+                                <td>@training.TrainingType</td>
+                                <td>@training.TrainingName</td>
+                                <td>@training.TrainingDate.ToString("dd MMM yyyy")</td>
+                                <td>@(training.ExpiryDate?.ToString("dd MMM yyyy") ?? "-")</td>
+                                <td>@(training.Score?.ToString("N2") ?? "-")</td>
+                                <td>
+                                    <span class="badge bg-@(training.Status == "Completed" ? "success" : training.Status == "Expired" ? "danger" : "warning")">
+                                        @training.Status
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <a href="#" class="btn btn-sm btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        @if (Model.PageNumber > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize })">
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </a>
+                            </li>
+                        }
+                        @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
+                        {
+                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = i, pageSize = Model.PageSize })">@i</a>
+                            </li>
+                        }
+                        @if (Model.PageNumber < Model.TotalPages)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize })">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No training records found</h5>
+                <a href="@Url.Action("Create")" class="btn btn-primary mt-3">
+                    <i class="fas fa-graduation-cap me-2"></i>Add Training Record
+                </a>
+            </div>
+        }
+    </div>
+</div>

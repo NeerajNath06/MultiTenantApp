@@ -1,0 +1,153 @@
+@model SecurityAgencyApp.Web.Models.Api.VisitorListResponse
+@{
+    ViewData["Title"] = "Visitors";
+    var sites = ViewBag.Sites as SelectList;
+    var guards = ViewBag.Guards as SelectList;
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Visitor Log</h1>
+            <p class="page-subtitle">Register and track visitors</p>
+        </div>
+        <a href="@Url.Action("Create")" class="btn btn-primary">
+            <i class="fas fa-user-plus me-2"></i>Register Visitor
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <input type="hidden" name="pageNumber" value="1" />
+            <div class="col-md-2">
+                <label class="form-label">Site</label>
+                <select name="siteId" class="form-select" asp-items="sites">
+                    <option value="">All Sites</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Guard</label>
+                <select name="guardId" class="form-select" asp-items="guards">
+                    <option value="">All Guards</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">From Date</label>
+                <input type="date" name="dateFrom" class="form-control" value="@ViewContext.HttpContext.Request.Query["dateFrom"]" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">To Date</label>
+                <input type="date" name="dateTo" class="form-control" value="@ViewContext.HttpContext.Request.Query["dateTo"]" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Inside Only</label>
+                <select name="insideOnly" class="form-select">
+                    <option value="">All</option>
+                    <option value="true" selected="@(ViewContext.HttpContext.Request.Query["insideOnly"] == "true")">Inside Only</option>
+                    <option value="false" selected="@(ViewContext.HttpContext.Request.Query["insideOnly"] == "false")">Exited</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Search</label>
+                <input type="text" name="search" class="form-control" placeholder="Name, company..." value="@ViewContext.HttpContext.Request.Query["search"]" />
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-filter me-2"></i>Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        @if (Model?.Items != null && Model.Items.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Visitor</th>
+                            <th>Type</th>
+                            <th>Purpose</th>
+                            <th>Site</th>
+                            <th>Guard</th>
+                            <th>Entry</th>
+                            <th>Exit</th>
+                            <th>Badge</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var v in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@v.VisitorName</strong>
+                                    @if (!string.IsNullOrEmpty(v.CompanyName)) { <br /><small class="text-muted">@v.CompanyName</small> }
+                                </td>
+                                <td>@v.VisitorType</td>
+                                <td>@v.Purpose</td>
+                                <td>@v.SiteName</td>
+                                <td>@v.GuardName</td>
+                                <td>@v.EntryTime.ToString("dd MMM yyyy HH:mm")</td>
+                                <td>@(v.ExitTime.HasValue ? v.ExitTime.Value.ToString("dd MMM yyyy HH:mm") : "-")</td>
+                                <td>@(v.BadgeNumber ?? "-")</td>
+                                <td class="text-end">
+                                    @if (!v.ExitTime.HasValue)
+                                    {
+                                        <form asp-action="MarkExit" method="post" class="d-inline" onsubmit="return confirm('Record exit for this visitor?');">
+                                            <input type="hidden" name="id" value="@v.Id" />
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Mark Exit">Exit</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Page navigation" class="mt-3">
+                    <ul class="pagination justify-content-center mb-0">
+                        @if (Model.PageNumber > 1)
+                        {
+                            <li class="page-item"><a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize, search = ViewContext.HttpContext.Request.Query["search"], siteId = ViewContext.HttpContext.Request.Query["siteId"], guardId = ViewContext.HttpContext.Request.Query["guardId"], dateFrom = ViewContext.HttpContext.Request.Query["dateFrom"], dateTo = ViewContext.HttpContext.Request.Query["dateTo"], insideOnly = ViewContext.HttpContext.Request.Query["insideOnly"] })"><i class="fas fa-chevron-left"></i></a></li>
+                        }
+                        <li class="page-item active"><span class="page-link">@Model.PageNumber of @Model.TotalPages</span></li>
+                        @if (Model.PageNumber < Model.TotalPages)
+                        {
+                            <li class="page-item"><a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize, search = ViewContext.HttpContext.Request.Query["search"], siteId = ViewContext.HttpContext.Request.Query["siteId"], guardId = ViewContext.HttpContext.Request.Query["guardId"], dateFrom = ViewContext.HttpContext.Request.Query["dateFrom"], dateTo = ViewContext.HttpContext.Request.Query["dateTo"], insideOnly = ViewContext.HttpContext.Request.Query["insideOnly"] })"><i class="fas fa-chevron-right"></i></a></li>
+                        }
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No visitors found</h5>
+                <a href="@Url.Action("Create")" class="btn btn-primary mt-3"><i class="fas fa-user-plus me-2"></i>Register Visitor</a>
+            </div>
+        }
+    </div>
+</div>

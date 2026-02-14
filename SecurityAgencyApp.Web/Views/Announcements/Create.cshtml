@@ -1,0 +1,52 @@
+@model SecurityAgencyApp.Web.Models.Api.CreateAnnouncementRequest
+@{
+    ViewData["Title"] = "New Announcement";
+}
+
+<div class="page-header">
+    <h1 class="page-title">New Announcement</h1>
+    <p class="page-subtitle">Create an announcement</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label asp-for="Title" class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+                    <input asp-for="Title" class="form-control" required />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Category" class="form-label fw-semibold">Category</label>
+                    <input asp-for="Category" class="form-control" placeholder="e.g. General, Alert" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Options</label>
+                    <div class="form-check form-check-inline">
+                        <input asp-for="IsPinned" class="form-check-input" />
+                        <label asp-for="IsPinned" class="form-check-label">Pinned</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input asp-for="IsActive" class="form-check-input" />
+                        <label asp-for="IsActive" class="form-check-label">Active</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Content" class="form-label fw-semibold">Content <span class="text-danger">*</span></label>
+                    <textarea asp-for="Content" class="form-control" rows="6" required></textarea>
+                    <span asp-validation-for="Content" class="text-danger small"></span>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Create</button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

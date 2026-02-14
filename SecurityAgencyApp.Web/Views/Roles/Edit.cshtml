@@ -1,0 +1,109 @@
+@model SecurityAgencyApp.Web.Models.Api.UpdateRoleRequest
+@{
+    var permissions = ViewBag.Permissions as List<SecurityAgencyApp.Web.Models.Api.PermissionDto>;
+    ViewData["Title"] = "Edit Role";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Edit Role</h1>
+    <p class="page-subtitle">Update role details</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Name" class="form-label fw-semibold">Role Name <span class="text-danger">*</span></label>
+                    <input asp-for="Name" class="form-control" placeholder="Enter role name" required />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Code" class="form-label fw-semibold">Role Code <span class="text-danger">*</span></label>
+                    <input asp-for="Code" class="form-control" placeholder="Enter role code" required />
+                    <span asp-validation-for="Code" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-12">
+                    <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter role description"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <div class="form-check mt-4">
+                        <input asp-for="IsActive" type="checkbox" class="form-check-input" />
+                        <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Permissions Selection -->
+            @if (permissions != null && permissions.Any())
+            {
+                <div class="mt-4">
+                    <h5 class="fw-semibold mb-3">
+                        <i class="fas fa-key me-2"></i>Select Permissions
+                    </h5>
+                    <div class="row">
+                        @{
+                            var groupedPermissions = permissions.GroupBy(p => p.Resource).OrderBy(g => g.Key);
+                        }
+                        @foreach (var group in groupedPermissions)
+                        {
+                            <div class="col-md-6 mb-3">
+                                <div class="card border">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0 fw-semibold">
+                                            <i class="fas fa-folder me-2"></i>@group.Key
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        @foreach (var permission in group.OrderBy(p => p.Action))
+                                        {
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       name="PermissionIds" 
+                                                       value="@permission.Id" 
+                                                       id="perm_@permission.Id"
+                                                       @(Model.PermissionIds?.Contains(permission.Id) == true ? "checked" : "") />
+                                                <label class="form-check-label" for="perm_@permission.Id">
+                                                    <strong>@permission.Action</strong>
+                                                    @if (!string.IsNullOrEmpty(permission.Description))
+                                                    {
+                                                        <br /><small class="text-muted">@permission.Description</small>
+                                                    }
+                                                </label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Update Role
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

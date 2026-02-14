@@ -1,0 +1,127 @@
+@model SecurityAgencyApp.Web.Models.Api.ComplianceSummaryResponse
+@{
+    ViewData["Title"] = "Compliance Dashboard";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Compliance Dashboard</h1>
+    <p class="page-subtitle">Overview of compliance status</p>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-2 small text-uppercase fw-semibold">Overall Score</p>
+                        <h2 class="mb-0 fw-bold text-success">@(Model?.OverallScorePercent ?? 0)%</h2>
+                        <small class="text-muted">Compliance</small>
+                    </div>
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-chart-pie fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-2 small text-uppercase fw-semibold">Compliant</p>
+                        <h2 class="mb-0 fw-bold text-success">@(Model?.CompliantCount ?? 0)</h2>
+                    </div>
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-2 small text-uppercase fw-semibold">Warning</p>
+                        <h2 class="mb-0 fw-bold text-warning">@(Model?.WarningCount ?? 0)</h2>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-2 small text-uppercase fw-semibold">Non-Compliant</p>
+                        <h2 class="mb-0 fw-bold text-danger">@(Model?.NonCompliantCount ?? 0)</h2>
+                    </div>
+                    <div class="bg-danger bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-times-circle fa-2x text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model?.Items != null && Model.Items.Any())
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0 fw-semibold"><i class="fas fa-list text-primary me-2"></i>Compliance Items</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Due Date</th>
+                            <th>Details</th>
+                            <th>Affected</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td><strong>@item.Title</strong></td>
+                                <td>@item.Category</td>
+                                <td>
+                                    @if (item.Status == "compliant")
+                                    { <span class="badge bg-success">Compliant</span> }
+                                    else if (item.Status == "warning")
+                                    { <span class="badge bg-warning text-dark">Warning</span> }
+                                    else
+                                    { <span class="badge bg-danger">Non-Compliant</span> }
+                                </td>
+                                <td>@(item.DueDate ?? "-")</td>
+                                <td>@item.Details</td>
+                                <td>@item.AffectedCount</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No compliance items</h5>
+        </div>
+    </div>
+}

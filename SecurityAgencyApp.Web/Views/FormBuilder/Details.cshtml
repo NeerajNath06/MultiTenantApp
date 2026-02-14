@@ -1,0 +1,94 @@
+@model SecurityAgencyApp.Web.Models.Api.FormTemplateDetailDto
+@{
+    ViewData["Title"] = "Form Template Details";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">@Model.Name</h1>
+            <p class="page-subtitle">@Model.Description</p>
+        </div>
+        <a href="@Url.Action("Submit", new { id = Model.Id })" class="btn btn-primary">
+            <i class="fas fa-paper-plane me-2"></i>Submit Form
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-3">Form Information</h6>
+                <div class="mb-2">
+                    <small class="text-muted">Code:</small>
+                    <div class="fw-semibold">@Model.Code</div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Category))
+                {
+                    <div class="mb-2">
+                        <small class="text-muted">Category:</small>
+                        <div><span class="badge bg-success">@Model.Category</span></div>
+                    </div>
+                }
+                <div class="mb-2">
+                    <small class="text-muted">Fields:</small>
+                    <div class="fw-semibold">@Model.Fields.Count</div>
+                </div>
+                @if (Model.IsSystemTemplate)
+                {
+                    <div class="mb-2">
+                        <span class="badge bg-info">System Template</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Form Fields</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Fields != null && Model.Fields.Any())
+                {
+                    <div class="list-group">
+                        @foreach (var field in Model.Fields.OrderBy(f => f.FieldOrder))
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">
+                                            @field.FieldLabel
+                                            @if (field.IsRequired)
+                                            {
+                                                <span class="text-danger">*</span>
+                                            }
+                                        </h6>
+                                        <small class="text-muted">
+                                            <span class="badge bg-secondary">@field.FieldType</span>
+                                            @if (!string.IsNullOrEmpty(field.Placeholder))
+                                            {
+                                                <span class="ms-2">Placeholder: @field.Placeholder</span>
+                                            }
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No fields defined for this form.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to List
+    </a>
+</div>

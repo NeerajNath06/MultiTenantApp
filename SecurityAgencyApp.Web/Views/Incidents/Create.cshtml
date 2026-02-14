@@ -1,0 +1,86 @@
+@model SecurityAgencyApp.Web.Models.Api.CreateIncidentRequest
+@{
+    ViewData["Title"] = "Report Incident";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Report Incident</h1>
+    <p class="page-subtitle">Create a new incident report</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Site <span class="text-danger">*</span></label>
+                    <select asp-for="SiteId" class="form-select" asp-items="ViewBag.Sites" required>
+                        <option value="">-- Select Site --</option>
+                    </select>
+                    <span asp-validation-for="SiteId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Guard (if applicable)</label>
+                    <select asp-for="GuardId" class="form-select" asp-items="ViewBag.Guards">
+                        <option value="">-- Select Guard --</option>
+                    </select>
+                    <span asp-validation-for="GuardId" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="IncidentDate" class="form-label fw-semibold">Incident Date <span class="text-danger">*</span></label>
+                    <input asp-for="IncidentDate" type="datetime-local" class="form-control" required />
+                    <span asp-validation-for="IncidentDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="IncidentType" class="form-label fw-semibold">Incident Type <span class="text-danger">*</span></label>
+                    <input asp-for="IncidentType" class="form-control" placeholder="e.g., Theft, Vandalism, Accident" required />
+                    <span asp-validation-for="IncidentType" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="Severity" class="form-label fw-semibold">Severity <span class="text-danger">*</span></label>
+                    <select asp-for="Severity" class="form-select" asp-items="ViewBag.SeverityList" required>
+                        <option value="">-- Select Severity --</option>
+                    </select>
+                    <span asp-validation-for="Severity" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-12">
+                    <label asp-for="Description" class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
+                    <textarea asp-for="Description" class="form-control" rows="5" required></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-12">
+                    <label asp-for="ActionTaken" class="form-label fw-semibold">Action Taken</label>
+                    <textarea asp-for="ActionTaken" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="ActionTaken" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Report Incident
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

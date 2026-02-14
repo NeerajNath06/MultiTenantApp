@@ -1,0 +1,206 @@
+@model SecurityAgencyApp.Web.Models.Api.DashboardDataDto
+@{
+    ViewData["Title"] = "Dashboard";
+    var tenantName = Context.Session.GetString("TenantName") ?? "Security Agency";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Welcome to <strong>@tenantName</strong>! Here's what's happening today.</p>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-2 small text-uppercase fw-semibold">Total Users</p>
+                        <h2 class="mb-0 fw-bold">@Model.TotalUsers</h2>
+                        <small class="text-success">
+                            <i class="fas fa-arrow-up"></i> @Model.ActiveUsers Active
+                        </small>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-users fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-2 small text-uppercase fw-semibold">Security Guards</p>
+                        <h2 class="mb-0 fw-bold">@Model.TotalSecurityGuards</h2>
+                        <small class="text-success">
+                            <i class="fas fa-arrow-up"></i> @Model.ActiveGuards Active
+                        </small>
+                    </div>
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-shield-alt fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-2 small text-uppercase fw-semibold">Departments</p>
+                        <h2 class="mb-0 fw-bold">@Model.TotalDepartments</h2>
+                        <small class="text-muted">Active departments</small>
+                    </div>
+                    <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-building fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-2 small text-uppercase fw-semibold">Roles</p>
+                        <h2 class="mb-0 fw-bold">@Model.TotalRoles</h2>
+                        <small class="text-muted">System roles</small>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-user-tag fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-2 small text-uppercase fw-semibold">Menus</p>
+                        <h2 class="mb-0 fw-bold">@Model.TotalMenus</h2>
+                        <small class="text-muted">Navigation items</small>
+                    </div>
+                    <div class="bg-secondary bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-list fa-2x text-secondary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-2 small text-uppercase fw-semibold">Form Submissions</p>
+                        <h2 class="mb-0 fw-bold">@Model.TotalFormSubmissions</h2>
+                        <small class="text-warning">
+                            <i class="fas fa-clock"></i> @Model.PendingFormSubmissions Pending
+                        </small>
+                    </div>
+                    <div class="bg-danger bg-opacity-10 p-3 rounded-circle">
+                        <i class="fas fa-file-alt fa-2x text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fas fa-bolt text-warning me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <a href="@Url.Action("Create", "Users")" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Add User</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="@Url.Action("Create", "Departments")" class="btn btn-info w-100 d-flex align-items-center justify-content-center gap-2">
+                            <i class="fas fa-building"></i>
+                            <span>Add Department</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="@Url.Action("Create", "Roles")" class="btn btn-warning w-100 d-flex align-items-center justify-content-center gap-2">
+                            <i class="fas fa-user-tag"></i>
+                            <span>Add Role</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="@Url.Action("Create", "Menus")" class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2">
+                            <i class="fas fa-list"></i>
+                            <span>Add Menu</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activities -->
+@if (Model.RecentActivities != null && Model.RecentActivities.Any())
+{
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-history text-primary me-2"></i>Recent Activities
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        @foreach (var activity in Model.RecentActivities)
+                        {
+                            <div class="list-group-item border-0 px-0 py-3">
+                                <div class="d-flex w-100 justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-semibold">@activity.Description</h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-user me-1"></i>@activity.UserName
+                                        </small>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>@activity.ActivityDate.ToString("dd MMM yyyy HH:mm")
+                                    </small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Add any dashboard-specific scripts here
+    </script>
+}
