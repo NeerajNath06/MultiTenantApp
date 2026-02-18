@@ -1,0 +1,25 @@
+# =========================
+# Visual Studio
+# =========================
+.vs/
+*.user
+*.suo
+
+# Build folders
+bin/
+obj/
+
+# =========================
+# Node / Angular
+# =========================
+node_modules/
+dist/
+build/
+npm-debug.log*
+
+# =========================
+# Logs & OS files
+# =========================
+*.log
+.DS_Store
+Thumbs.db
