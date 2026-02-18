@@ -4,18 +4,29 @@
 .vs/
 *.user
 *.suo
+*.slnLaunch.user
 
 # Build folders
 bin/
 obj/
 
 # =========================
-# Node / Angular
+# Node / Mobile / Expo
 # =========================
 node_modules/
 dist/
 build/
+.expo/
+.expo-shared/
+android/
+ios/
 npm-debug.log*
+
+# =========================
+# Editor & Test
+# =========================
+.vscode/
+TestResults/
 
 # =========================
 # Logs & OS files
@@ -23,6 +34,3 @@ npm-debug.log*
 *.log
 .DS_Store
 Thumbs.db
-*.slnLaunch.user
-.vscode/
-TestResults/
