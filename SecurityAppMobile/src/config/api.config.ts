@@ -9,7 +9,7 @@ export const API_CONFIG = {
     // - Windows: ipconfig in command prompt
     // - Mac/Linux: ifconfig or ip addr in terminal
     // - Or use: http://localhost:5014 in your browser and check network tab
-    BASE_URL: 'http://192.168.68.107:5286', // TODO: Replace with your actual IP
+    BASE_URL: 'http://192.168.68.109:5286', // TODO: Replace with your actual IP
     TIMEOUT: 10000, // 10 seconds
   },
   

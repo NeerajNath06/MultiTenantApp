@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, ActivityIndicator, RefreshControl, Alert } from 'react-native';
+import * as Sharing from 'expo-sharing';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../../constants/theme';
@@ -39,6 +40,7 @@ const LiveAttendanceScreen: React.FC<LiveAttendanceScreenProps> = ({ navigation 
   const [guards, setGuards] = useState<Guard[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const loadData = useCallback(async () => {
     const user = await authService.getStoredUser();
@@ -100,6 +102,38 @@ const LiveAttendanceScreen: React.FC<LiveAttendanceScreenProps> = ({ navigation 
     setRefreshing(true);
     loadData();
   }, [loadData]);
+
+  const handleExport = useCallback(async (format: 'csv' | 'xlsx' | 'pdf') => {
+    setExporting(true);
+    try {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const res = await attendanceService.exportAttendance(format, {
+        startDate: todayStr,
+        endDate: todayStr,
+        sortBy: 'date',
+        sortDirection: 'desc',
+      });
+      if (!res.success) {
+        Alert.alert('Export Failed', res.error ?? 'Could not export attendance.');
+        return;
+      }
+      if (res.localUri && res.fileName) {
+        const canShare = await Sharing.isAvailableAsync();
+        if (canShare) {
+          await Sharing.shareAsync(res.localUri, {
+            mimeType: res.mimeType ?? 'text/csv',
+            dialogTitle: `Export Attendance (${format.toUpperCase()})`,
+          });
+        } else {
+          Alert.alert('Export Done', `File saved: ${res.fileName}`);
+        }
+      }
+    } catch (e) {
+      Alert.alert('Export Failed', (e as Error).message);
+    } finally {
+      setExporting(false);
+    }
+  }, []);
 
   const getStatusColor = (status: string): string => {
     switch (status) {
@@ -165,7 +199,22 @@ const LiveAttendanceScreen: React.FC<LiveAttendanceScreenProps> = ({ navigation 
           <MaterialCommunityIcons name="arrow-left" size={24} color={COLORS.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Live Attendance</Text>
-        <View style={styles.placeholder} />
+        <TouchableOpacity
+          style={styles.placeholder}
+          onPress={() => Alert.alert('Export format', 'Choose format', [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'CSV', onPress: () => handleExport('csv') },
+            { text: 'Excel', onPress: () => handleExport('xlsx') },
+            { text: 'PDF', onPress: () => handleExport('pdf') },
+          ])}
+          disabled={exporting}
+        >
+          {exporting ? (
+            <ActivityIndicator size="small" color={COLORS.primary} />
+          ) : (
+            <MaterialCommunityIcons name="file-export" size={24} color={COLORS.primary} />
+          )}
+        </TouchableOpacity>
       </View>
 
       <View style={styles.searchContainer}>

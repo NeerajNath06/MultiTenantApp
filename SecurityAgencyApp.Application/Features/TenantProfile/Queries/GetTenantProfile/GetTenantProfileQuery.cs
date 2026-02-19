@@ -1,9 +1,15 @@
-using SecurityAgencyApp.Domain.Common;
+using MediatR;
+using SecurityAgencyApp.Application.Common.Models;
 
-namespace SecurityAgencyApp.Domain.Entities;
+namespace SecurityAgencyApp.Application.Features.TenantProfile.Queries.GetTenantProfile;
 
-public class Tenant : BaseEntity
+public class GetTenantProfileQuery : IRequest<ApiResponse<TenantProfileDto>>
 {
+}
+
+public class TenantProfileDto
+{
+    public Guid Id { get; set; }
     public string CompanyName { get; set; } = string.Empty;
     public string RegistrationNumber { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
@@ -16,14 +22,7 @@ public class Tenant : BaseEntity
     public string? Website { get; set; }
     public string? TaxId { get; set; }
     public string? LogoPath { get; set; }
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; set; }
     public DateTime SubscriptionStartDate { get; set; }
     public DateTime? SubscriptionEndDate { get; set; }
-
-    // Navigation properties
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
-    public virtual ICollection<Department> Departments { get; set; } = new List<Department>();
-    public virtual ICollection<Designation> Designations { get; set; } = new List<Designation>();
-    public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
-    public virtual ICollection<TenantDocument> Documents { get; set; } = new List<TenantDocument>();
 }

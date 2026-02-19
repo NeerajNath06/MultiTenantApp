@@ -1,3 +1,5 @@
+import * as FileSystem from 'expo-file-system/legacy';
+import { getBaseUrl } from '../config/api.config';
 import BaseApiService from './baseApiService';
 
 export interface CheckInRequest {
@@ -121,6 +123,48 @@ class AttendanceService extends BaseApiService {
     sortDirection?: string;
   }): Promise<{ success: boolean; data?: any; error?: { code: string; message: string } }> {
     return await this.get('/api/v1/Attendance', params);
+  }
+
+  /**
+   * Export attendance as CSV, Excel, or PDF. format: 'csv' | 'xlsx' | 'pdf'.
+   * Returns local file URI for sharing/saving.
+   */
+  async exportAttendance(
+    format: 'csv' | 'xlsx' | 'pdf' = 'csv',
+    filters?: {
+      guardId?: string;
+      startDate?: string;
+      endDate?: string;
+      status?: string;
+      search?: string;
+      sortBy?: string;
+      sortDirection?: string;
+    }
+  ): Promise<{ success: boolean; localUri?: string; fileName?: string; mimeType?: string; error?: string }> {
+    const params = new URLSearchParams({ format });
+    if (filters) {
+      if (filters.guardId) params.set('guardId', filters.guardId);
+      if (filters.startDate) params.set('startDate', filters.startDate);
+      if (filters.endDate) params.set('endDate', filters.endDate);
+      if (filters.status) params.set('status', filters.status);
+      if (filters.search) params.set('search', filters.search);
+      if (filters.sortBy) params.set('sortBy', filters.sortBy);
+      if (filters.sortDirection) params.set('sortDirection', filters.sortDirection);
+    }
+    const ext = format === 'pdf' ? 'pdf' : format === 'xlsx' ? 'xlsx' : 'csv';
+    const url = `${getBaseUrl()}/api/v1/Attendance/export?${params.toString()}`;
+    const headers = await this.getAuthHeaders();
+    const fileName = `Attendance_${new Date().toISOString().slice(0, 10)}.${ext}`;
+    const path = `${FileSystem.cacheDirectory ?? ''}${fileName}`;
+    const mimeType = format === 'pdf' ? 'application/pdf' : format === 'xlsx' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'text/csv';
+    try {
+      const result = await FileSystem.downloadAsync(url, path, { headers });
+      if (result.status !== 200)
+        return { success: false, error: `Export failed (${result.status})` };
+      return { success: true, localUri: result.uri, fileName, mimeType };
+    } catch (e) {
+      return { success: false, error: (e as Error).message };
+    }
   }
 }
 

@@ -12,9 +12,22 @@
             <h1 class="page-title">Incident Reports</h1>
             <p class="page-subtitle">Manage and track incident reports</p>
         </div>
-        <a href="@Url.Action("Create")" class="btn btn-primary">
-            <i class="fas fa-exclamation-triangle me-2"></i>Report Incident
-        </a>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <div class="btn-group" role="group">
+                <a href="@Url.Action("Export", new { format = "csv", siteId = ViewContext.HttpContext.Request.Query["siteId"], status = ViewContext.HttpContext.Request.Query["status"], search = Model?.Search, sortBy = Model?.SortBy, sortDirection = Model?.SortDirection })" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-file-csv me-1"></i>CSV
+                </a>
+                <a href="@Url.Action("Export", new { format = "xlsx", siteId = ViewContext.HttpContext.Request.Query["siteId"], status = ViewContext.HttpContext.Request.Query["status"], search = Model?.Search, sortBy = Model?.SortBy, sortDirection = Model?.SortDirection })" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-file-excel me-1"></i>Excel
+                </a>
+                <a href="@Url.Action("Export", new { format = "pdf", siteId = ViewContext.HttpContext.Request.Query["siteId"], status = ViewContext.HttpContext.Request.Query["status"], search = Model?.Search, sortBy = Model?.SortBy, sortDirection = Model?.SortDirection })" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-file-pdf me-1"></i>PDF
+                </a>
+            </div>
+            <a href="@Url.Action("Create")" class="btn btn-primary">
+                <i class="fas fa-exclamation-triangle me-2"></i>Report Incident
+            </a>
+        </div>
     </div>
 </div>
 

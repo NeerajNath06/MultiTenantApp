@@ -16,6 +16,24 @@ public class AttendanceController : Controller
         _apiClient = apiClient;
     }
 
+    /// <summary>Export attendance list (with same filters) as CSV.</summary>
+    [HttpGet]
+    public async Task<IActionResult> Export(string format = "csv", Guid? guardId = null, DateTime? startDate = null, DateTime? endDate = null, string? status = null, string? search = null, string? sortBy = null, string? sortDirection = "desc")
+    {
+        var query = new Dictionary<string, string?> { ["format"] = format ?? "csv" };
+        if (guardId.HasValue) query["guardId"] = guardId.Value.ToString();
+        if (startDate.HasValue) query["startDate"] = startDate.Value.ToString("yyyy-MM-dd");
+        if (endDate.HasValue) query["endDate"] = endDate.Value.ToString("yyyy-MM-dd");
+        if (!string.IsNullOrEmpty(status)) query["status"] = status;
+        if (!string.IsNullOrEmpty(search)) query["search"] = search;
+        if (!string.IsNullOrEmpty(sortBy)) query["sortBy"] = sortBy;
+        if (!string.IsNullOrEmpty(sortDirection)) query["sortDirection"] = sortDirection;
+        var result = await _apiClient.GetFileAsync("api/v1/Attendance/export", query);
+        if (!result.Success || result.Data == null)
+            return NotFound();
+        return File(result.Data.Content, result.Data.ContentType, result.Data.FileName);
+    }
+
     public async Task<IActionResult> Index(Guid? guardId = null, DateTime? startDate = null, DateTime? endDate = null, string? status = null, int pageNumber = 1, int pageSize = 10, string? search = null, string? sortBy = null, string? sortDirection = "desc")
     {
         var query = new Dictionary<string, string?>

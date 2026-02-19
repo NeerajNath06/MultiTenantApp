@@ -1,5 +1,11 @@
+using System.Globalization;
+using System.Text;
+using CsvHelper;
+using CsvHelper.Configuration;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SecurityAgencyApp.API.Services;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Attendance.Commands.CheckIn;
 using SecurityAgencyApp.Application.Features.Attendance.Commands.CheckOut;
@@ -11,6 +17,7 @@ namespace SecurityAgencyApp.API.Controllers.v1;
 
 [ApiController]
 [Route("api/v1/[controller]")]
+[Authorize]
 public class AttendanceController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -18,6 +25,74 @@ public class AttendanceController : ControllerBase
     public AttendanceController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    /// <summary>Export attendance as CSV, Excel (.xlsx), or PDF. Same filters as GET list. format=csv|xlsx|pdf.</summary>
+    [HttpGet("export")]
+    public async Task<IActionResult> ExportAttendance(
+        [FromQuery] string format = "csv",
+        [FromQuery] Guid? guardId = null,
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null,
+        [FromQuery] string? status = null,
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortDirection = "desc",
+        CancellationToken cancellationToken = default)
+    {
+        var fmt = format?.Trim().ToLowerInvariant() ?? "csv";
+        if (fmt != "csv" && fmt != "xlsx" && fmt != "pdf")
+            return BadRequest("Supported format: csv, xlsx, pdf");
+
+        var query = new GetAttendanceListQuery
+        {
+            GuardId = guardId,
+            StartDate = startDate,
+            EndDate = endDate,
+            Status = status,
+            PageNumber = 1,
+            PageSize = 50_000,
+            Search = search,
+            SortBy = sortBy,
+            SortDirection = sortDirection
+        };
+        var result = await _mediator.Send(query, cancellationToken);
+        if (!result.Success || result.Data == null)
+            return NotFound();
+        var items = result.Data.Items;
+        var stamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+
+        if (fmt == "xlsx")
+        {
+            var bytes = ExportHelper.ToExcel("Attendance", "Attendance Report", items);
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Attendance_{stamp}.xlsx");
+        }
+        if (fmt == "pdf")
+        {
+            var headers = new[] { "Date", "Guard", "Code", "Site", "Check In", "Check Out", "Status", "Remarks" };
+            var rows = items.Select(i => new[]
+            {
+                i.AttendanceDate.ToString("yyyy-MM-dd"),
+                i.GuardName,
+                i.GuardCode,
+                i.SiteName,
+                i.CheckInTime?.ToString("HH:mm") ?? "",
+                i.CheckOutTime?.ToString("HH:mm") ?? "",
+                i.Status,
+                i.Remarks ?? ""
+            }).ToList();
+            var bytes = ExportHelper.ToPdf("Attendance Report", headers, rows);
+            return File(bytes, "application/pdf", $"Attendance_{stamp}.pdf");
+        }
+        var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture) { HasHeaderRecord = true };
+        using var memory = new MemoryStream();
+        using (var writer = new StreamWriter(memory, Encoding.UTF8, leaveOpen: true))
+        using (var csv = new CsvWriter(writer, csvConfig))
+        {
+            await csv.WriteRecordsAsync(items, cancellationToken);
+        }
+        memory.Position = 0;
+        return File(memory.ToArray(), "text/csv", $"Attendance_{stamp}.csv");
     }
 
     [HttpGet]

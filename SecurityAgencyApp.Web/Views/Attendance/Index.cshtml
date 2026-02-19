@@ -12,9 +12,22 @@
             <h1 class="page-title">Attendance</h1>
             <p class="page-subtitle">View and manage guard attendance</p>
         </div>
-        <a href="@Url.Action("Mark")" class="btn btn-primary">
-            <i class="fas fa-calendar-check me-2"></i>Mark Attendance
-        </a>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <div class="btn-group" role="group">
+                <a href="@Url.Action("Export", new { format = "csv", guardId = ViewContext.HttpContext.Request.Query["guardId"], startDate = ViewContext.HttpContext.Request.Query["startDate"], endDate = ViewContext.HttpContext.Request.Query["endDate"], status = ViewContext.HttpContext.Request.Query["status"], search = Model?.Search, sortBy = Model?.SortBy, sortDirection = Model?.SortDirection })" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-file-csv me-1"></i>CSV
+                </a>
+                <a href="@Url.Action("Export", new { format = "xlsx", guardId = ViewContext.HttpContext.Request.Query["guardId"], startDate = ViewContext.HttpContext.Request.Query["startDate"], endDate = ViewContext.HttpContext.Request.Query["endDate"], status = ViewContext.HttpContext.Request.Query["status"], search = Model?.Search, sortBy = Model?.SortBy, sortDirection = Model?.SortDirection })" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-file-excel me-1"></i>Excel
+                </a>
+                <a href="@Url.Action("Export", new { format = "pdf", guardId = ViewContext.HttpContext.Request.Query["guardId"], startDate = ViewContext.HttpContext.Request.Query["startDate"], endDate = ViewContext.HttpContext.Request.Query["endDate"], status = ViewContext.HttpContext.Request.Query["status"], search = Model?.Search, sortBy = Model?.SortBy, sortDirection = Model?.SortDirection })" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-file-pdf me-1"></i>PDF
+                </a>
+            </div>
+            <a href="@Url.Action("Mark")" class="btn btn-primary">
+                <i class="fas fa-calendar-check me-2"></i>Mark Attendance
+            </a>
+        </div>
     </div>
 </div>
 

@@ -48,6 +48,15 @@ public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
         builder.Property(t => t.PinCode)
             .HasMaxLength(10);
 
+        builder.Property(t => t.Website)
+            .HasMaxLength(200);
+
+        builder.Property(t => t.TaxId)
+            .HasMaxLength(50);
+
+        builder.Property(t => t.LogoPath)
+            .HasMaxLength(500);
+
         builder.Property(t => t.IsActive)
             .IsRequired()
             .HasDefaultValue(true);

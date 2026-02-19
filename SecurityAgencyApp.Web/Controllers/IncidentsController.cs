@@ -16,6 +16,22 @@ public class IncidentsController : Controller
         _apiClient = apiClient;
     }
 
+    /// <summary>Export current incident list (with same filters) as CSV.</summary>
+    [HttpGet]
+    public async Task<IActionResult> Export(string format = "csv", Guid? siteId = null, string? status = null, string? search = null, string? sortBy = null, string? sortDirection = "desc")
+    {
+        var query = new Dictionary<string, string?> { ["format"] = format ?? "csv" };
+        if (siteId.HasValue) query["siteId"] = siteId.Value.ToString();
+        if (!string.IsNullOrEmpty(status)) query["status"] = status;
+        if (!string.IsNullOrEmpty(search)) query["search"] = search;
+        if (!string.IsNullOrEmpty(sortBy)) query["sortBy"] = sortBy;
+        if (!string.IsNullOrEmpty(sortDirection)) query["sortDirection"] = sortDirection;
+        var result = await _apiClient.GetFileAsync("api/v1/Incidents/export", query);
+        if (!result.Success || result.Data == null)
+            return NotFound();
+        return File(result.Data.Content, result.Data.ContentType, result.Data.FileName);
+    }
+
     public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 10, Guid? siteId = null, string? status = null, string? search = null, string? sortBy = null, string? sortDirection = "desc")
     {
         var query = new Dictionary<string, string?>

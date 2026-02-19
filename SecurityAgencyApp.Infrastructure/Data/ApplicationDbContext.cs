@@ -34,6 +34,7 @@ public class ApplicationDbContext : DbContext
     // Security Guard Entities
     public DbSet<SecurityGuard> SecurityGuards { get; set; }
     public DbSet<GuardDocument> GuardDocuments { get; set; }
+    public DbSet<TenantDocument> TenantDocuments { get; set; }
     public DbSet<GuardAssignment> GuardAssignments { get; set; }
     public DbSet<Site> Sites { get; set; }
     public DbSet<SiteSupervisor> SiteSupervisors { get; set; }

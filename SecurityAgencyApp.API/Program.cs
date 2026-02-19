@@ -10,6 +10,9 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 
+using QuestPDF.Infrastructure;
+QuestPDF.Settings.License = LicenseType.Community;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container

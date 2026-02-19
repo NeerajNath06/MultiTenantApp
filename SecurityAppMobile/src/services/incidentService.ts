@@ -1,3 +1,5 @@
+import * as FileSystem from 'expo-file-system/legacy';
+import { getBaseUrl } from '../config/api.config';
 import BaseApiService from './baseApiService';
 
 export interface Incident {
@@ -79,6 +81,50 @@ class IncidentService extends BaseApiService {
     description?: string;
   }): Promise<{ success: boolean; data?: IncidentEvidence; error?: { code: string; message: string } }> {
     return await this.post<IncidentEvidence>(`/api/v1/Incidents/${incidentId}/evidence`, evidence);
+  }
+
+  /**
+   * Export incidents as CSV, Excel, or PDF. Uses same filters as getIncidents.
+   * format: 'csv' | 'xlsx' | 'pdf'. Returns local URI for sharing/saving.
+   */
+  async exportIncidents(
+    format: 'csv' | 'xlsx' | 'pdf' = 'csv',
+    filters?: {
+      status?: string;
+      siteId?: string;
+      guardId?: string;
+      startDate?: string;
+      endDate?: string;
+      search?: string;
+      sortBy?: string;
+      sortDirection?: string;
+    }
+  ): Promise<{ success: boolean; localUri?: string; fileName?: string; mimeType?: string; error?: string }> {
+    const params = new URLSearchParams({ format });
+    if (filters) {
+      if (filters.status) params.set('status', filters.status);
+      if (filters.siteId) params.set('siteId', filters.siteId);
+      if (filters.guardId) params.set('guardId', filters.guardId);
+      if (filters.startDate) params.set('startDate', filters.startDate);
+      if (filters.endDate) params.set('endDate', filters.endDate);
+      if (filters.search) params.set('search', filters.search);
+      if (filters.sortBy) params.set('sortBy', filters.sortBy);
+      if (filters.sortDirection) params.set('sortDirection', filters.sortDirection);
+    }
+    const ext = format === 'pdf' ? 'pdf' : format === 'xlsx' ? 'xlsx' : 'csv';
+    const url = `${getBaseUrl()}/api/v1/Incidents/export?${params.toString()}`;
+    const headers = await this.getAuthHeaders();
+    const fileName = `Incidents_${new Date().toISOString().slice(0, 10)}.${ext}`;
+    const path = `${FileSystem.cacheDirectory ?? ''}${fileName}`;
+    const mimeType = format === 'pdf' ? 'application/pdf' : format === 'xlsx' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'text/csv';
+    try {
+      const result = await FileSystem.downloadAsync(url, path, { headers });
+      if (result.status !== 200)
+        return { success: false, error: `Export failed (${result.status})` };
+      return { success: true, localUri: result.uri, fileName, mimeType };
+    } catch (e) {
+      return { success: false, error: (e as Error).message };
+    }
   }
 }
 

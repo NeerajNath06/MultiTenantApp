@@ -87,6 +87,36 @@ public class ApiClient : IApiClient
         }
     }
 
+    public async Task<ApiResult<T?>> PostMultipartAsync<T>(string path, IDictionary<string, object> formData, CancellationToken cancellationToken = default)
+    {
+        var requestUri = BuildRequestUri(path);
+        try
+        {
+            using var content = new MultipartFormDataContent();
+            foreach (var kv in formData)
+            {
+                if (kv.Value is string s)
+                    content.Add(new StringContent(s), kv.Key);
+                else if (kv.Value is MultipartFile file)
+                {
+                    var streamContent = new StreamContent(file.Content);
+                    streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+                    content.Add(streamContent, kv.Key, file.FileName);
+                }
+            }
+            using var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
+            SetAuthHeaders(request);
+            request.Content = content;
+            var response = await _http.SendAsync(request, cancellationToken);
+            return await ParseResponse<T>(response, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "API POST multipart {Uri} failed", requestUri);
+            return new ApiResult<T?> { Success = false, Message = "API request failed. " + ex.Message };
+        }
+    }
+
     public async Task<ApiResult<T?>> PutAsync<T>(string path, object body, CancellationToken cancellationToken = default)
     {
         var requestUri = BuildRequestUri(path);
@@ -139,6 +169,39 @@ public class ApiClient : IApiClient
         {
             _logger.LogWarning(ex, "API DELETE {Uri} failed", requestUri);
             return new ApiResult<bool> { Success = false, Message = "API request failed." };
+        }
+    }
+
+    public async Task<ApiResult<DownloadedFile?>> GetFileAsync(string path, IDictionary<string, string?>? query = null, CancellationToken cancellationToken = default)
+    {
+        var qs = query != null && query.Count > 0
+            ? "?" + string.Join("&", query.Where(kv => kv.Value != null).Select(kv => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value!)}"))
+            : "";
+        var requestUri = BuildRequestUri(path + qs);
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+            SetAuthHeaders(request);
+            var response = await _http.SendAsync(request, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+                return new ApiResult<DownloadedFile?> { Success = false, Message = response.ReasonPhrase ?? "Download failed" };
+            var bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+            var contentType = response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream";
+            var fileName = "document";
+            if (response.Content.Headers.ContentDisposition?.FileNameStar != null)
+                fileName = response.Content.Headers.ContentDisposition.FileNameStar.Trim('"');
+            else if (response.Content.Headers.ContentDisposition?.FileName != null)
+                fileName = response.Content.Headers.ContentDisposition.FileName.Trim('"');
+            return new ApiResult<DownloadedFile?>
+            {
+                Success = true,
+                Data = new DownloadedFile { Content = bytes, ContentType = contentType, FileName = fileName }
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "API GET file {Uri} failed", requestUri);
+            return new ApiResult<DownloadedFile?> { Success = false, Message = "Download failed." };
         }
     }
 

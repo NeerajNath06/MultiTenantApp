@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, RefreshControl, Share, ActivityIndicator } from 'react-native';
+import * as Sharing from 'expo-sharing';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../../constants/theme';
@@ -213,6 +214,44 @@ function IncidentReviewScreen({ navigation }: any) {
     );
   };
 
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = useCallback(async (format: 'csv' | 'xlsx' | 'pdf') => {
+    setExporting(true);
+    try {
+      const statusMap: Record<string, string> = {
+        all: '',
+        pending: 'Open',
+        investigating: 'InProgress',
+        resolved: 'Resolved',
+      };
+      const res = await incidentService.exportIncidents(format, {
+        status: statusMap[selectedFilter] || undefined,
+        sortBy: 'date',
+        sortDirection: 'desc',
+      });
+      if (!res.success) {
+        Alert.alert('Export Failed', res.error ?? 'Could not export incidents.');
+        return;
+      }
+      if (res.localUri && res.fileName) {
+        const canShare = await Sharing.isAvailableAsync();
+        if (canShare) {
+          await Sharing.shareAsync(res.localUri, {
+            mimeType: res.mimeType ?? 'text/csv',
+            dialogTitle: `Export Incidents (${format.toUpperCase()})`,
+          });
+        } else {
+          Alert.alert('Export Done', `File saved: ${res.fileName}`);
+        }
+      }
+    } catch (e) {
+      Alert.alert('Export Failed', (e as Error).message);
+    } finally {
+      setExporting(false);
+    }
+  }, [selectedFilter]);
+
   const handleGenerateReport = () => {
     const pendingCount = incidents.filter(i => i.status === 'pending').length;
     const investigatingCount = incidents.filter(i => i.status === 'investigating').length;
@@ -223,7 +262,9 @@ function IncidentReviewScreen({ navigation }: any) {
       `Total Incidents: ${incidents.length}\n\n📋 Pending: ${pendingCount}\n🔍 Investigating: ${investigatingCount}\n✅ Resolved: ${resolvedCount}\n\nCritical: ${incidents.filter(i => i.priority === 'critical').length}\nHigh Priority: ${incidents.filter(i => i.priority === 'high').length}\n\nReport generated successfully.`,
       [
         { text: 'Close' },
-        { text: 'Export PDF', onPress: () => Alert.alert('Export', 'PDF report is being generated...') },
+        { text: 'Export CSV', onPress: () => handleExport('csv') },
+        { text: 'Export Excel', onPress: () => handleExport('xlsx') },
+        { text: 'Export PDF', onPress: () => handleExport('pdf') },
       ]
     );
   };
@@ -326,6 +367,23 @@ function IncidentReviewScreen({ navigation }: any) {
           <TouchableOpacity style={styles.actionButton} onPress={handleGenerateReport}>
             <MaterialCommunityIcons name="file-document-outline" size={20} color={COLORS.primary} />
             <Text style={styles.actionButtonText}>Report</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => Alert.alert('Export format', 'Choose format', [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'CSV', onPress: () => handleExport('csv') },
+              { text: 'Excel', onPress: () => handleExport('xlsx') },
+              { text: 'PDF', onPress: () => handleExport('pdf') },
+            ])}
+            disabled={exporting}
+          >
+            {exporting ? (
+              <ActivityIndicator size="small" color={COLORS.primary} />
+            ) : (
+              <MaterialCommunityIcons name="file-export" size={20} color={COLORS.primary} />
+            )}
+            <Text style={styles.actionButtonText}>{exporting ? 'Exporting…' : 'Export'}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton} onPress={handleAnalytics}>
             <MaterialCommunityIcons name="chart-line" size={20} color={COLORS.secondary} />
