@@ -231,7 +231,22 @@ class BaseApiService {
         body: enrichedBody ? JSON.stringify(enrichedBody) : undefined,
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      let data: any = null;
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch {
+        if (response.ok) {
+          return { success: false, error: { code: 'API_ERROR', message: 'Invalid response from server.' } };
+        }
+        return {
+          success: false,
+          error: {
+            code: 'API_ERROR',
+            message: text && text.length < 300 ? text : `Request failed (${response.status})`,
+          },
+        };
+      }
 
       if (response.ok) {
         return {
@@ -243,7 +258,7 @@ class BaseApiService {
           success: false,
           error: {
             code: 'API_ERROR',
-            message: data.message || `Failed to post to ${endpoint}`,
+            message: (data?.message ?? data?.Message) || `Failed to post to ${endpoint}`,
           },
         };
       }

@@ -122,10 +122,10 @@ const LiveAttendanceScreen: React.FC<LiveAttendanceScreenProps> = ({ navigation 
         if (canShare) {
           await Sharing.shareAsync(res.localUri, {
             mimeType: res.mimeType ?? 'text/csv',
-            dialogTitle: `Export Attendance (${format.toUpperCase()})`,
+            dialogTitle: `Attendance Report (${format.toUpperCase()}) - Open or share`,
           });
         } else {
-          Alert.alert('Export Done', `File saved: ${res.fileName}`);
+          Alert.alert('Report Downloaded', `File saved: ${res.fileName}. Open from your device to view.`);
         }
       }
     } catch (e) {
@@ -201,18 +201,18 @@ const LiveAttendanceScreen: React.FC<LiveAttendanceScreenProps> = ({ navigation 
         <Text style={styles.headerTitle}>Live Attendance</Text>
         <TouchableOpacity
           style={styles.placeholder}
-          onPress={() => Alert.alert('Export format', 'Choose format', [
+          onPress={() => Alert.alert('Download Report', 'Choose format (agency header + guard details)', [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'CSV', onPress: () => handleExport('csv') },
-            { text: 'Excel', onPress: () => handleExport('xlsx') },
-            { text: 'PDF', onPress: () => handleExport('pdf') },
+            { text: 'Download as CSV', onPress: () => handleExport('csv') },
+            { text: 'Download as Excel', onPress: () => handleExport('xlsx') },
+            { text: 'Download as PDF', onPress: () => handleExport('pdf') },
           ])}
           disabled={exporting}
         >
           {exporting ? (
             <ActivityIndicator size="small" color={COLORS.primary} />
           ) : (
-            <MaterialCommunityIcons name="file-export" size={24} color={COLORS.primary} />
+            <MaterialCommunityIcons name="file-download" size={24} color={COLORS.primary} />
           )}
         </TouchableOpacity>
       </View>

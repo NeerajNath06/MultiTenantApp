@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../../constants/theme';
 import Card from '../../components/common/Card';
 import { SiteNavigationScreenProps } from '../../types/navigation';
+import { authService } from '../../services/authService';
+import { deploymentService } from '../../services/deploymentService';
+import { siteService } from '../../services/siteService';
+import { getDistanceMeters, formatDistanceMeters } from '../../utils/geoUtils';
 
 interface SiteLocation {
-  id: number;
+  id: string;
   name: string;
   address: string;
-  coordinates: {
-    latitude: number;
-    longitude: number;
-  };
+  coordinates: { latitude: number; longitude: number } | null;
   contactPerson: string;
   contactPhone: string;
   distance: string;
@@ -22,76 +24,161 @@ interface SiteLocation {
 
 const SiteNavigationScreen: React.FC<SiteNavigationScreenProps> = ({ navigation }) => {
   const [currentLocation, setCurrentLocation] = useState<string>('Getting location...');
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [currentSite, setCurrentSite] = useState<SiteLocation | null>(null);
+  const [alternativeSites, setAlternativeSites] = useState<SiteLocation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Mock current site data
-  const currentSite: SiteLocation = {
-    id: 1,
-    name: 'Tech Park - Block A',
-    address: '123 Business Park, Sector 62, Noida, Uttar Pradesh 201301',
-    coordinates: {
-      latitude: 28.5355,
-      longitude: 77.3910,
-    },
-    contactPerson: 'Mr. Sharma',
-    contactPhone: '+91 98765 43210',
-    distance: '0.0 km',
-    estimatedTime: '0 min',
+  const formatAddress = (addr?: string, city?: string, state?: string, pin?: string) => {
+    const parts = [addr, city, state, pin].filter(Boolean);
+    return parts.length ? parts.join(', ') : '—';
   };
 
-  // Mock alternative sites (in case guard needs to switch sites)
-  const alternativeSites: SiteLocation[] = [
-    {
-      id: 2,
-      name: 'Mall Plaza - Security Point',
-      address: '456 Shopping Mall, Sector 18, Noida, Uttar Pradesh 201301',
-      coordinates: {
-        latitude: 28.5698,
-        longitude: 77.3234,
-      },
-      contactPerson: 'Ms. Gupta',
-      contactPhone: '+91 98765 43211',
-      distance: '2.5 km',
-      estimatedTime: '8 min',
-    },
-    {
-      id: 3,
-      name: 'IT Hub - Main Gate',
-      address: '789 Tech Campus, Sector 125, Noida, Uttar Pradesh 201303',
-      coordinates: {
-        latitude: 28.5449,
-        longitude: 77.3374,
-      },
-      contactPerson: 'Mr. Patel',
-      contactPhone: '+91 98765 43212',
-      distance: '3.2 km',
-      estimatedTime: '12 min',
-    },
-  ];
+  const loadData = useCallback(async () => {
+    try {
+      const user = await authService.getStoredUser();
+      const guardId = (user as { guardId?: string })?.guardId ?? (user as { id?: string })?.id;
+      if (!guardId) {
+        setCurrentSite(null);
+        setAlternativeSites([]);
+        return;
+      }
+
+      const today = new Date().toISOString().slice(0, 10);
+      const [deploymentsRes, sitesRes] = await Promise.all([
+        deploymentService.getDeployments({ guardId, dateFrom: today, dateTo: today, pageSize: 50, skipCache: true }),
+        siteService.getSites({ pageSize: 100 }),
+      ]);
+
+      const depRaw = deploymentsRes.success && deploymentsRes.data ? deploymentsRes.data : {};
+      const depList = depRaw?.items ?? depRaw?.Items ?? (Array.isArray(deploymentsRes.data) ? deploymentsRes.data : []) as any[];
+      const sitesRaw = sitesRes.success && sitesRes.data ? sitesRes.data : {};
+      const siteList = sitesRaw?.items ?? sitesRaw?.Items ?? (Array.isArray(sitesRes.data) ? sitesRes.data : []) as any[];
+
+      const siteMap = new Map<string, any>();
+      (siteList || []).forEach((s: any) => {
+        const id = String(s?.id ?? s?.Id ?? '');
+        if (id) siteMap.set(id, s);
+      });
+
+      let userLat: number | null = null;
+      let userLon: number | null = null;
+      try {
+        const { status } = await Location.getForegroundPermissionsAsync();
+        if (status === 'granted') {
+          const loc = await Location.getCurrentPositionAsync({});
+          userLat = loc.coords.latitude;
+          userLon = loc.coords.longitude;
+          setUserLocation({ latitude: userLat, longitude: userLon });
+          setCurrentLocation(`${userLat.toFixed(4)}, ${userLon.toFixed(4)}`);
+        } else {
+          setCurrentLocation('Location not available');
+        }
+      } catch {
+        setCurrentLocation('Location not available');
+      }
+
+      const toSiteLocation = (s: any, isCurrent: boolean): SiteLocation => {
+        const sid = String(s?.id ?? s?.Id ?? '');
+        const site = siteMap.get(sid) ?? s;
+        const lat = site?.latitude ?? site?.Latitude;
+        const lon = site?.longitude ?? site?.Longitude;
+        const name = site?.siteName ?? site?.SiteName ?? s?.siteName ?? s?.SiteName ?? 'Site';
+        const address = formatAddress(
+          site?.address ?? site?.Address ?? s?.address,
+          site?.city ?? site?.City ?? s?.city,
+          site?.state ?? site?.State ?? s?.state,
+          site?.pinCode ?? site?.PinCode ?? s?.pinCode
+        );
+        let distance = '—';
+        let estimatedTime = '—';
+        if (userLat != null && userLon != null && typeof lat === 'number' && typeof lon === 'number') {
+          const meters = getDistanceMeters(userLat, userLon, lat, lon);
+          distance = formatDistanceMeters(meters);
+          const minutes = Math.max(1, Math.round(meters / 80));
+          estimatedTime = `~${minutes} min`;
+        }
+        return {
+          id: sid,
+          name,
+          address,
+          coordinates: typeof lat === 'number' && typeof lon === 'number' ? { latitude: lat, longitude: lon } : null,
+          contactPerson: site?.contactPerson ?? site?.ContactPerson ?? '—',
+          contactPhone: site?.contactPhone ?? site?.ContactPhone ?? '—',
+          distance,
+          estimatedTime,
+        };
+      };
+
+      if (depList.length > 0) {
+        const first = depList[0];
+        const firstSiteId = String(first?.siteId ?? first?.SiteId ?? '');
+        const firstSite = siteMap.get(firstSiteId) ?? first;
+        setCurrentSite(toSiteLocation(firstSite || { id: firstSiteId, siteName: first?.siteName ?? first?.SiteName ?? 'Current Site' }, true));
+
+        const otherSites: SiteLocation[] = [];
+        const seen = new Set<string>([firstSiteId]);
+        depList.slice(1).forEach((d: any) => {
+          const sid = String(d?.siteId ?? d?.SiteId ?? '');
+          if (sid && !seen.has(sid)) {
+            seen.add(sid);
+            const site = siteMap.get(sid) ?? d;
+            otherSites.push(toSiteLocation(site, false));
+          }
+        });
+        setAlternativeSites(otherSites);
+      } else {
+        setCurrentSite(null);
+        const allSites = (siteList || []).map((s: any) => toSiteLocation(s, false));
+        setAlternativeSites(allSites.slice(0, 10));
+      }
+    } catch (e) {
+      console.error('SiteNavigation load error:', e);
+      setCurrentSite(null);
+      setAlternativeSites([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadData();
+  }, [loadData]);
 
   const openMaps = (latitude: number, longitude: number, name: string) => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&destination_place_id=${encodeURIComponent(name)}`;
-    Linking.openURL(url).catch(() => {
-      Alert.alert('Error', 'Unable to open maps application');
-    });
+    Linking.openURL(url).catch(() => Alert.alert('Error', 'Unable to open maps application'));
   };
 
   const callContact = (phoneNumber: string) => {
-    Linking.openURL(`tel:${phoneNumber}`).catch(() => {
-      Alert.alert('Error', 'Unable to make phone call');
-    });
+    if (!phoneNumber || phoneNumber === '—') return;
+    Linking.openURL(`tel:${phoneNumber}`).catch(() => Alert.alert('Error', 'Unable to make phone call'));
   };
 
-  const navigateToCurrentSite = () => {
-    openMaps(
-      currentSite.coordinates.latitude,
-      currentSite.coordinates.longitude,
-      currentSite.name
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <MaterialCommunityIcons name="arrow-left" size={24} color={COLORS.textPrimary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Site Navigation</Text>
+          <View style={styles.placeholder} />
+        </View>
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Loading sites...</Text>
+        </View>
+      </SafeAreaView>
     );
-  };
-
-  const navigateToAlternativeSite = (site: SiteLocation) => {
-    openMaps(site.coordinates.latitude, site.coordinates.longitude, site.name);
-  };
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -103,102 +190,93 @@ const SiteNavigationScreen: React.FC<SiteNavigationScreenProps> = ({ navigation 
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Current Assignment */}
-        <Card style={styles.currentSiteCard}>
-          <View style={styles.currentSiteHeader}>
-            <View style={styles.currentBadge}>
-              <MaterialCommunityIcons name="map-marker" size={16} color={COLORS.primary} />
-              <Text style={styles.currentBadgeText}>Current Assignment</Text>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />}
+      >
+        {currentSite ? (
+          <Card style={styles.currentSiteCard}>
+            <View style={styles.currentSiteHeader}>
+              <View style={styles.currentBadge}>
+                <MaterialCommunityIcons name="map-marker" size={16} color={COLORS.primary} />
+                <Text style={styles.currentBadgeText}>Current Assignment</Text>
+              </View>
+              {currentSite.coordinates && (
+                <TouchableOpacity
+                  style={styles.directionsButton}
+                  onPress={() => openMaps(currentSite.coordinates!.latitude, currentSite.coordinates!.longitude, currentSite.name)}
+                >
+                  <MaterialCommunityIcons name="navigation" size={16} color={COLORS.white} />
+                  <Text style={styles.directionsText}>Directions</Text>
+                </TouchableOpacity>
+              )}
             </View>
-            <TouchableOpacity 
-              style={styles.directionsButton}
-              onPress={navigateToCurrentSite}
-            >
-              <MaterialCommunityIcons name="navigation" size={16} color={COLORS.white} />
-              <Text style={styles.directionsText}>Directions</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.siteName}>{currentSite.name}</Text>
-          <Text style={styles.siteAddress}>{currentSite.address}</Text>
-
-          <View style={styles.siteInfo}>
-            <View style={styles.infoItem}>
-              <MaterialCommunityIcons name="clock" size={16} color={COLORS.gray400} />
-              <Text style={styles.infoText}>Your shift site</Text>
-            </View>
-            <View style={styles.infoItem}>
-              <MaterialCommunityIcons name="map-marker-distance" size={16} color={COLORS.gray400} />
-              <Text style={styles.infoText}>{currentSite.distance} • {currentSite.estimatedTime}</Text>
-            </View>
-          </View>
-
-          <TouchableOpacity 
-            style={styles.contactButton}
-            onPress={() => callContact(currentSite.contactPhone)}
-          >
-            <MaterialCommunityIcons name="phone-outline" size={18} color={COLORS.primary} />
-            <Text style={styles.contactButtonText}>
-              Call {currentSite.contactPerson}
-            </Text>
-          </TouchableOpacity>
-        </Card>
-
-        {/* Alternative Sites */}
-        <Text style={styles.sectionTitle}>Alternative Sites</Text>
-        {alternativeSites.map((site) => (
-          <Card key={site.id} style={styles.alternativeSiteCard}>
-            <View style={styles.alternativeSiteHeader}>
-              <Text style={styles.alternativeSiteName}>{site.name}</Text>
-              <TouchableOpacity 
-                style={styles.navigateBtn}
-                onPress={() => navigateToAlternativeSite(site)}
-              >
-                <MaterialCommunityIcons name="navigation" size={16} color={COLORS.white} />
-                <Text style={styles.navigateBtnText}>Navigate</Text>
-              </TouchableOpacity>
-            </View>
-
-            <Text style={styles.alternativeSiteAddress}>{site.address}</Text>
-
+            <Text style={styles.siteName}>{currentSite.name}</Text>
+            <Text style={styles.siteAddress}>{currentSite.address}</Text>
             <View style={styles.siteInfo}>
               <View style={styles.infoItem}>
-                <MaterialCommunityIcons name="clock" size={16} color={COLORS.gray400} />
-                <Text style={styles.infoText}>{site.distance} • {site.estimatedTime}</Text>
+                <MaterialCommunityIcons name="map-marker-distance" size={16} color={COLORS.gray400} />
+                <Text style={styles.infoText}>{currentSite.distance} • {currentSite.estimatedTime}</Text>
               </View>
             </View>
-
-            <TouchableOpacity 
-              style={styles.contactButtonAlt}
-              onPress={() => callContact(site.contactPhone)}
-            >
-              <MaterialCommunityIcons name="phone-outline" size={18} color={COLORS.secondary} />
-              <Text style={[styles.contactButtonText, { color: COLORS.secondary }]}>
-                Call {site.contactPerson}
-              </Text>
-            </TouchableOpacity>
+            {(currentSite.contactPerson !== '—' || currentSite.contactPhone !== '—') && (
+              <TouchableOpacity style={styles.contactButton} onPress={() => callContact(currentSite.contactPhone)}>
+                <MaterialCommunityIcons name="phone-outline" size={18} color={COLORS.primary} />
+                <Text style={styles.contactButtonText}>Call {currentSite.contactPerson}</Text>
+              </TouchableOpacity>
+            )}
           </Card>
-        ))}
+        ) : (
+          <Card style={styles.currentSiteCard}>
+            <Text style={styles.siteName}>No assignment today</Text>
+            <Text style={styles.siteAddress}>You have no site assigned for today. Check with your supervisor.</Text>
+          </Card>
+        )}
 
-        {/* Quick Actions */}
+        <Text style={styles.sectionTitle}>{currentSite ? 'Other Sites' : 'Sites'}</Text>
+        {alternativeSites.length === 0 ? (
+          <Card style={styles.alternativeSiteCard}>
+            <Text style={styles.alternativeSiteAddress}>No other sites to show.</Text>
+          </Card>
+        ) : (
+          alternativeSites.map((site) => (
+            <Card key={site.id} style={styles.alternativeSiteCard}>
+              <View style={styles.alternativeSiteHeader}>
+                <Text style={styles.alternativeSiteName}>{site.name}</Text>
+                {site.coordinates && (
+                  <TouchableOpacity
+                    style={styles.navigateBtn}
+                    onPress={() => openMaps(site.coordinates!.latitude, site.coordinates!.longitude, site.name)}
+                  >
+                    <MaterialCommunityIcons name="navigation" size={16} color={COLORS.white} />
+                    <Text style={styles.navigateBtnText}>Navigate</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              <Text style={styles.alternativeSiteAddress}>{site.address}</Text>
+              <View style={styles.siteInfo}>
+                <View style={styles.infoItem}>
+                  <MaterialCommunityIcons name="clock" size={16} color={COLORS.gray400} />
+                  <Text style={styles.infoText}>{site.distance} • {site.estimatedTime}</Text>
+                </View>
+              </View>
+              {(site.contactPerson !== '—' || site.contactPhone !== '—') && (
+                <TouchableOpacity style={styles.contactButtonAlt} onPress={() => callContact(site.contactPhone)}>
+                  <MaterialCommunityIcons name="phone-outline" size={18} color={COLORS.secondary} />
+                  <Text style={[styles.contactButtonText, { color: COLORS.secondary }]}>Call {site.contactPerson}</Text>
+                </TouchableOpacity>
+              )}
+            </Card>
+          ))
+        )}
+
         <Card style={styles.quickActionsCard}>
           <Text style={styles.quickActionsTitle}>Quick Actions</Text>
-          
           <View style={styles.actionButtons}>
-            <TouchableOpacity style={styles.actionButton}>
-              <MaterialCommunityIcons name="share-variant" size={20} color={COLORS.primary} />
-              <Text style={styles.actionButtonText}>Share Location</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('IncidentReporting')}>
               <MaterialCommunityIcons name="alert-outline" size={20} color={COLORS.warning} />
               <Text style={styles.actionButtonText}>Report Issue</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.actionButton}>
-              <MaterialCommunityIcons name="shield-outline" size={20} color={COLORS.success} />
-              <Text style={styles.actionButtonText}>Emergency</Text>
             </TouchableOpacity>
           </View>
         </Card>
@@ -209,19 +287,21 @@ const SiteNavigationScreen: React.FC<SiteNavigationScreenProps> = ({ navigation 
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  header: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    justifyContent: 'space-between', 
-    paddingHorizontal: SIZES.md, 
-    paddingVertical: SIZES.md, 
-    backgroundColor: COLORS.white, 
-    ...SHADOWS.small 
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SIZES.md,
+    paddingVertical: SIZES.md,
+    backgroundColor: COLORS.white,
+    ...SHADOWS.small,
   },
   backButton: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
   headerTitle: { fontSize: FONTS.h4, fontWeight: '600', color: COLORS.textPrimary },
   placeholder: { width: 40 },
   content: { padding: SIZES.md },
+  loadingWrap: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: SIZES.xl },
+  loadingText: { marginTop: SIZES.md, fontSize: FONTS.body, color: COLORS.textSecondary },
   currentSiteCard: { padding: SIZES.md, marginBottom: SIZES.md, backgroundColor: COLORS.primary + '08' },
   currentSiteHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SIZES.sm },
   currentBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.primary + '15', paddingHorizontal: SIZES.sm, paddingVertical: SIZES.xs, borderRadius: SIZES.radiusSm },

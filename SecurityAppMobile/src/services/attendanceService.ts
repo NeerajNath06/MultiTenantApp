@@ -153,7 +153,10 @@ class AttendanceService extends BaseApiService {
     }
     const ext = format === 'pdf' ? 'pdf' : format === 'xlsx' ? 'xlsx' : 'csv';
     const url = `${getBaseUrl()}/api/v1/Attendance/export?${params.toString()}`;
-    const headers = await this.getAuthHeaders();
+    const rawHeaders = await this.getAuthHeaders();
+    const headers: Record<string, string> = {};
+    if (rawHeaders && typeof rawHeaders === 'object' && !Array.isArray(rawHeaders))
+      Object.assign(headers, rawHeaders as Record<string, string>);
     const fileName = `Attendance_${new Date().toISOString().slice(0, 10)}.${ext}`;
     const path = `${FileSystem.cacheDirectory ?? ''}${fileName}`;
     const mimeType = format === 'pdf' ? 'application/pdf' : format === 'xlsx' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'text/csv';

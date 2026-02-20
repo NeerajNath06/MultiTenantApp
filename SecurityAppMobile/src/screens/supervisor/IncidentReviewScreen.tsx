@@ -239,10 +239,10 @@ function IncidentReviewScreen({ navigation }: any) {
         if (canShare) {
           await Sharing.shareAsync(res.localUri, {
             mimeType: res.mimeType ?? 'text/csv',
-            dialogTitle: `Export Incidents (${format.toUpperCase()})`,
+            dialogTitle: `Incident Report (${format.toUpperCase()}) - Open or share`,
           });
         } else {
-          Alert.alert('Export Done', `File saved: ${res.fileName}`);
+          Alert.alert('Report Downloaded', `File saved: ${res.fileName}. Open from your device to view.`);
         }
       }
     } catch (e) {
@@ -262,9 +262,9 @@ function IncidentReviewScreen({ navigation }: any) {
       `Total Incidents: ${incidents.length}\n\n📋 Pending: ${pendingCount}\n🔍 Investigating: ${investigatingCount}\n✅ Resolved: ${resolvedCount}\n\nCritical: ${incidents.filter(i => i.priority === 'critical').length}\nHigh Priority: ${incidents.filter(i => i.priority === 'high').length}\n\nReport generated successfully.`,
       [
         { text: 'Close' },
-        { text: 'Export CSV', onPress: () => handleExport('csv') },
-        { text: 'Export Excel', onPress: () => handleExport('xlsx') },
-        { text: 'Export PDF', onPress: () => handleExport('pdf') },
+        { text: 'Download as CSV', onPress: () => handleExport('csv') },
+        { text: 'Download as Excel', onPress: () => handleExport('xlsx') },
+        { text: 'Download as PDF', onPress: () => handleExport('pdf') },
       ]
     );
   };
@@ -370,20 +370,20 @@ function IncidentReviewScreen({ navigation }: any) {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => Alert.alert('Export format', 'Choose format', [
+            onPress={() => Alert.alert('Download Report', 'Choose report format (agency header and data included)', [
               { text: 'Cancel', style: 'cancel' },
-              { text: 'CSV', onPress: () => handleExport('csv') },
-              { text: 'Excel', onPress: () => handleExport('xlsx') },
-              { text: 'PDF', onPress: () => handleExport('pdf') },
+              { text: 'Download as CSV', onPress: () => handleExport('csv') },
+              { text: 'Download as Excel', onPress: () => handleExport('xlsx') },
+              { text: 'Download as PDF', onPress: () => handleExport('pdf') },
             ])}
             disabled={exporting}
           >
             {exporting ? (
               <ActivityIndicator size="small" color={COLORS.primary} />
             ) : (
-              <MaterialCommunityIcons name="file-export" size={20} color={COLORS.primary} />
+              <MaterialCommunityIcons name="file-download" size={20} color={COLORS.primary} />
             )}
-            <Text style={styles.actionButtonText}>{exporting ? 'Exporting…' : 'Export'}</Text>
+            <Text style={styles.actionButtonText}>{exporting ? 'Downloading…' : 'Download Report'}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton} onPress={handleAnalytics}>
             <MaterialCommunityIcons name="chart-line" size={20} color={COLORS.secondary} />

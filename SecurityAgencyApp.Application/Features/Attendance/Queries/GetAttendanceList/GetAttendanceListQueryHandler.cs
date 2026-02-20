@@ -77,19 +77,26 @@ public class GetAttendanceListQueryHandler : IRequestHandler<GetAttendanceListQu
             ? await _unitOfWork.Repository<Site>().FindAsync(s => assignments.Select(a => a.SiteId).Contains(s.Id), cancellationToken)
             : new List<Site>();
 
-        var items = attendances.Select(a => new AttendanceDto
+        var items = attendances.Select(a =>
         {
-            Id = a.Id,
-            GuardId = a.GuardId,
-            GuardName = $"{guards.FirstOrDefault(g => g.Id == a.GuardId)?.FirstName} {guards.FirstOrDefault(g => g.Id == a.GuardId)?.LastName}",
-            GuardCode = guards.FirstOrDefault(g => g.Id == a.GuardId)?.GuardCode ?? "",
-            AssignmentId = a.AssignmentId,
-            SiteName = sites.FirstOrDefault(s => s.Id == assignments.FirstOrDefault(ass => ass.Id == a.AssignmentId)?.SiteId)?.SiteName ?? "",
-            AttendanceDate = a.AttendanceDate,
-            CheckInTime = a.CheckInTime,
-            CheckOutTime = a.CheckOutTime,
-            Status = a.Status.ToString(),
-            Remarks = a.Remarks
+            var g = guards.FirstOrDefault(g => g.Id == a.GuardId);
+            var ass = assignments.FirstOrDefault(ass => ass.Id == a.AssignmentId);
+            var site = sites.FirstOrDefault(s => s.Id == ass?.SiteId);
+            return new AttendanceDto
+            {
+                Id = a.Id,
+                GuardId = a.GuardId,
+                GuardName = $"{g?.FirstName} {g?.LastName}".Trim(),
+                GuardCode = g?.GuardCode ?? "",
+                GuardPhone = g?.PhoneNumber,
+                AssignmentId = a.AssignmentId,
+                SiteName = site?.SiteName ?? "",
+                AttendanceDate = a.AttendanceDate,
+                CheckInTime = a.CheckInTime,
+                CheckOutTime = a.CheckOutTime,
+                Status = a.Status.ToString(),
+                Remarks = a.Remarks
+            };
         }).ToList();
 
         // Apply search filter on results if needed

@@ -58,8 +58,22 @@ class IncidentService extends BaseApiService {
     siteId: string;
     guardId?: string;
     agencyId?: string;
-  }): Promise<{ success: boolean; data?: Incident; error?: { code: string; message: string } }> {
-    return await this.post<Incident>('/api/v1/Incidents', incident);
+    /** ISO date string - required by API */
+    incidentDate?: string;
+    /** 1=Low, 2=Medium, 3=High, 4=Critical - required by API */
+    severity?: number;
+    actionTaken?: string;
+  }): Promise<{ success: boolean; data?: { id?: string } | string; error?: { code: string; message: string } }> {
+    const body = {
+      siteId: incident.siteId,
+      guardId: incident.guardId || null,
+      incidentDate: incident.incidentDate ?? new Date().toISOString(),
+      incidentType: incident.incidentType,
+      severity: incident.severity ?? 2,
+      description: incident.description,
+      actionTaken: incident.actionTaken || null,
+    };
+    return await this.post<{ id?: string } | string>('/api/v1/Incidents', body);
   }
 
   async updateIncident(id: string, incident: Partial<Incident>): Promise<{ success: boolean; data?: Incident; error?: { code: string; message: string } }> {
@@ -113,7 +127,10 @@ class IncidentService extends BaseApiService {
     }
     const ext = format === 'pdf' ? 'pdf' : format === 'xlsx' ? 'xlsx' : 'csv';
     const url = `${getBaseUrl()}/api/v1/Incidents/export?${params.toString()}`;
-    const headers = await this.getAuthHeaders();
+    const rawHeaders = await this.getAuthHeaders();
+    const headers: Record<string, string> = {};
+    if (rawHeaders && typeof rawHeaders === 'object' && !Array.isArray(rawHeaders))
+      Object.assign(headers, rawHeaders as Record<string, string>);
     const fileName = `Incidents_${new Date().toISOString().slice(0, 10)}.${ext}`;
     const path = `${FileSystem.cacheDirectory ?? ''}${fileName}`;
     const mimeType = format === 'pdf' ? 'application/pdf' : format === 'xlsx' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'text/csv';

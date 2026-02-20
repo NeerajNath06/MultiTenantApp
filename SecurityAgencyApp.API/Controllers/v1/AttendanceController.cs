@@ -12,6 +12,7 @@ using SecurityAgencyApp.Application.Features.Attendance.Commands.CheckOut;
 using SecurityAgencyApp.Application.Features.Attendance.Commands.MarkAttendance;
 using SecurityAgencyApp.Application.Features.Attendance.Queries.GetAttendanceList;
 using SecurityAgencyApp.Application.Features.Attendance.Queries.GetGuardAttendanceByDate;
+using SecurityAgencyApp.Application.Features.TenantProfile.Queries.GetTenantProfile;
 
 namespace SecurityAgencyApp.API.Controllers.v1;
 
@@ -27,7 +28,7 @@ public class AttendanceController : ControllerBase
         _mediator = mediator;
     }
 
-    /// <summary>Export attendance as CSV, Excel (.xlsx), or PDF. Same filters as GET list. format=csv|xlsx|pdf.</summary>
+    /// <summary>Export attendance as CSV, Excel (.xlsx), or PDF with enterprise header (agency name, address, guard details). format=csv|xlsx|pdf.</summary>
     [HttpGet("export")]
     public async Task<IActionResult> ExportAttendance(
         [FromQuery] string format = "csv",
@@ -61,27 +62,30 @@ public class AttendanceController : ControllerBase
             return NotFound();
         var items = result.Data.Items;
         var stamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+        var profileResult = await _mediator.Send(new GetTenantProfileQuery(), cancellationToken);
+        var header = ExportReportHeaderBuilder.BuildWithDateRange(profileResult.Data, "Attendance Report", startDate, endDate);
 
         if (fmt == "xlsx")
         {
-            var bytes = ExportHelper.ToExcel("Attendance", "Attendance Report", items);
+            var bytes = ExportHelper.ToExcel("Attendance", "Attendance Report", items, header);
             return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Attendance_{stamp}.xlsx");
         }
         if (fmt == "pdf")
         {
-            var headers = new[] { "Date", "Guard", "Code", "Site", "Check In", "Check Out", "Status", "Remarks" };
+            var columnHeaders = new[] { "Date", "Guard Name", "Guard Code", "Guard Phone", "Site", "Check In", "Check Out", "Status", "Remarks" };
             var rows = items.Select(i => new[]
             {
                 i.AttendanceDate.ToString("yyyy-MM-dd"),
                 i.GuardName,
                 i.GuardCode,
+                i.GuardPhone ?? "",
                 i.SiteName,
                 i.CheckInTime?.ToString("HH:mm") ?? "",
                 i.CheckOutTime?.ToString("HH:mm") ?? "",
                 i.Status,
                 i.Remarks ?? ""
             }).ToList();
-            var bytes = ExportHelper.ToPdf("Attendance Report", headers, rows);
+            var bytes = ExportHelper.ToPdf("Attendance Report", columnHeaders, rows, header);
             return File(bytes, "application/pdf", $"Attendance_{stamp}.pdf");
         }
         var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture) { HasHeaderRecord = true };
@@ -167,4 +171,5 @@ public class AttendanceController : ControllerBase
             return Ok(result);
         return BadRequest(result);
     }
+
 }

@@ -11,6 +11,7 @@ using SecurityAgencyApp.Application.Features.TenantDocuments.Commands.CreateTena
 using SecurityAgencyApp.Application.Features.TenantDocuments.Commands.DeleteTenantDocument;
 using SecurityAgencyApp.Application.Features.TenantDocuments.Queries.GetTenantDocumentById;
 using SecurityAgencyApp.Application.Features.TenantDocuments.Queries.GetTenantDocuments;
+using SecurityAgencyApp.Application.Features.TenantProfile.Queries.GetTenantProfile;
 using SecurityAgencyApp.Application.Interfaces;
 using TenantDocumentListDto = SecurityAgencyApp.Application.Features.TenantDocuments.Queries.GetTenantDocuments.TenantDocumentDto;
 
@@ -58,15 +59,17 @@ public class TenantDocumentsController : ControllerBase
             return NotFound();
         var items = result.Data;
         var stamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+        var profileResult = await _mediator.Send(new GetTenantProfileQuery(), cancellationToken);
+        var header = ExportReportHeaderBuilder.Build(profileResult.Data, "Company Documents");
 
         if (fmt == "xlsx")
         {
-            var bytes = ExportHelper.ToExcel("Documents", "Company Documents", items);
+            var bytes = ExportHelper.ToExcel("Documents", "Company Documents", items, header);
             return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"TenantDocuments_{stamp}.xlsx");
         }
         if (fmt == "pdf")
         {
-            var headers = new[] { "Type", "Document #", "File Name", "Expiry", "Created" };
+            var columnHeaders = new[] { "Type", "Document #", "File Name", "Expiry", "Created" };
             var rows = items.Select(i => new[]
             {
                 i.DocumentType,
@@ -75,7 +78,7 @@ public class TenantDocumentsController : ControllerBase
                 i.ExpiryDate?.ToString("yyyy-MM-dd") ?? "",
                 i.CreatedDate.ToString("yyyy-MM-dd HH:mm")
             }).ToList();
-            var bytes = ExportHelper.ToPdf("Company Documents", headers, rows);
+            var bytes = ExportHelper.ToPdf("Company Documents", columnHeaders, rows, header);
             return File(bytes, "application/pdf", $"TenantDocuments_{stamp}.pdf");
         }
         var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture) { HasHeaderRecord = true };

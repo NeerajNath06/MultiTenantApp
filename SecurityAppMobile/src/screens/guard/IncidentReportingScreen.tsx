@@ -167,15 +167,17 @@ const IncidentReportingScreen: React.FC<IncidentReportingScreenProps> = ({ navig
         siteId: selectedSiteId,
         guardId: guardIdForApi,
         agencyId: user.agencyId,
+        incidentDate: new Date().toISOString(),
+        severity: 2,
       };
 
       const result = await incidentService.createIncident(incidentData);
 
       if (result.success && result.data) {
-        const incidentId = result.data.id;
+        const incidentId = typeof result.data === 'string' ? result.data : (result.data as { id?: string })?.id;
 
-        // Upload evidence if any
-        if (media.length > 0) {
+        // Upload evidence if any (only when we have a valid incident id)
+        if (incidentId && media.length > 0) {
           for (const mediaItem of media) {
             try {
               const base64 = await convertImageToBase64(mediaItem.uri);

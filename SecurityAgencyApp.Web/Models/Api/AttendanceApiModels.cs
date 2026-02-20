@@ -18,6 +18,7 @@ public class AttendanceItemDto
     public Guid GuardId { get; set; }
     public string GuardName { get; set; } = string.Empty;
     public string GuardCode { get; set; } = string.Empty;
+    public string? GuardPhone { get; set; }
     public Guid AssignmentId { get; set; }
     public string SiteName { get; set; } = string.Empty;
     public DateTime AttendanceDate { get; set; }

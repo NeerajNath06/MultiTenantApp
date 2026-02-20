@@ -9,6 +9,7 @@ using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Incidents.Commands.CreateIncident;
 using SecurityAgencyApp.Application.Features.Incidents.Commands.UpdateIncident;
 using SecurityAgencyApp.Application.Features.Incidents.Queries.GetIncidentList;
+using SecurityAgencyApp.Application.Features.TenantProfile.Queries.GetTenantProfile;
 using SecurityAgencyApp.API.Services;
 
 namespace SecurityAgencyApp.API.Controllers.v1;
@@ -63,15 +64,17 @@ public class IncidentsController : ControllerBase
             return NotFound();
         var items = result.Data.Items;
         var stamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+        var profileResult = await _mediator.Send(new GetTenantProfileQuery(), cancellationToken);
+        var header = ExportReportHeaderBuilder.BuildWithDateRange(profileResult.Data, "Incident Reports", startDate, endDate);
 
         if (fmt == "xlsx")
         {
-            var bytes = ExportHelper.ToExcel("Incidents", "Incident Reports", items);
+            var bytes = ExportHelper.ToExcel("Incidents", "Incident Reports", items, header);
             return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Incidents_{stamp}.xlsx");
         }
         if (fmt == "pdf")
         {
-            var headers = new[] { "Incident #", "Date", "Site", "Guard", "Type", "Severity", "Status", "Description" };
+            var columnHeaders = new[] { "Incident #", "Date", "Site", "Guard", "Type", "Severity", "Status", "Description" };
             var rows = items.Select(i => new[]
             {
                 i.IncidentNumber,
@@ -83,7 +86,7 @@ public class IncidentsController : ControllerBase
                 i.Status,
                 i.Description.Length > 200 ? i.Description[..200] + "…" : i.Description
             }).ToList();
-            var bytes = ExportHelper.ToPdf("Incident Reports", headers, rows);
+            var bytes = ExportHelper.ToPdf("Incident Reports", columnHeaders, rows, header);
             return File(bytes, "application/pdf", $"Incidents_{stamp}.pdf");
         }
         var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture) { HasHeaderRecord = true };
