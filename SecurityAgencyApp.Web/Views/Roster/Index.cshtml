@@ -1,0 +1,123 @@
+@model SecurityAgencyApp.Web.Controllers.RosterViewModel
+@{
+    ViewData["Title"] = "Roster";
+    var deployments = Model?.Deployments ?? new List<SecurityAgencyApp.Web.Models.Api.RosterDeploymentDto>();
+    var weekDays = Model?.WeekDays ?? new List<DateTime>();
+    var sites = ViewBag.Sites as List<SecurityAgencyApp.Web.Models.Api.SiteDto> ?? new List<SecurityAgencyApp.Web.Models.Api.SiteDto>();
+    var guardIds = deployments.Select(d => d.GuardId).Distinct().ToList();
+    var guardNames = deployments.GroupBy(d => d.GuardId).ToDictionary(g => g.Key, g => g.First().GuardName ?? "—");
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h1 class="page-title">Roster</h1>
+            <p class="page-subtitle">Week view – guard deployments by day</p>
+        </div>
+        <a href="@Url.Action("Index", "GuardAssignments")" class="btn btn-primary">
+            <i class="fas fa-user-check me-2"></i>Manage Assignments
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-auto">
+                <label class="form-label">Week from</label>
+                <input type="date" name="dateFrom" class="form-control" value="@(Model?.DateFrom.ToString("yyyy-MM-dd") ?? "")" />
+            </div>
+            <div class="col-auto">
+                <label class="form-label">to</label>
+                <input type="date" name="dateTo" class="form-control" value="@(Model?.DateTo.ToString("yyyy-MM-dd") ?? "")" />
+            </div>
+            <div class="col-auto">
+                <label class="form-label">Site</label>
+                <select name="siteId" class="form-select" style="min-width: 180px;">
+                    <option value="">All Sites</option>
+                    @foreach (var s in sites)
+                    {
+                        <option value="@s.Id" selected="@(Model?.SiteId == s.Id)">@s.SiteName</option>
+                    }
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-filter me-2"></i>Apply
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        @if (weekDays.Any() && guardIds.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle mb-0 roster-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="roster-guard-col">Guard</th>
+                            @foreach (var day in weekDays)
+                            {
+                                <th class="text-center">
+                                    <div class="fw-semibold">@day.ToString("ddd")</div>
+                                    <small class="text-muted">@day.ToString("dd MMM")</small>
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var gid in guardIds.OrderBy(_ => guardNames.GetValueOrDefault(_, "—")))
+                        {
+                            <tr>
+                                <td class="roster-guard-col">
+                                    <span class="fw-semibold">@(guardNames.GetValueOrDefault(gid, "—"))</span>
+                                </td>
+                                @foreach (var day in weekDays)
+                                {
+                                    var dateStr = day.ToString("yyyy-MM-dd");
+                                    var dep = deployments.FirstOrDefault(d => d.GuardId == gid && (d.DeploymentDate ?? "").StartsWith(dateStr));
+                                    <td class="roster-cell">
+                                        @if (dep != null)
+                                        {
+                                            <div class="roster-badge roster-badge-shift" title="@dep.SiteName - @dep.StartTime to @dep.EndTime">
+                                                <span class="d-block text-truncate small">@(dep.ShiftName ?? "Shift")</span>
+                                                <span class="d-block text-truncate small text-muted">@(dep.SiteName ?? "—")</span>
+                                                <span class="d-block text-muted" style="font-size: 0.7rem;">@dep.StartTime - @dep.EndTime</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No roster data for this period</h5>
+                <p class="text-muted small">Create guard assignments to see them here.</p>
+                <a href="@Url.Action("Create", "GuardAssignments")" class="btn btn-primary mt-3">
+                    <i class="fas fa-user-check me-2"></i>Assign Guard
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .roster-table { font-size: 0.9rem; }
+    .roster-guard-col { min-width: 140px; vertical-align: middle !important; }
+    .roster-cell { min-width: 100px; vertical-align: middle !important; }
+    .roster-badge { padding: 6px 8px; border-radius: 6px; background: #e0f2fe; color: #0369a1; }
+    .roster-badge-shift { border-left: 3px solid #0ea5e9; }
+</style>

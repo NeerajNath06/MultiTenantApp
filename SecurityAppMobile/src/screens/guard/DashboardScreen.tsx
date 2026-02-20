@@ -125,9 +125,11 @@ const DashboardScreen: React.FC<GuardDashboardScreenProps> = ({ navigation }) =>
         { label: 'Incidents', value: incidentsCount.toString(), icon: 'alert-circle' },
       ]);
 
-      // Today's shift from deployments
+      // Today's shift from deployments (dateFrom/dateTo = today so API returns per-day rows for today)
       const deploymentsRes = await deploymentService.getDeployments({
         guardId,
+        dateFrom: todayStr,
+        dateTo: todayStr,
         pageSize: 50,
         skipCache: true,
       });
@@ -245,10 +247,12 @@ const DashboardScreen: React.FC<GuardDashboardScreenProps> = ({ navigation }) =>
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
+        contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
         <LinearGradient
@@ -462,6 +466,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: SIZES.xxl,
   },
   header: {
     paddingTop: SIZES.lg,

@@ -9,11 +9,13 @@ public class UpdateBillCommandHandler : IRequestHandler<UpdateBillCommand, ApiRe
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITenantContext _tenantContext;
+    private readonly ICurrentUserService _currentUserService;
 
-    public UpdateBillCommandHandler(IUnitOfWork unitOfWork, ITenantContext tenantContext)
+    public UpdateBillCommandHandler(IUnitOfWork unitOfWork, ITenantContext tenantContext, ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
         _tenantContext = tenantContext;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ApiResponse<bool>> Handle(UpdateBillCommand request, CancellationToken cancellationToken)
@@ -55,6 +57,7 @@ public class UpdateBillCommandHandler : IRequestHandler<UpdateBillCommand, ApiRe
         bill.Status = request.Status;
         bill.Notes = request.Notes;
         bill.ModifiedDate = DateTime.UtcNow;
+        bill.ModifiedBy = _currentUserService.UserId;
 
         // Delete existing items
         var existingItems = await _unitOfWork.Repository<BillItem>().FindAsync(

@@ -222,8 +222,10 @@ function SupervisorDashboardScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
+        contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
         <View style={styles.header}>
@@ -502,6 +504,7 @@ function SupervisorDashboardScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
+  scrollContent: { flexGrow: 1, paddingBottom: 24 },
   header: { backgroundColor: COLORS.primary, padding: 16, paddingBottom: 24 },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
   greeting: { fontSize: 12, color: COLORS.white, opacity: 0.8, marginBottom: 4 },

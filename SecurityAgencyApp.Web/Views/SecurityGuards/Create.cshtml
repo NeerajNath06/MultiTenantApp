@@ -47,7 +47,7 @@
                 </div>
                 <div class="col-md-6">
                     <label asp-for="Gender" class="form-label fw-semibold">Gender <span class="text-danger">*</span></label>
-                    <select asp-for="Gender" class="form-select" asp-items="Html.GetEnumSelectList<SecurityAgencyApp.Domain.Enums.Gender>()" required>
+                    <select asp-for="Gender" class="form-select" asp-items="ViewBag.GenderList" required>
                         <option value="">-- Select --</option>
                     </select>
                     <span asp-validation-for="Gender" class="text-danger small"></span>

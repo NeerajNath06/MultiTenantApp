@@ -44,8 +44,9 @@ public class AuthController : ControllerBase
         }
 
         var userRepo = _unitOfWork.Repository<User>();
-        var user = await userRepo.FirstOrDefaultAsync(
-            u => u.Email == request.Email.Trim(),
+        var email = request.Email.Trim().ToLowerInvariant();
+        var user = await userRepo.FirstOrDefaultIgnoreFiltersAsync(
+            u => u.Email != null && u.Email.ToLower() == email,
             CancellationToken.None);
 
         if (user == null)
@@ -78,8 +79,9 @@ public class AuthController : ControllerBase
         }
 
         var userRepo = _unitOfWork.Repository<User>();
-        var user = await userRepo.FirstOrDefaultAsync(
-            u => u.Email == request.Email.Trim(),
+        var email = request.Email.Trim().ToLowerInvariant();
+        var user = await userRepo.FirstOrDefaultIgnoreFiltersAsync(
+            u => u.Email != null && u.Email.ToLower() == email,
             CancellationToken.None);
 
         if (user == null)

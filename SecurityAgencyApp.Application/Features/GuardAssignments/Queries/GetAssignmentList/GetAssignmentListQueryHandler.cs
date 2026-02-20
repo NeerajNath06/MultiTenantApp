@@ -64,6 +64,7 @@ public class GetAssignmentListQueryHandler : IRequestHandler<GetAssignmentListQu
         {
             var guard = guards.FirstOrDefault(g => g.Id == a.GuardId);
             var supervisor = a.SupervisorId.HasValue ? supervisors.FirstOrDefault(s => s.Id == a.SupervisorId.Value) : null;
+            var shift = shifts.FirstOrDefault(sh => sh.Id == a.ShiftId);
             return new AssignmentDto
             {
                 Id = a.Id,
@@ -73,7 +74,9 @@ public class GetAssignmentListQueryHandler : IRequestHandler<GetAssignmentListQu
                 SiteId = a.SiteId,
                 SiteName = sites.FirstOrDefault(s => s.Id == a.SiteId)?.SiteName ?? "",
                 ShiftId = a.ShiftId,
-                ShiftName = shifts.FirstOrDefault(sh => sh.Id == a.ShiftId)?.ShiftName ?? "",
+                ShiftName = shift?.ShiftName ?? "",
+                ShiftStartTime = shift != null ? shift.StartTime.ToString(@"hh\:mm") : null,
+                ShiftEndTime = shift != null ? shift.EndTime.ToString(@"hh\:mm") : null,
                 AssignmentStartDate = a.AssignmentStartDate,
                 AssignmentEndDate = a.AssignmentEndDate,
                 Status = a.Status.ToString(),

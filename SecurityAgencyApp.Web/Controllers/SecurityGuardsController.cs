@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using SecurityAgencyApp.Domain.Enums;
 using SecurityAgencyApp.Web.Filters;
 using SecurityAgencyApp.Web.Models.Api;
 using SecurityAgencyApp.Web.Services;
@@ -43,6 +44,7 @@ public class SecurityGuardsController : Controller
     public async Task<IActionResult> Create()
     {
         await LoadSupervisorsIntoViewBag();
+        LoadGenderList();
         return View(new CreateGuardRequest());
     }
 
@@ -53,6 +55,7 @@ public class SecurityGuardsController : Controller
         if (!ModelState.IsValid)
         {
             await LoadSupervisorsIntoViewBag();
+            LoadGenderList();
             return View(request);
         }
         var body = new
@@ -86,7 +89,14 @@ public class SecurityGuardsController : Controller
         }
         ModelState.AddModelError("", result.Message ?? "API did not create the guard. Check that the API is running and ApiSettings:BaseUrl points to it.");
         await LoadSupervisorsIntoViewBag();
+        LoadGenderList();
         return View(request);
+    }
+
+    private void LoadGenderList()
+    {
+        var items = Enum.GetValues<Gender>().Select(g => new SelectListItem(g.ToString(), g.ToString())).ToList();
+        ViewBag.GenderList = new SelectList(items, "Value", "Text");
     }
 
     private async Task LoadSupervisorsIntoViewBag(Guid? selectedSupervisorId = null)
@@ -103,6 +113,7 @@ public class SecurityGuardsController : Controller
             return NotFound();
         var d = result.Data;
         await LoadSupervisorsIntoViewBag(d.SupervisorId);
+        LoadGenderList();
         return View(new UpdateGuardRequest
         {
             Id = d.Id,
@@ -129,6 +140,7 @@ public class SecurityGuardsController : Controller
         if (!ModelState.IsValid)
         {
             await LoadSupervisorsIntoViewBag(request.SupervisorId);
+            LoadGenderList();
             return View(request);
         }
         var body = new
@@ -156,6 +168,7 @@ public class SecurityGuardsController : Controller
         }
         ModelState.AddModelError("", result.Message);
         await LoadSupervisorsIntoViewBag(request.SupervisorId);
+        LoadGenderList();
         return View(request);
     }
 

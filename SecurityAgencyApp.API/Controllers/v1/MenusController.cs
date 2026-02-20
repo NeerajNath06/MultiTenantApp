@@ -1,11 +1,14 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using SecurityAgencyApp.Application.Common.Models;
-using SecurityAgencyApp.Application.Features.Menus.Commands.AssignMenuToRole;
 using SecurityAgencyApp.Application.Features.Menus.Commands.AssignMenuToUser;
+using SecurityAgencyApp.Application.Features.Roles.Commands.AssignMenusToRole;
 using SecurityAgencyApp.Application.Features.Menus.Commands.CreateMenu;
 using SecurityAgencyApp.Application.Features.Menus.Commands.UpdateMenu;
 using SecurityAgencyApp.Application.Features.Menus.Queries.GetMenuList;
+using SecurityAgencyApp.Application.Features.Menus.Queries.GetMenusForCurrentUser;
+using SecurityAgencyApp.Application.Interfaces;
 using GetMenuByIdQuery = SecurityAgencyApp.Application.Features.Menus.Queries.GetMenuById.GetMenuByIdQuery;
 using GetMenuByIdDto = SecurityAgencyApp.Application.Features.Menus.Queries.GetMenuById.MenuDto;
 
@@ -16,10 +19,14 @@ namespace SecurityAgencyApp.API.Controllers.v1;
 public class MenusController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IMemoryCache _cache;
+    private readonly ICurrentUserService _currentUserService;
 
-    public MenusController(IMediator mediator)
+    public MenusController(IMediator mediator, IMemoryCache cache, ICurrentUserService currentUserService)
     {
         _mediator = mediator;
+        _cache = cache;
+        _currentUserService = currentUserService;
     }
 
     /// <summary>
@@ -30,6 +37,23 @@ public class MenusController : ControllerBase
     {
         var query = new GetMenuListQuery { IncludeInactive = includeInactive, PageNumber = pageNumber, PageSize = pageSize, Search = search, SortBy = sortBy, SortDirection = sortDirection };
         var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get menus and submenus allowed for the current user (by role). Use this for sidebar. Cached 5 min per user (enterprise).
+    /// </summary>
+    [HttpGet("for-current-user")]
+    public async Task<ActionResult<ApiResponse<GetMenusForCurrentUserResponseDto>>> GetMenusForCurrentUser()
+    {
+        var userId = _currentUserService.UserId?.ToString() ?? "anon";
+        var cacheKey = "menus:u:" + userId;
+        if (_cache.TryGetValue(cacheKey, out GetMenusForCurrentUserResponseDto? cached))
+            return Ok(ApiResponse<GetMenusForCurrentUserResponseDto>.SuccessResponse(cached!, "Menus retrieved (cached)"));
+        var query = new GetMenusForCurrentUserQuery();
+        var result = await _mediator.Send(query);
+        if (result.Success && result.Data != null)
+            _cache.Set(cacheKey, result.Data, TimeSpan.FromMinutes(5));
         return Ok(result);
     }
 
@@ -78,15 +102,16 @@ public class MenusController : ControllerBase
     }
 
     /// <summary>
-    /// Assign menus to role
+    /// Assign menus and submenus to role (department-wise; stored in DB).
     /// </summary>
     [HttpPost("{roleId}/assign")]
-    public async Task<ActionResult<ApiResponse<bool>>> AssignMenuToRole(Guid roleId, [FromBody] List<Guid> menuIds)
+    public async Task<ActionResult<ApiResponse<bool>>> AssignMenusToRole(Guid roleId, [FromBody] AssignMenusToRoleRequest request)
     {
-        var command = new AssignMenuToRoleCommand
+        var command = new AssignMenusToRoleCommand
         {
             RoleId = roleId,
-            MenuIds = menuIds
+            MenuIds = request?.MenuIds ?? new List<Guid>(),
+            SubMenuIds = request?.SubMenuIds ?? new List<Guid>()
         };
         var result = await _mediator.Send(command);
         if (result.Success)
@@ -129,4 +154,10 @@ public class MenusController : ControllerBase
         }
         return BadRequest(result);
     }
+}
+
+public class AssignMenusToRoleRequest
+{
+    public List<Guid> MenuIds { get; set; } = new();
+    public List<Guid> SubMenuIds { get; set; } = new();
 }

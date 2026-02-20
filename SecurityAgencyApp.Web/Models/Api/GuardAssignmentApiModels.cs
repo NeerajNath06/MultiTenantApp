@@ -22,6 +22,8 @@ public class AssignmentItemDto
     public string SiteName { get; set; } = string.Empty;
     public Guid ShiftId { get; set; }
     public string ShiftName { get; set; } = string.Empty;
+    public string? ShiftStartTime { get; set; }
+    public string? ShiftEndTime { get; set; }
     public DateTime AssignmentStartDate { get; set; }
     public DateTime? AssignmentEndDate { get; set; }
     public string Status { get; set; } = string.Empty;

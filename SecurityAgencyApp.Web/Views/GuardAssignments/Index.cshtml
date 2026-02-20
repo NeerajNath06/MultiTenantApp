@@ -13,9 +13,14 @@
             <h1 class="page-title">Guard Assignments</h1>
             <p class="page-subtitle">Manage guard assignments to sites</p>
         </div>
-        <a href="@Url.Action("Create")" class="btn btn-primary">
-            <i class="fas fa-user-check me-2"></i>Assign Guard
-        </a>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("Index", "Roster")" class="btn btn-outline-primary">
+                <i class="fas fa-calendar-alt me-2"></i>View Roster
+            </a>
+            <a href="@Url.Action("Create")" class="btn btn-primary">
+                <i class="fas fa-user-check me-2"></i>Assign Guard
+            </a>
+        </div>
     </div>
 </div>
 
@@ -119,7 +124,13 @@
                                     <small class="text-muted">@assignment.GuardCode</small>
                                 </td>
                                 <td>@assignment.SiteName</td>
-                                <td>@assignment.ShiftName</td>
+                                <td>
+                                    @assignment.ShiftName
+                                    @if (!string.IsNullOrEmpty(assignment.ShiftStartTime) || !string.IsNullOrEmpty(assignment.ShiftEndTime))
+                                    {
+                                        <small class="text-muted d-block">@(assignment.ShiftStartTime ?? "—") - @(assignment.ShiftEndTime ?? "—")</small>
+                                    }
+                                </td>
                                 <td>@assignment.AssignmentStartDate.ToString("dd MMM yyyy")</td>
                                 <td>@(assignment.AssignmentEndDate?.ToString("dd MMM yyyy") ?? "Ongoing")</td>
                                 <td>

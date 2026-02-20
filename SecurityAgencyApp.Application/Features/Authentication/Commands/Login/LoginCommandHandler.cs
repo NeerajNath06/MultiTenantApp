@@ -34,14 +34,21 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, ApiResponse<Log
         {
             return ApiResponse<LoginResponseDto>.ErrorResponse("Invalid username or password");
         }
+        var loginIdLower = loginId.ToLowerInvariant();
+        // Login: user lookup must ignore global tenant filter (no tenant context yet). Case-insensitive so Guard/any user can login with email.
         var userRepo = _unitOfWork.Repository<User>();
-        var user = await userRepo.FirstOrDefaultAsync(
-            u => u.UserName == loginId || u.Email == loginId,
+        var user = await userRepo.FirstOrDefaultIgnoreFiltersAsync(
+            u => (u.UserName != null && u.UserName.ToLower() == loginIdLower) || (u.Email != null && u.Email.ToLower() == loginIdLower),
             cancellationToken);
 
         if (user == null || !user.IsActive)
         {
             return ApiResponse<LoginResponseDto>.ErrorResponse("Invalid username or password");
+        }
+
+        if (string.IsNullOrEmpty(user.PasswordHash))
+        {
+            return ApiResponse<LoginResponseDto>.ErrorResponse("Account has no password set. Use Reset password to set one.");
         }
 
         // Verify password
@@ -63,7 +70,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, ApiResponse<Log
             ur => ur.UserId == user.Id, cancellationToken);
         
         var roleIds = userRoles.Select(ur => ur.RoleId).ToList();
-        var roles = await _unitOfWork.Repository<Role>().FindAsync(
+        var roles = await _unitOfWork.Repository<Role>().FindIgnoreFiltersAsync(
             r => roleIds.Contains(r.Id), cancellationToken);
 
         // Get role permissions
@@ -98,7 +105,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, ApiResponse<Log
         if (roleNames.Any(r => string.Equals(r, "Security Guard", StringComparison.OrdinalIgnoreCase) || isSupervisor))
         {
             var guardRepo = _unitOfWork.Repository<SecurityGuard>();
-            var linkedGuard = await guardRepo.FirstOrDefaultAsync(
+            var linkedGuard = await guardRepo.FirstOrDefaultIgnoreFiltersAsync(
                 g => g.UserId == user.Id,
                 cancellationToken);
             if (linkedGuard != null)

@@ -5,14 +5,47 @@
 @foreach (var menu in Model ?? Enumerable.Empty<SecurityAgencyApp.Web.Models.Api.MenuDto>())
 {
     if (!menu.IsActive) { continue; }
-    var route = menu.Route ?? menu.Name;
-    var isActive = string.Equals(route, controller, StringComparison.OrdinalIgnoreCase);
-    var url = Url.Action("Index", route) ?? "#";
-    <a href="@url" class="menu-item @(isActive ? "active" : "")">
-        @if (!string.IsNullOrEmpty(menu.Icon))
-        {
-            <i class="@menu.Icon"></i>
-        }
-        <span>@(menu.DisplayName ?? menu.Name)</span>
-    </a>
+    var hasSubMenus = menu.SubMenus != null && menu.SubMenus.Any(s => s.IsActive);
+    if (hasSubMenus)
+    {
+        var menuId = "menu-" + menu.Id.ToString("N")[..8];
+        <div class="menu-group">
+            <a href="#" class="menu-item menu-parent" data-bs-toggle="collapse" data-bs-target="#@menuId" aria-expanded="false">
+                @if (!string.IsNullOrEmpty(menu.Icon))
+                {
+                    <i class="@menu.Icon"></i>
+                }
+                <span>@(menu.DisplayName ?? menu.Name)</span>
+                <i class="fas fa-chevron-down menu-chevron"></i>
+            </a>
+            <div class="collapse submenu-list" id="@menuId">
+                @foreach (var sub in (menu.SubMenus ?? Enumerable.Empty<SecurityAgencyApp.Web.Models.Api.SubMenuItemDto>()).Where(s => s.IsActive).OrderBy(s => s.DisplayOrder))
+                {
+                    var subRoute = sub.Route ?? sub.Name;
+                    var subActive = string.Equals(subRoute, controller, StringComparison.OrdinalIgnoreCase);
+                    var subUrl = Url.Action("Index", subRoute) ?? "#";
+                    <a href="@subUrl" class="menu-item submenu-item @(subActive ? "active" : "")">
+                        @if (!string.IsNullOrEmpty(sub.Icon))
+                        {
+                            <i class="@sub.Icon"></i>
+                        }
+                        <span>@(sub.DisplayName ?? sub.Name)</span>
+                    </a>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        var route = menu.Route ?? menu.Name;
+        var isActive = string.Equals(route, controller, StringComparison.OrdinalIgnoreCase);
+        var url = string.IsNullOrEmpty(menu.Route) || menu.Route == "#" ? "#" : (Url.Action("Index", route) ?? "#");
+        <a href="@url" class="menu-item @(isActive ? "active" : "")">
+            @if (!string.IsNullOrEmpty(menu.Icon))
+            {
+                <i class="@menu.Icon"></i>
+            }
+            <span>@(menu.DisplayName ?? menu.Name)</span>
+        </a>
+    }
 }

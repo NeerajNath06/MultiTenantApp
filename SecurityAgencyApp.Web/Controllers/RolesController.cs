@@ -148,7 +148,8 @@ public class RolesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ManageMenus(Guid id, List<Guid> menuIds, List<Guid> subMenuIds)
     {
-        var result = await _apiClient.PostAsync<object>($"api/v1/Menus/{id}/assign", menuIds ?? new List<Guid>());
+        var body = new { menuIds = menuIds ?? new List<Guid>(), subMenuIds = subMenuIds ?? new List<Guid>() };
+        var result = await _apiClient.PostAsync<object>($"api/v1/Menus/{id}/assign", body);
         if (result.Success)
         {
             TempData["SuccessMessage"] = "Menus and SubMenus assigned successfully";

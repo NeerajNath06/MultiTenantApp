@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { COLORS, FONTS, SIZES, SHADOWS } from '../../constants/theme';
+import { COLORS, FONTS, SIZES, SHADOWS, scaleWidth } from '../../constants/theme';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import { leaveService } from '../../services/leaveService';
@@ -33,6 +33,8 @@ function LeaveRequestScreen({ navigation }: any) {
   const [leaveType, setLeaveType] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+  const [fromDateISO, setFromDateISO] = useState('');
+  const [toDateISO, setToDateISO] = useState('');
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
@@ -71,42 +73,55 @@ function LeaveRequestScreen({ navigation }: any) {
       const user = await authService.getStoredUser();
       if (!user) return;
 
-      // Load leave balance
-      const balanceResult = await leaveService.getLeaveBalance(user.id);
+      const guardIdForApi = (user as { guardId?: string }).guardId || user.id;
+
+      // Load leave balance (API expects SecurityGuard id)
+      const balanceResult = await leaveService.getLeaveBalance(guardIdForApi);
       if (balanceResult.success && balanceResult.data) {
         const balance = balanceResult.data;
         setLeaveBalance([
-          { type: 'Casual Leave', total: balance.totalLeaves || 12, used: balance.usedLeaves || 0, remaining: balance.remainingLeaves || 0, color: COLORS.primaryBlue },
+          { type: 'Casual Leave', total: balance.totalLeaves ?? 12, used: balance.usedLeaves ?? 0, remaining: balance.remainingLeaves ?? 12, color: COLORS.primaryBlue },
+          { type: 'Sick Leave', total: 10, used: 0, remaining: 10, color: COLORS.error },
+          { type: 'Earned Leave', total: 15, used: 0, remaining: 15, color: COLORS.success },
+          { type: 'Comp Off', total: 4, used: 0, remaining: 4, color: COLORS.warning },
+        ]);
+      } else {
+        setLeaveBalance([
+          { type: 'Casual Leave', total: 12, used: 0, remaining: 12, color: COLORS.primaryBlue },
           { type: 'Sick Leave', total: 10, used: 0, remaining: 10, color: COLORS.error },
           { type: 'Earned Leave', total: 15, used: 0, remaining: 15, color: COLORS.success },
           { type: 'Comp Off', total: 4, used: 0, remaining: 4, color: COLORS.warning },
         ]);
       }
 
-      // Load leave history
+      // Load leave history - API returns { items: LeaveRequestDto[], totalCount, ... }
       const historyResult = await leaveService.getLeaveRequests({
-        guardId: user.id,
+        guardId: guardIdForApi,
         pageSize: 50,
       });
 
       if (historyResult.success && historyResult.data) {
-        const requests = Array.isArray(historyResult.data)
-          ? historyResult.data
-          : (historyResult.data.data || []);
-
-        const mappedHistory = requests.map((req: any) => ({
-          id: req.id,
-          type: req.leaveType || 'Casual Leave',
-          fromDate: new Date(req.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-          toDate: new Date(req.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-          days: Math.ceil((new Date(req.endDate).getTime() - new Date(req.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1,
-          reason: req.reason || '',
-          status: req.status?.toLowerCase() || 'pending',
-          appliedOn: new Date(req.createdAt || req.createdOn).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-          approvedBy: req.approvedBy || undefined,
-        }));
-
+        const list = historyResult.data.items ?? historyResult.data.Items ?? (Array.isArray(historyResult.data) ? historyResult.data : []);
+        const mappedHistory = list.map((req: any) => {
+          const start = req.startDate ?? req.StartDate;
+          const end = req.endDate ?? req.EndDate;
+          const created = req.createdDate ?? req.CreatedDate ?? req.createdAt ?? req.createdOn;
+          const days = req.totalDays ?? (start && end ? Math.ceil((new Date(end).getTime() - new Date(start).getTime()) / (1000 * 60 * 60 * 24)) + 1 : 0);
+          return {
+            id: req.id ?? req.Id,
+            type: req.leaveType ?? req.LeaveType ?? 'Casual',
+            fromDate: start ? new Date(start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—',
+            toDate: end ? new Date(end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—',
+            days,
+            reason: req.reason ?? req.Reason ?? '',
+            status: (req.status ?? req.Status ?? 'pending').toString().toLowerCase(),
+            appliedOn: created ? new Date(created).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—',
+            approvedBy: req.approvedBy ?? req.approvedByName ?? undefined,
+          };
+        });
         setLeaveHistory(mappedHistory);
+      } else {
+        setLeaveHistory([]);
       }
     } catch (error) {
       console.error('Error loading leave data:', error);
@@ -123,12 +138,28 @@ function LeaveRequestScreen({ navigation }: any) {
 
   const leaveTypes = ['Casual Leave', 'Sick Leave', 'Earned Leave', 'Comp Off', 'Half Day'];
 
+  // Map display label to API leave type (API allows: Casual, Sick, Emergency, Annual, Unpaid)
+  const getApiLeaveType = (label: string): string => {
+    const map: Record<string, string> = {
+      'Casual Leave': 'Casual',
+      'Sick Leave': 'Sick',
+      'Earned Leave': 'Annual',
+      'Comp Off': 'Unpaid',
+      'Half Day': 'Casual',
+    };
+    return map[label] || 'Casual';
+  };
+
   const handleApplyLeave = async () => {
     if (!leaveType) {
       Alert.alert('Error', 'Please select leave type');
       return;
     }
     if (!fromDate || !toDate) {
+      Alert.alert('Error', 'Please select dates');
+      return;
+    }
+    if (!fromDateISO || !toDateISO) {
       Alert.alert('Error', 'Please select dates');
       return;
     }
@@ -146,26 +177,41 @@ function LeaveRequestScreen({ navigation }: any) {
         return;
       }
 
-      // Note: The API doesn't have a create leave request endpoint in the controller
-      // This would need to be added to the backend
-      // For now, we'll show a message
-      Alert.alert(
-        'Info',
-        'Leave request submission will be available once the backend endpoint is implemented.',
-        [
-          { text: 'OK', onPress: () => {
-            setLeaveType('');
-            setFromDate('');
-            setToDate('');
-            setReason('');
-            setActiveTab('history');
-            loadLeaveData();
-          }}
-        ]
-      );
+      const guardIdForApi = (user as { guardId?: string }).guardId || user.id;
+      const result = await leaveService.createLeaveRequest({
+        guardId: guardIdForApi,
+        leaveType: getApiLeaveType(leaveType),
+        startDate: fromDateISO,
+        endDate: toDateISO,
+        reason: reason.trim(),
+      });
+
+      if (result.success) {
+        Alert.alert(
+          'Success',
+          'Leave request submitted successfully. Your supervisor will review it shortly.',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                setLeaveType('');
+                setFromDate('');
+                setToDate('');
+                setFromDateISO('');
+                setToDateISO('');
+                setReason('');
+                setActiveTab('history');
+                loadLeaveData();
+              },
+            },
+          ]
+        );
+      } else {
+        Alert.alert('Error', result.error?.message || 'Failed to submit leave request');
+      }
     } catch (error) {
       console.error('Error applying leave:', error);
-      Alert.alert('Error', 'Failed to submit leave request');
+      Alert.alert('Error', 'Failed to submit leave request. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -234,7 +280,8 @@ function LeaveRequestScreen({ navigation }: any) {
 
       <ScrollView 
         showsVerticalScrollIndicator={false} 
-        contentContainerStyle={styles.content}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
         }
@@ -295,6 +342,7 @@ function LeaveRequestScreen({ navigation }: any) {
                       style={[styles.dateChip, fromDate === item.display && styles.dateChipActive]}
                       onPress={() => {
                         setFromDate(item.display);
+                        setFromDateISO(item.date.toISOString().slice(0, 10));
                         setShowFromDatePicker(false);
                       }}
                     >
@@ -323,6 +371,7 @@ function LeaveRequestScreen({ navigation }: any) {
                       style={[styles.dateChip, toDate === item.display && styles.dateChipActive]}
                       onPress={() => {
                         setToDate(item.display);
+                        setToDateISO(item.date.toISOString().slice(0, 10));
                         setShowToDatePicker(false);
                       }}
                     >
@@ -355,8 +404,15 @@ function LeaveRequestScreen({ navigation }: any) {
           </View>
         ) : (
           <View style={styles.historyContainer}>
-            {leaveHistory.map((leave) => (
-              <View key={leave.id} style={styles.historyCard}>
+            {leaveHistory.length === 0 ? (
+              <View style={styles.emptyHistory}>
+                <MaterialCommunityIcons name="calendar-blank-outline" size={48} color={COLORS.gray400} />
+                <Text style={styles.emptyHistoryTitle}>No leave requests yet</Text>
+                <Text style={styles.emptyHistoryText}>Your leave history will appear here after you apply.</Text>
+              </View>
+            ) : (
+            leaveHistory.map((leave) => (
+              <View key={String(leave.id)} style={styles.historyCard}>
                 <View style={styles.historyHeader}>
                   <View>
                     <Text style={styles.historyType}>{leave.type}</Text>
@@ -386,7 +442,8 @@ function LeaveRequestScreen({ navigation }: any) {
                   <Text style={styles.approvedBy}>Approved by: {leave.approvedBy}</Text>
                 )}
               </View>
-            ))}
+            ))
+            )}
           </View>
         )}
       </ScrollView>
@@ -396,13 +453,14 @@ function LeaveRequestScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
+  scrollContent: { flexGrow: 1, paddingHorizontal: SIZES.md, paddingBottom: SIZES.xxl },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SIZES.md, paddingVertical: SIZES.md, backgroundColor: COLORS.white, ...SHADOWS.small },
   backBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
   headerTitle: { fontSize: FONTS.h4, fontWeight: '600', color: COLORS.textPrimary },
   placeholder: { width: 40 },
   balanceScroll: { maxHeight: 130, marginTop: SIZES.md },
   balanceContainer: { paddingHorizontal: SIZES.md, gap: SIZES.sm },
-  balanceCard: { width: 160, backgroundColor: COLORS.white, borderRadius: SIZES.radiusMd, padding: SIZES.md, borderLeftWidth: 4, ...SHADOWS.small },
+  balanceCard: { width: scaleWidth(160), minWidth: scaleWidth(140), backgroundColor: COLORS.white, borderRadius: SIZES.radiusMd, padding: SIZES.md, borderLeftWidth: 4, ...SHADOWS.small },
   balanceType: { fontSize: FONTS.caption, fontWeight: '600', color: COLORS.textPrimary, marginBottom: SIZES.sm },
   balanceRow: { flexDirection: 'row', alignItems: 'center' },
   balanceItem: { flex: 1, alignItems: 'center' },
@@ -416,7 +474,7 @@ const styles = StyleSheet.create({
   tabActive: { backgroundColor: COLORS.primary + '10' },
   tabText: { fontSize: FONTS.bodySmall, color: COLORS.textSecondary, fontWeight: '500' },
   tabTextActive: { color: COLORS.primary, fontWeight: '600' },
-  content: { padding: SIZES.md },
+  content: { padding: SIZES.md, flex: 1 },
   formContainer: { backgroundColor: COLORS.white, borderRadius: SIZES.radiusMd, padding: SIZES.md, ...SHADOWS.small },
   label: { fontSize: FONTS.bodySmall, fontWeight: '600', color: COLORS.textPrimary, marginBottom: SIZES.sm },
   typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: SIZES.sm, marginBottom: SIZES.lg },
@@ -453,6 +511,9 @@ const styles = StyleSheet.create({
   historyDetailText: { fontSize: FONTS.caption, color: COLORS.textSecondary },
   historyReason: { fontSize: FONTS.caption, color: COLORS.textSecondary, fontStyle: 'italic' },
   approvedBy: { fontSize: FONTS.tiny, color: COLORS.success, marginTop: SIZES.xs },
+  emptyHistory: { alignItems: 'center', justifyContent: 'center', paddingVertical: SIZES.xxl },
+  emptyHistoryTitle: { fontSize: FONTS.body, fontWeight: '600', color: COLORS.textPrimary, marginTop: SIZES.md },
+  emptyHistoryText: { fontSize: FONTS.caption, color: COLORS.textSecondary, marginTop: SIZES.xs },
 });
 
 export default LeaveRequestScreen;

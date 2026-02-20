@@ -30,11 +30,44 @@ public class CreateIncidentCommandHandler : IRequestHandler<CreateIncidentComman
             return ApiResponse<Guid>.ErrorResponse("User context not found");
         }
 
+        // Resolve User.Id for ReportedBy / ReportedByUserId (FK to Users). JWT may contain Guard.Id when guard logs in from mobile.
+        var reportedByUserId = _currentUserService.UserId.Value;
+        var userExists = await _unitOfWork.Repository<User>().GetByIdAsync(reportedByUserId, cancellationToken);
+        if (userExists == null)
+        {
+            var guard = await _unitOfWork.Repository<SecurityGuard>().GetByIdAsync(reportedByUserId, cancellationToken);
+            if (guard != null && guard.TenantId == _tenantContext.TenantId.Value && guard.UserId.HasValue)
+            {
+                reportedByUserId = guard.UserId.Value;
+            }
+            else
+            {
+                return ApiResponse<Guid>.ErrorResponse("Your guard account must be linked to a user to report incidents. Please contact your administrator.");
+            }
+        }
+
         // Verify site belongs to tenant
         var site = await _unitOfWork.Repository<Site>().GetByIdAsync(request.SiteId, cancellationToken);
         if (site == null || site.TenantId != _tenantContext.TenantId.Value)
         {
             return ApiResponse<Guid>.ErrorResponse("Site not found");
+        }
+
+        // When GuardId is provided, ensure guard exists and belongs to tenant (avoids FK violation)
+        if (request.GuardId.HasValue)
+        {
+            var guard = await _unitOfWork.Repository<SecurityGuard>().GetByIdAsync(request.GuardId.Value, cancellationToken);
+            if (guard == null || guard.TenantId != _tenantContext.TenantId.Value)
+            {
+                return ApiResponse<Guid>.ErrorResponse("Selected guard not found or does not belong to this tenant.");
+            }
+        }
+
+        // Load user so EF can set ReportedByUserId FK from navigation (reuse if already loaded)
+        var reportedByUser = userExists ?? await _unitOfWork.Repository<User>().GetByIdAsync(reportedByUserId, cancellationToken);
+        if (reportedByUser == null)
+        {
+            return ApiResponse<Guid>.ErrorResponse("Reporting user not found.");
         }
 
         // Generate incident number
@@ -54,7 +87,8 @@ public class CreateIncidentCommandHandler : IRequestHandler<CreateIncidentComman
             IncidentNumber = incidentNumber,
             SiteId = request.SiteId,
             GuardId = request.GuardId,
-            ReportedBy = _currentUserService.UserId.Value,
+            ReportedBy = reportedByUserId,
+            ReportedByUser = reportedByUser,
             IncidentDate = request.IncidentDate,
             IncidentType = request.IncidentType,
             Severity = request.Severity,
@@ -64,7 +98,16 @@ public class CreateIncidentCommandHandler : IRequestHandler<CreateIncidentComman
         };
 
         await _unitOfWork.Repository<IncidentReport>().AddAsync(incident, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            var message = ex.InnerException?.Message ?? ex.Message;
+            return ApiResponse<Guid>.ErrorResponse($"Could not save incident: {message}");
+        }
 
         return ApiResponse<Guid>.SuccessResponse(incident.Id, "Incident report created successfully");
     }

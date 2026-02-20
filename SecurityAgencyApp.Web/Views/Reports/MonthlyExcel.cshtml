@@ -1,0 +1,51 @@
+@{
+    ViewData["Title"] = "Monthly Report (Excel)";
+    var year = ViewBag.Year as int? ?? DateTime.Today.Year;
+    var month = ViewBag.Month as int? ?? DateTime.Today.Month;
+}
+
+<div class="page-header">
+    <h1 class="page-title">Monthly Report</h1>
+    <p class="page-subtitle">Download agency monthly Excel with BILL, ATTENDANCE, Wages and Other sheets (like reference format).</p>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form method="get" asp-action="DownloadMonthlyExcel" target="_blank" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Year</label>
+                <select name="year" class="form-select" required>
+                    @for (var y = DateTime.Today.Year; y >= DateTime.Today.Year - 5; y--)
+                    {
+                        <option value="@y" selected="@(y == year)">@y</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Month</label>
+                <select name="month" class="form-select" required>
+                    @for (var m = 1; m <= 12; m++)
+                    {
+                        <option value="@m" selected="@(m == month)">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-file-excel me-2"></i>Download Monthly Excel
+                </button>
+            </div>
+        </form>
+        <p class="text-muted small mt-3 mb-0">
+            Generates one Excel file with 4 sheets: <strong>BILL</strong> (agency + client), <strong>ATTENDANCE</strong> (day-wise P/A), <strong>Wages</strong> (salary details), <strong>OTHER</strong> (payment summary).
+        </p>
+    </div>
+</div>

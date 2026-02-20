@@ -54,10 +54,14 @@ builder.Services.AddSwaggerGen(c =>
     }
 });
 
-// Database
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Database (enterprise: prefer env for connection string in production)
+var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+// Enterprise: in-memory cache for menus/sites (tenant-scoped keys, short TTL)
+builder.Services.AddMemoryCache();
 
 // Application Services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -77,10 +81,13 @@ builder.Services.AddMediatR(cfg =>
 // FluentValidation
 builder.Services.AddValidatorsFromAssembly(typeof(SecurityAgencyApp.Application.Common.Models.ApiResponse<>).Assembly);
 
-// JWT Authentication (so tenant can be read from token when X-Tenant-Id missing)
-var jwtSecret = builder.Configuration["JwtSettings:SecretKey"] ?? "";
-var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? "SecurityAgencyApp";
-var jwtAudience = builder.Configuration["JwtSettings:Audience"] ?? "SecurityAgencyApp";
+// JWT Authentication (enterprise: production – set env vars; no secrets in appsettings)
+var jwtSecret = Environment.GetEnvironmentVariable("JwtSettings__SecretKey")
+    ?? builder.Configuration["JwtSettings:SecretKey"] ?? "";
+var jwtIssuer = Environment.GetEnvironmentVariable("JwtSettings__Issuer")
+    ?? builder.Configuration["JwtSettings:Issuer"] ?? "SecurityAgencyApp";
+var jwtAudience = Environment.GetEnvironmentVariable("JwtSettings__Audience")
+    ?? builder.Configuration["JwtSettings:Audience"] ?? "SecurityAgencyApp";
 if (!string.IsNullOrEmpty(jwtSecret))
 {
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -100,34 +107,61 @@ if (!string.IsNullOrEmpty(jwtSecret))
         });
 }
 
-// CORS
+// CORS (enterprise: restrict origins in production via CORS:AllowedOrigins; empty = AllowAll for dev)
+var allowedOrigins = builder.Configuration.GetSection("CORS:AllowedOrigins").Get<string>()?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("ApiCors", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
+        policy.AllowAnyMethod()
               .AllowAnyHeader();
+        if (allowedOrigins.Length > 0)
+            policy.WithOrigins(allowedOrigins);
+        else
+            policy.AllowAnyOrigin();
     });
 });
 
 var app = builder.Build();
 
-// Seed database
+// Apply migrations and seed database
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
     try
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
+        var dbConnectionString = context.Database.GetConnectionString();
+        var dbName = GetDatabaseNameFromConnectionString(dbConnectionString);
+        logger.LogInformation("Database: {Database}. Applying migrations...", dbName ?? "(unknown)");
+
+        await context.Database.MigrateAsync();
+        logger.LogInformation("Migrations applied. Running seed...");
+
         var passwordHasher = services.GetRequiredService<IPasswordHasher>();
-        await SecurityAgencyApp.Infrastructure.Data.DbInitializer.SeedAsync(context, passwordHasher);
+        var seeded = await SecurityAgencyApp.Infrastructure.Data.DbInitializer.SeedAsync(context, passwordHasher);
+
+        if (seeded)
+            logger.LogInformation("Database seed completed. Data written to: {Database}.", dbName ?? "(unknown)");
+        else
+            logger.LogInformation("Seed skipped – database already has data (Tenants table not empty). Using: {Database}.", dbName ?? "(unknown)");
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
+        logger.LogError(ex, "Database migration or seed failed: {Message}", ex.Message);
     }
+}
+
+static string? GetDatabaseNameFromConnectionString(string? connectionString)
+{
+    if (string.IsNullOrWhiteSpace(connectionString)) return null;
+    var key = "Database=";
+    var idx = connectionString.IndexOf(key, StringComparison.OrdinalIgnoreCase);
+    if (idx < 0) return null;
+    idx += key.Length;
+    var end = connectionString.IndexOf(';', idx);
+    return end < 0 ? connectionString[idx..].Trim() : connectionString[idx..end].Trim();
 }
 
 // Configure the HTTP request pipeline
@@ -141,10 +175,34 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowAll");
+app.UseCors("ApiCors");
+
+// Enterprise: correlation ID for request tracing (early in pipeline)
+app.UseMiddleware<SecurityAgencyApp.API.Middleware.CorrelationIdMiddleware>();
+
+// Global exception handler: consistent ApiResponse shape for 500 (enterprise)
+app.UseExceptionHandler(appError =>
+{
+    appError.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        var ex = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
+        var message = ex?.Message ?? "An error occurred.";
+        if (app.Environment.IsDevelopment() && ex != null)
+            message = ex.ToString();
+        var body = System.Text.Json.JsonSerializer.Serialize(new { success = false, message, data = (object?)null, errors = (string[]?)null, timestamp = DateTime.UtcNow });
+        await context.Response.WriteAsync(body);
+    });
+});
+
 app.UseAuthentication();
 app.UseMiddleware<SecurityAgencyApp.API.Middleware.TenantContextMiddleware>();
+// Enterprise: rate limit per tenant (600 req/min)
+app.UseMiddleware<SecurityAgencyApp.API.Middleware.RateLimitMiddleware>();
 app.UseAuthorization();
+
+//app.MapHealthChecks("/health");
 app.MapControllers();
 
 app.Run();

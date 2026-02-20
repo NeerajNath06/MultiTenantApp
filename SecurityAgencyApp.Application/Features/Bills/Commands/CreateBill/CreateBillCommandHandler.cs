@@ -9,11 +9,13 @@ public class CreateBillCommandHandler : IRequestHandler<CreateBillCommand, ApiRe
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITenantContext _tenantContext;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CreateBillCommandHandler(IUnitOfWork unitOfWork, ITenantContext tenantContext)
+    public CreateBillCommandHandler(IUnitOfWork unitOfWork, ITenantContext tenantContext, ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
         _tenantContext = tenantContext;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ApiResponse<Guid>> Handle(CreateBillCommand request, CancellationToken cancellationToken)
@@ -60,6 +62,7 @@ public class CreateBillCommandHandler : IRequestHandler<CreateBillCommand, ApiRe
         var bill = new Bill
         {
             TenantId = _tenantContext.TenantId.Value,
+            CreatedBy = _currentUserService.UserId,
             BillNumber = request.BillNumber,
             BillDate = request.BillDate,
             SiteId = request.SiteId,

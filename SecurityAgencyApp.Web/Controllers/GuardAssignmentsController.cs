@@ -77,6 +77,9 @@ public class GuardAssignmentsController : Controller
             return RedirectToAction(nameof(Index));
         }
         ModelState.AddModelError("", result.Message);
+        if (result.Errors?.Count > 0)
+            foreach (var err in result.Errors)
+                ModelState.AddModelError("", err);
         await LoadDropdowns();
         return View(request);
     }
@@ -89,7 +92,8 @@ public class GuardAssignmentsController : Controller
         ViewBag.Sites = new SelectList(siteResult.Data?.Items ?? new List<SiteDto>(), "Id", "SiteName");
         var shiftResult = await _apiClient.GetAsync<ShiftListResponse>("api/v1/Shifts", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
         ViewBag.Shifts = new SelectList(shiftResult.Data?.Items ?? new List<ShiftItemDto>(), "Id", "ShiftName");
-        var userResult = await _apiClient.GetAsync<UserListResponse>("api/v1/Users", new Dictionary<string, string?> { ["pageSize"] = "1000" });
-        ViewBag.Supervisors = new SelectList(userResult.Data?.Items ?? new List<UserItemDto>(), "Id", "UserName");
+        var supervisorsRes = await _apiClient.GetAsync<UserListResponse>("api/v1/Supervisors", new Dictionary<string, string?> { ["pageSize"] = "1000", ["isActive"] = "true" });
+        var supervisors = supervisorsRes.Success && supervisorsRes.Data?.Items != null ? supervisorsRes.Data.Items : new List<UserItemDto>();
+        ViewBag.Supervisors = new SelectList(supervisors.Select(s => new { Id = s.Id, Name = string.IsNullOrWhiteSpace($"{s.FirstName} {s.LastName}".Trim()) ? s.UserName : $"{s.FirstName} {s.LastName}".Trim() }), "Id", "Name");
     }
 }

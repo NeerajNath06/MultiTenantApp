@@ -28,6 +28,16 @@ public class SecurityGuard : TenantEntity
     public Guid? UserId { get; set; }
     /// <summary>User (Supervisor) responsible for this guard. Used for supervisor-based filtering and reporting.</summary>
     public Guid? SupervisorId { get; set; }
+    /// <summary>Designation for wage/bill sheets (e.g. ASO, S/G).</summary>
+    public string? Designation { get; set; }
+    /// <summary>UAN for PF/EPF (wage sheet export).</summary>
+    public string? UAN { get; set; }
+    /// <summary>Bank account number (payment/Other sheet export).</summary>
+    public string? BankAccountNumber { get; set; }
+    /// <summary>IFSC code (payment/Other sheet export).</summary>
+    public string? IFSCCode { get; set; }
+    /// <summary>Employee code at client/site (e.g. IMUM02) for payment sheet.</summary>
+    public string? EmployeeCode { get; set; }
 
     // Navigation properties
     public virtual Tenant Tenant { get; set; } = null!;

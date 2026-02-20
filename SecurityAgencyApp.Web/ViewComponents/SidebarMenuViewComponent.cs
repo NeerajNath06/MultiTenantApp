@@ -18,12 +18,8 @@ public class SidebarMenuViewComponent : ViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
-        var query = new Dictionary<string, string?>
-        {
-            ["includeInactive"] = "false",
-            ["pageSize"] = "100"
-        };
-        var result = await _apiClient.GetAsync<MenuListResponse>("api/v1/Menus", query);
+        // Role-based menus from DB – no hardcoding. Uses for-current-user so only allowed menus show.
+        var result = await _apiClient.GetAsync<MenuListResponse>("api/v1/Menus/for-current-user");
         var items = result.Success && result.Data?.Items != null
             ? result.Data.Items.OrderBy(m => m.DisplayOrder).ToList()
             : new List<MenuDto>();

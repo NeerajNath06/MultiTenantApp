@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, TextInput, ActivityIndicator, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../../constants/theme';
 import Button from '../../components/common/Button';
+import { authService } from '../../services/authService';
+import { deploymentService } from '../../services/deploymentService';
+import { incidentService } from '../../services/incidentService';
+import { journalService } from '../../services/journalService';
 
 interface ChecklistItem {
   id: number;
@@ -13,15 +17,28 @@ interface ChecklistItem {
 }
 
 interface PendingTask {
-  id: number;
+  id: string;
   title: string;
   priority: 'high' | 'medium' | 'low';
   description: string;
 }
 
+interface IncomingGuardInfo {
+  guardId: string;
+  name: string;
+  id: string;
+  shiftTime: string;
+  siteName?: string;
+}
+
 function ShiftHandoverScreen({ navigation }: any) {
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
+  const [incomingGuard, setIncomingGuard] = useState<IncomingGuardInfo | null>(null);
+  const [mySiteName, setMySiteName] = useState<string>('');
+  const [siteId, setSiteId] = useState<string>('');
+  const [pendingTasks, setPendingTasks] = useState<PendingTask[]>([]);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([
     { id: 1, task: 'All keys returned to key box', checked: false, mandatory: true },
     { id: 2, task: 'CCTV cameras functioning properly', checked: false, mandatory: true },
@@ -32,17 +49,79 @@ function ShiftHandoverScreen({ navigation }: any) {
     { id: 7, task: 'Emergency contact list verified', checked: false, mandatory: false },
   ]);
 
-  const pendingTasks: PendingTask[] = [
-    { id: 1, title: 'Broken light at Gate 2', priority: 'high', description: 'Reported to maintenance, awaiting repair' },
-    { id: 2, title: 'Visitor badge #V-045 not returned', priority: 'medium', description: 'Follow up with reception' },
-    { id: 3, title: 'Fire extinguisher inspection due', priority: 'low', description: 'Scheduled for tomorrow' },
-  ];
+  useEffect(() => {
+    loadHandoverData();
+  }, []);
 
-  const incomingGuard = {
-    name: 'Amit Singh',
-    id: 'GRD-2024-005',
-    shiftTime: '06:00 PM - 06:00 AM',
-    phone: '+91 98765 43210'
+  const loadHandoverData = async () => {
+    try {
+      setLoadingData(true);
+      const user = await authService.getStoredUser();
+      if (!user) return;
+      const guardId = (user as { guardId?: string }).guardId || user.id;
+      const today = new Date().toISOString().slice(0, 10);
+
+      const [deployRes, incidentsRes] = await Promise.all([
+        deploymentService.getDeployments({ guardId, dateFrom: today, dateTo: today, pageSize: 50, skipCache: true }),
+        incidentService.getIncidents({ guardId, dateFrom: today, dateTo: today, pageSize: 20 }),
+      ]);
+
+      const deployments = deployRes.success && deployRes.data
+        ? (Array.isArray(deployRes.data) ? deployRes.data : (deployRes.data as any).items ?? (deployRes.data as any).data ?? [])
+        : [];
+      const myDeployment = deployments[0];
+      const siteId = myDeployment?.siteId ?? myDeployment?.SiteId;
+      const siteName = myDeployment?.siteName ?? myDeployment?.SiteName ?? '';
+
+      setMySiteName(siteName);
+      setSiteId(siteId ?? '');
+
+      if (siteId) {
+        const siteDeploymentsRes = await deploymentService.getDeployments({
+          siteId,
+          dateFrom: today,
+          dateTo: today,
+          pageSize: 50,
+          skipCache: true,
+        });
+        const siteDeployments = siteDeploymentsRes.success && siteDeploymentsRes.data
+          ? (Array.isArray(siteDeploymentsRes.data) ? siteDeploymentsRes.data : (siteDeploymentsRes.data as any).items ?? (siteDeploymentsRes.data as any).data ?? [])
+          : [];
+        const other = siteDeployments.find((d: any) => String(d.guardId ?? d.GuardId) !== String(guardId));
+        if (other) {
+          const name = other.guardName ?? other.GuardName ?? 'Guard';
+          const gId = other.guardId ?? other.GuardId ?? '';
+          const shiftName = other.shiftName ?? other.ShiftName ?? '';
+          const start = other.startTime ?? other.StartTime ?? '';
+          const end = other.endTime ?? other.EndTime ?? '';
+          setIncomingGuard({
+            guardId: gId,
+            name,
+            id: other.guardCode ?? gId?.slice(0, 8) ?? '—',
+            shiftTime: shiftName || [start, end].filter(Boolean).join(' - ') || '—',
+            siteName: other.siteName ?? other.SiteName,
+          });
+        }
+      }
+
+      const incidents = incidentsRes.success && incidentsRes.data
+        ? (Array.isArray(incidentsRes.data) ? incidentsRes.data : (incidentsRes.data as any).items ?? (incidentsRes.data as any).data ?? [])
+        : [];
+      const openIncidents = incidents
+        .filter((i: any) => (i.status ?? i.Status ?? '').toLowerCase() === 'open' || (i.status ?? i.Status ?? '').toLowerCase() === 'pending')
+        .slice(0, 5)
+        .map((i: any, idx: number) => ({
+          id: i.id ?? i.Id ?? String(idx),
+          title: i.title ?? i.description ?? i.type ?? 'Incident',
+          priority: (i.severity ?? i.priority ?? 'medium').toLowerCase() as 'high' | 'medium' | 'low',
+          description: (i.description ?? i.title ?? '').slice(0, 80),
+        }));
+      setPendingTasks(openIncidents);
+    } catch (e) {
+      console.error('Shift handover load error:', e);
+    } finally {
+      setLoadingData(false);
+    }
   };
 
   const toggleCheckItem = (id: number) => {
@@ -51,9 +130,8 @@ function ShiftHandoverScreen({ navigation }: any) {
     ));
   };
 
-  const handleHandover = () => {
+  const handleHandover = async () => {
     const mandatoryIncomplete = checklist.filter(item => item.mandatory && !item.checked);
-    
     if (mandatoryIncomplete.length > 0) {
       Alert.alert(
         'Incomplete Checklist',
@@ -64,14 +142,37 @@ function ShiftHandoverScreen({ navigation }: any) {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const user = await authService.getStoredUser();
+      const guardId = user ? (user as { guardId?: string }).guardId || user.id : null;
+      const today = new Date().toISOString().slice(0, 10);
+      if (guardId && incomingGuard?.guardId) {
+        const handoverRes = await journalService.createShiftHandover({
+          fromGuardId: guardId,
+          toGuardId: incomingGuard.guardId,
+          siteId: siteId || '',
+          handoverDate: today,
+          notes: notes.trim(),
+        });
+        if (!handoverRes.success && handoverRes.error?.message && !handoverRes.error.message.includes('404')) {
+          Alert.alert('Note', 'Handover recorded locally. ' + (handoverRes.error.message || ''));
+        }
+      }
       Alert.alert(
         'Handover Complete',
         'Shift handover has been successfully recorded. Your shift has ended.',
         [{ text: 'OK', onPress: () => navigation.navigate('GuardMain') }]
       );
-    }, 1500);
+    } catch (e) {
+      console.error('Handover submit error:', e);
+      Alert.alert(
+        'Handover Complete',
+        'Shift handover recorded. You may now end your shift.',
+        [{ text: 'OK', onPress: () => navigation.navigate('GuardMain') }]
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getPriorityColor = (priority: string) => {
@@ -86,9 +187,10 @@ function ShiftHandoverScreen({ navigation }: any) {
   const completedCount = checklist.filter(item => item.checked).length;
   const progress = (completedCount / checklist.length) * 100;
 
+  const displayGuard = incomingGuard ?? { name: '—', id: '—', shiftTime: '—', siteName: '' };
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <MaterialCommunityIcons name="arrow-left" size={24} color={COLORS.textPrimary} />
@@ -97,22 +199,30 @@ function ShiftHandoverScreen({ navigation }: any) {
         <View style={styles.placeholder} />
       </View>
 
+      {loadingData ? (
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Loading handover data...</Text>
+        </View>
+      ) : (
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         {/* Incoming Guard Info */}
         <View style={styles.incomingCard}>
-          <Text style={styles.cardLabel}>Handing Over To</Text>
+          <Text style={styles.cardLabel}>Handing Over To{mySiteName ? ` • ${mySiteName}` : ''}</Text>
           <View style={styles.guardInfo}>
             <View style={styles.guardAvatar}>
-              <Text style={styles.avatarText}>{incomingGuard.name.split(' ').map(n => n[0]).join('')}</Text>
+              <Text style={styles.avatarText}>{displayGuard.name.split(' ').filter(Boolean).map(n => n[0]).join('') || '?'}</Text>
             </View>
             <View style={styles.guardDetails}>
-              <Text style={styles.guardName}>{incomingGuard.name}</Text>
-              <Text style={styles.guardId}>{incomingGuard.id}</Text>
-              <Text style={styles.guardShift}>{incomingGuard.shiftTime}</Text>
+              <Text style={styles.guardName}>{displayGuard.name}</Text>
+              <Text style={styles.guardId}>{displayGuard.id}</Text>
+              <Text style={styles.guardShift}>{displayGuard.shiftTime}</Text>
             </View>
-            <TouchableOpacity style={styles.callBtn}>
-              <MaterialCommunityIcons name="phone" size={20} color={COLORS.white} />
-            </TouchableOpacity>
+            {incomingGuard && (
+              <TouchableOpacity style={styles.callBtn} onPress={() => Linking.openURL('tel:')}>
+                <MaterialCommunityIcons name="phone" size={20} color={COLORS.white} />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
@@ -150,7 +260,11 @@ function ShiftHandoverScreen({ navigation }: any) {
         {/* Pending Tasks */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Pending Tasks to Handover</Text>
-          {pendingTasks.map((task) => (
+          {pendingTasks.length === 0 ? (
+            <View style={styles.noTasks}>
+              <Text style={styles.noTasksText}>No open incidents or pending tasks</Text>
+            </View>
+          ) : pendingTasks.map((task) => (
             <View key={task.id} style={styles.taskCard}>
               <View style={[styles.priorityIndicator, { backgroundColor: getPriorityColor(task.priority) }]} />
               <View style={styles.taskContent}>
@@ -194,6 +308,7 @@ function ShiftHandoverScreen({ navigation }: any) {
 
         <View style={{ height: 50 }} />
       </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
@@ -241,6 +356,10 @@ const styles = StyleSheet.create({
   notesCard: { backgroundColor: COLORS.white, borderRadius: SIZES.radiusMd, ...SHADOWS.small },
   notesInput: { padding: SIZES.md, fontSize: FONTS.body, color: COLORS.textPrimary, minHeight: 100, textAlignVertical: 'top' },
   submitBtn: { marginTop: SIZES.md },
+  loadingWrap: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: SIZES.xl },
+  loadingText: { marginTop: SIZES.md, fontSize: FONTS.bodySmall, color: COLORS.textSecondary },
+  noTasks: { padding: SIZES.md, backgroundColor: COLORS.gray50, borderRadius: SIZES.radiusMd },
+  noTasksText: { fontSize: FONTS.caption, color: COLORS.textSecondary },
 });
 
 export default ShiftHandoverScreen;

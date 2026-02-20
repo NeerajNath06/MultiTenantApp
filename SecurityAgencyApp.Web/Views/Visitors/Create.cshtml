@@ -51,7 +51,9 @@
                 </div>
                 <div class="col-md-6">
                     <label asp-for="HostDepartment" class="form-label fw-semibold">Host Department</label>
-                    <input asp-for="HostDepartment" class="form-control" />
+                    <select asp-for="HostDepartment" class="form-select" asp-items="ViewBag.Departments">
+                        <option value="">-- Select Department --</option>
+                    </select>
                 </div>
                 <div class="col-md-6">
                     <label asp-for="SiteId" class="form-label fw-semibold">Site <span class="text-danger">*</span></label>

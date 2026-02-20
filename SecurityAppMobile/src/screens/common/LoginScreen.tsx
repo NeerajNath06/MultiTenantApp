@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { COLORS, FONTS, SIZES, SHADOWS } from '../../constants/theme';
+import { COLORS, FONTS, SIZES, SHADOWS, moderateScale, horizontalPadding } from '../../constants/theme';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -256,6 +256,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    paddingBottom: SIZES.xxl,
   },
   header: {
     paddingTop: SIZES.xxl,
@@ -265,9 +266,9 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: SIZES.radiusXl,
   },
   logoContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: moderateScale(100),
+    height: moderateScale(100),
+    borderRadius: moderateScale(50),
     backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -285,7 +286,7 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     flex: 1,
-    paddingHorizontal: SIZES.lg,
+    paddingHorizontal: horizontalPadding() || SIZES.lg,
     paddingTop: SIZES.xl,
   },
   welcomeText: {

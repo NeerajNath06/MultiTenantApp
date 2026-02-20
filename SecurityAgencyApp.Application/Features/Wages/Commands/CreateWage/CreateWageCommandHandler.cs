@@ -9,11 +9,13 @@ public class CreateWageCommandHandler : IRequestHandler<CreateWageCommand, ApiRe
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITenantContext _tenantContext;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CreateWageCommandHandler(IUnitOfWork unitOfWork, ITenantContext tenantContext)
+    public CreateWageCommandHandler(IUnitOfWork unitOfWork, ITenantContext tenantContext, ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
         _tenantContext = tenantContext;
+        _currentUserService = currentUserService;
     }
 
     public async Task<ApiResponse<Guid>> Handle(CreateWageCommand request, CancellationToken cancellationToken)
@@ -80,6 +82,7 @@ public class CreateWageCommandHandler : IRequestHandler<CreateWageCommand, ApiRe
         var wage = new Wage
         {
             TenantId = _tenantContext.TenantId.Value,
+            CreatedBy = _currentUserService.UserId,
             WageSheetNumber = request.WageSheetNumber,
             WagePeriodStart = request.WagePeriodStart,
             WagePeriodEnd = request.WagePeriodEnd,

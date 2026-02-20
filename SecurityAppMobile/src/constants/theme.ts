@@ -211,4 +211,18 @@ export const ANIMATIONS = {
 // Spacing helper
 export const spacing = (multiplier: number) => SIZES.base * multiplier;
 
+// Re-export responsive helpers so screens can scale dimensions for any screen size
+export {
+  scaleWidth,
+  scaleHeight,
+  moderateScale,
+  wp,
+  hp,
+  horizontalPadding,
+  windowWidth,
+  windowHeight,
+  isSmallScreen,
+  isLargeScreen,
+} from '../utils/responsive';
+
 export default { COLORS, FONTS, SIZES, SHADOWS, ANIMATIONS, spacing };

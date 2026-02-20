@@ -165,7 +165,11 @@ public class SitesController : Controller
     {
         var res = await _apiClient.GetAsync<UserListResponse>("api/v1/Supervisors", new Dictionary<string, string?> { ["pageSize"] = "500", ["isActive"] = "true" });
         var list = res.Success && res.Data?.Items != null ? res.Data.Items : new List<UserItemDto>();
-        var items = list.Select(s => new { Id = s.Id, Name = string.IsNullOrWhiteSpace($"{s.FirstName} {s.LastName}".Trim()) ? s.UserName : $"{s.FirstName} {s.LastName}".Trim() }).ToList();
-        ViewBag.Supervisors = new MultiSelectList(items, "Id", "Name", selectedIds ?? new List<Guid>());
+        var items = list.Select(s => new SelectListItem
+        {
+            Value = s.Id.ToString(),
+            Text = string.IsNullOrWhiteSpace($"{s.FirstName} {s.LastName}".Trim()) ? s.UserName : $"{s.FirstName} {s.LastName}".Trim()
+        }).ToList();
+        ViewBag.Supervisors = items;
     }
 }

@@ -1,4 +1,5 @@
 @model SecurityAgencyApp.Web.Models.Api.UpdateSiteRequest
+@using Microsoft.AspNetCore.Mvc.Rendering
 @{
     ViewData["Title"] = "Edit Site";
 }
@@ -92,7 +93,27 @@
                 <div class="col-12">
                     <label class="form-label fw-semibold">Site Supervisors</label>
                     <p class="small text-muted">Assign supervisors to this site. They will see only this site and its guards when logged in.</p>
-                    <select asp-for="SupervisorIds" class="form-select" asp-items="ViewBag.Supervisors" multiple style="min-height: 120px;"></select>
+                    <div class="dropdown">
+                        <button type="button" class="form-select form-control text-start d-flex align-items-center" id="siteSupervisorsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span id="siteSupervisorsLabel">-- Select Supervisors --</span>
+                            <i class="fas fa-chevron-down ms-auto"></i>
+                        </button>
+                        <ul class="dropdown-menu w-100 px-2" id="siteSupervisorsMenu" style="max-height: 220px; overflow-y: auto;">
+                            @if (ViewBag.Supervisors is IEnumerable<SelectListItem> supervisorList)
+                            {
+                                @foreach (var item in supervisorList)
+                                {
+                                    <li>
+                                        <label class="dropdown-item d-flex align-items-center gap-2 cursor-pointer mb-0">
+                                            <input type="checkbox" class="form-check-input site-supervisor-cb" value="@item.Value" data-name="@item.Text" />
+                                            <span>@item.Text</span>
+                                        </label>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                        <div id="siteSupervisorsHiddenContainer"></div>
+                    </div>
                 </div>
             </div>
 
@@ -132,4 +153,29 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (function () {
+            var container = document.getElementById('siteSupervisorsHiddenContainer');
+            var label = document.getElementById('siteSupervisorsLabel');
+            var cbs = document.querySelectorAll('.site-supervisor-cb');
+            var selectedIds = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model?.SupervisorIds ?? new List<Guid>()));
+            function syncHidden() {
+                container.innerHTML = '';
+                var names = [];
+                cbs.forEach(function (cb) {
+                    if (cb.checked) {
+                        container.appendChild(Object.assign(document.createElement('input'), { type: 'hidden', name: 'SupervisorIds', value: cb.value }));
+                        names.push(cb.getAttribute('data-name'));
+                    }
+                });
+                label.textContent = names.length ? names.join(', ') : '-- Select Supervisors --';
+            }
+            cbs.forEach(function (cb) {
+                if (selectedIds.indexOf(cb.value) !== -1) cb.checked = true;
+                cb.addEventListener('change', syncHidden);
+            });
+            syncHidden();
+            document.getElementById('siteSupervisorsMenu').addEventListener('click', function (e) { e.stopPropagation(); });
+        })();
+    </script>
 }

@@ -86,6 +86,13 @@
             margin-right: 12px;
         }
 
+        .menu-group { margin-bottom: 2px; }
+        .menu-parent { display: flex; align-items: center; justify-content: space-between; }
+        .menu-chevron { font-size: 0.7rem; transition: transform 0.2s; margin-left: auto; }
+        .menu-parent[aria-expanded="true"] .menu-chevron { transform: rotate(180deg); }
+        .submenu-list { background: rgba(0,0,0,0.15); }
+        .submenu-item { padding-left: 44px !important; font-size: 0.9rem; }
+
         .main-content {
             margin-left: var(--sidebar-width);
             min-height: 100vh;

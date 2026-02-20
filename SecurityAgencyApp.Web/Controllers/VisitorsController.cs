@@ -102,5 +102,7 @@ public class VisitorsController : Controller
         ViewBag.Sites = new SelectList(siteResult.Data?.Items ?? new List<SiteDto>(), "Id", "SiteName");
         var guardResult = await _apiClient.GetAsync<GuardListResponse>("api/v1/SecurityGuards", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
         ViewBag.Guards = new SelectList(guardResult.Data?.Items ?? new List<GuardItemDto>(), "Id", "GuardCode");
+        var deptResult = await _apiClient.GetAsync<DepartmentListResponse>("api/v1/Departments", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
+        ViewBag.Departments = new SelectList(deptResult.Data?.Items ?? new List<DepartmentDto>(), "Name", "Name");
     }
 }

@@ -1,7 +1,6 @@
 @model SecurityAgencyApp.Web.Models.Api.CreateDesignationRequest
 @{
     ViewData["Title"] = "Create Designation";
-    var departments = ViewBag.Departments as List<SecurityAgencyApp.Application.Features.Departments.Queries.GetDepartmentList.DepartmentDto>;
 }
 
 <div class="page-header">
@@ -29,15 +28,8 @@
 
                 <div class="col-md-6">
                     <label asp-for="DepartmentId" class="form-label">Department</label>
-                    <select asp-for="DepartmentId" class="form-select">
+                    <select asp-for="DepartmentId" class="form-select" asp-items="ViewBag.Departments">
                         <option value="">Select Department (Optional)</option>
-                        @if (departments != null)
-                        {
-                            @foreach (var dept in departments)
-                            {
-                                <option value="@dept.Id">@dept.Name</option>
-                            }
-                        }
                     </select>
                     <span asp-validation-for="DepartmentId" class="text-danger"></span>
                 </div>

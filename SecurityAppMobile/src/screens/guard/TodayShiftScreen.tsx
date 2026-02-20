@@ -50,6 +50,8 @@ const TodayShiftScreen: React.FC<TodayShiftScreenProps> = ({ navigation }) => {
       const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
       const deploymentsRes = await deploymentService.getDeployments({
         guardId,
+        dateFrom: todayStr,
+        dateTo: todayStr,
         pageSize: 50,
         skipCache: true,
       });

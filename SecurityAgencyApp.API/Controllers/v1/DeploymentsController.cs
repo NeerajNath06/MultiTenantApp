@@ -26,7 +26,9 @@ public class DeploymentsController : ControllerBase
     }
 
     /// <summary>
-    /// Get deployments (assignments) for a guard. Used by mobile for check-in.
+    /// Get deployments (assignments) for a guard. Used by mobile for check-in and today's shift.
+    /// Expands each assignment to one row per day so "today" returns when today is within assignment range.
+    /// When dateFrom/dateTo are not provided and guardId is set, defaults to today so guard gets today's shift.
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<ApiResponse<List<DeploymentDto>>>> GetDeployments(
@@ -35,19 +37,28 @@ public class DeploymentsController : ControllerBase
         [FromQuery] string? dateFrom = null,
         [FromQuery] string? dateTo = null,
         [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 50)
+        [FromQuery] int pageSize = 500)
     {
+        DateTime? fromDate = !string.IsNullOrEmpty(dateFrom) && DateTime.TryParse(dateFrom, out var df) ? df : null;
+        DateTime? toDate = !string.IsNullOrEmpty(dateTo) && DateTime.TryParse(dateTo, out var dt) ? dt : null;
+        if (guardId.HasValue && !fromDate.HasValue && !toDate.HasValue)
+        {
+            var today = DateTime.UtcNow.Date;
+            fromDate = today;
+            toDate = today;
+        }
+
         var query = new GetAssignmentListQuery
         {
             GuardId = guardId,
             SiteId = siteId,
             IncludeInactive = false,
-            PageNumber = pageNumber,
+            PageNumber = 1,
             PageSize = pageSize,
             SortBy = "date",
-            SortDirection = "desc",
-            DateFrom = !string.IsNullOrEmpty(dateFrom) && DateTime.TryParse(dateFrom, out var df) ? df : null,
-            DateTo = !string.IsNullOrEmpty(dateTo) && DateTime.TryParse(dateTo, out var dt) ? dt : null
+            SortDirection = "asc",
+            DateFrom = fromDate,
+            DateTo = toDate
         };
         var result = await _mediator.Send(query);
         if (!result.Success || result.Data == null)
@@ -61,26 +72,39 @@ public class DeploymentsController : ControllerBase
         var shifts = await _unitOfWork.Repository<Shift>().FindAsync(s => shiftIds.Contains(s.Id), CancellationToken.None);
         var shiftMap = shifts.ToDictionary(s => s.Id, s => s);
 
-        var list = items.Select(a =>
+        var list = new List<DeploymentDto>();
+        var rangeRefDate = DateTime.UtcNow.Date;
+        var rangeStart = fromDate ?? rangeRefDate.AddDays(-7);
+        var rangeEnd = toDate ?? rangeRefDate.AddDays(30);
+
+        foreach (var a in items)
         {
             var shift = shiftMap.GetValueOrDefault(a.ShiftId);
-            return new DeploymentDto
+            var startTimeStr = shift != null ? shift.StartTime.ToString(@"hh\:mm") : "00:00";
+            var endTimeStr = shift != null ? shift.EndTime.ToString(@"hh\:mm") : "23:59";
+            var assignmentEnd = a.AssignmentEndDate?.Date ?? rangeEnd.AddDays(365);
+            for (var d = a.AssignmentStartDate.Date; d <= assignmentEnd; d = d.AddDays(1))
             {
-                Id = a.Id,
-                GuardId = a.GuardId,
-                GuardName = a.GuardName,
-                SiteId = a.SiteId,
-                SiteName = a.SiteName,
-                ShiftId = a.ShiftId,
-                ShiftName = a.ShiftName,
-                DeploymentDate = a.AssignmentStartDate.ToString("yyyy-MM-dd"),
-                StartTime = shift != null ? shift.StartTime.ToString(@"hh\:mm") : "00:00",
-                EndTime = shift != null ? shift.EndTime.ToString(@"hh\:mm") : "23:59",
-                Status = a.Status,
-                SupervisorId = a.SupervisorId,
-                SupervisorName = a.SupervisorName
-            };
-        }).ToList();
+                if (d < rangeStart) continue;
+                if (d > rangeEnd) break;
+                list.Add(new DeploymentDto
+                {
+                    Id = a.Id,
+                    GuardId = a.GuardId,
+                    GuardName = a.GuardName,
+                    SiteId = a.SiteId,
+                    SiteName = a.SiteName,
+                    ShiftId = a.ShiftId,
+                    ShiftName = a.ShiftName,
+                    DeploymentDate = d.ToString("yyyy-MM-dd"),
+                    StartTime = startTimeStr,
+                    EndTime = endTimeStr,
+                    Status = a.Status,
+                    SupervisorId = a.SupervisorId,
+                    SupervisorName = a.SupervisorName
+                });
+            }
+        }
 
         return Ok(ApiResponse<List<DeploymentDto>>.SuccessResponse(list, "Deployments retrieved"));
     }

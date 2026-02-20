@@ -7,15 +7,21 @@ namespace SecurityAgencyApp.Infrastructure.Data;
 
 public static class DbInitializer
 {
-    public static async Task SeedAsync(ApplicationDbContext context, IPasswordHasher passwordHasher)
+    /// <returns>True if seed ran and data was inserted; false if skipped (data already exists).</returns>
+    public static async Task<bool> SeedAsync(ApplicationDbContext context, IPasswordHasher passwordHasher)
     {
-        // Ensure database is created
-        await context.Database.EnsureCreatedAsync();
+        // Schema is applied by Program.cs via MigrateAsync(); do not use EnsureCreated here.
 
-        // Check if data already exists
-        if (context.Tenants.Any())
+        // Check if data already exists – by count and by RegistrationNumber to avoid duplicate key
+        if (await context.Tenants.AnyAsync())
         {
-            return; // Database already seeded
+            return false; // Database already seeded
+        }
+
+        // Double-check: tenant with REG001 might exist from a previous partial seed (avoid duplicate key)
+        if (await context.Tenants.AnyAsync(t => t.RegistrationNumber == "REG001"))
+        {
+            return false;
         }
 
         // Seed Tenant
@@ -88,9 +94,19 @@ public static class DbInitializer
             IsSystemRole = true,
             IsActive = true
         };
+        var accountsRole = new Role
+        {
+            TenantId = tenant.Id,
+            Name = "Accounts",
+            Code = "ACCOUNTS",
+            Description = "Accounts / Finance department",
+            IsSystemRole = true,
+            IsActive = true
+        };
         context.Roles.Add(adminRole);
         context.Roles.Add(guardRole);
         context.Roles.Add(supervisorRole);
+        context.Roles.Add(accountsRole);
         await context.SaveChangesAsync();
 
         // Assign all permissions to admin role
@@ -142,103 +158,150 @@ public static class DbInitializer
         });
         await context.SaveChangesAsync();
 
-        // Seed Menus – all sidebar items in DB (Web loads from API)
-        var menus = new List<Menu>
+        // Seed demo Guard user (so Guard login works after DB reset; password: Guard@123)
+        var guardPlainPassword = "Guard@123";
+        var demoGuard = new SecurityGuard
         {
-            new Menu { TenantId = tenant.Id, Name = "Dashboard", DisplayName = "Dashboard", Icon = "fas fa-home", Route = "Home", DisplayOrder = 1, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Users", DisplayName = "Users", Icon = "fas fa-users", Route = "Users", DisplayOrder = 2, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Departments", DisplayName = "Departments", Icon = "fas fa-building", Route = "Departments", DisplayOrder = 3, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Designations", DisplayName = "Designations", Icon = "fas fa-briefcase", Route = "Designations", DisplayOrder = 4, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Roles", DisplayName = "Roles", Icon = "fas fa-user-tag", Route = "Roles", DisplayOrder = 5, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Menus", DisplayName = "Menus", Icon = "fas fa-list", Route = "Menus", DisplayOrder = 6, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "SubMenus", DisplayName = "Sub Menus", Icon = "fas fa-list-ul", Route = "SubMenus", DisplayOrder = 7, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "SecurityGuards", DisplayName = "Security Guards", Icon = "fas fa-user-shield", Route = "SecurityGuards", DisplayOrder = 8, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Sites", DisplayName = "Sites", Icon = "fas fa-building", Route = "Sites", DisplayOrder = 9, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "GuardAssignments", DisplayName = "Assignments", Icon = "fas fa-user-check", Route = "GuardAssignments", DisplayOrder = 10, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Attendance", DisplayName = "Attendance", Icon = "fas fa-calendar-check", Route = "Attendance", DisplayOrder = 11, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Incidents", DisplayName = "Incidents", Icon = "fas fa-exclamation-triangle", Route = "Incidents", DisplayOrder = 12, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Shifts", DisplayName = "Shifts", Icon = "fas fa-clock", Route = "Shifts", DisplayOrder = 13, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "FormBuilder", DisplayName = "Form Builder", Icon = "fas fa-file-alt", Route = "FormBuilder", DisplayOrder = 14, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Bills", DisplayName = "Bills", Icon = "fas fa-file-invoice", Route = "Bills", DisplayOrder = 15, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Wages", DisplayName = "Wages", Icon = "fas fa-money-bill-wave", Route = "Wages", DisplayOrder = 16, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Clients", DisplayName = "Clients", Icon = "fas fa-building", Route = "Clients", DisplayOrder = 17, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Contracts", DisplayName = "Contracts", Icon = "fas fa-file-contract", Route = "Contracts", DisplayOrder = 18, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Payments", DisplayName = "Payments", Icon = "fas fa-money-check", Route = "Payments", DisplayOrder = 19, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "LeaveRequests", DisplayName = "Leave Requests", Icon = "fas fa-calendar-times", Route = "LeaveRequests", DisplayOrder = 20, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Expenses", DisplayName = "Expenses", Icon = "fas fa-receipt", Route = "Expenses", DisplayOrder = 21, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "TrainingRecords", DisplayName = "Training", Icon = "fas fa-graduation-cap", Route = "TrainingRecords", DisplayOrder = 22, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Equipment", DisplayName = "Equipment", Icon = "fas fa-tools", Route = "Equipment", DisplayOrder = 23, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Visitors", DisplayName = "Visitors", Icon = "fas fa-user-friends", Route = "Visitors", DisplayOrder = 24, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Compliance", DisplayName = "Compliance", Icon = "fas fa-clipboard-check", Route = "Compliance", DisplayOrder = 25, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Announcements", DisplayName = "Announcements", Icon = "fas fa-bullhorn", Route = "Announcements", DisplayOrder = 26, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "PatrolScans", DisplayName = "Patrol Scans", Icon = "fas fa-qrcode", Route = "PatrolScans", DisplayOrder = 27, IsActive = true },
-            new Menu { TenantId = tenant.Id, Name = "Notifications", DisplayName = "Notifications", Icon = "fas fa-bell", Route = "Notifications", DisplayOrder = 28, IsActive = true }
+            TenantId = tenant.Id,
+            GuardCode = "GRD0001",
+            FirstName = "Demo",
+            LastName = "Guard",
+            Email = "guard@demoagency.com",
+            PhoneNumber = "9876543210",
+            JoiningDate = DateTime.UtcNow,
+            IsActive = true
         };
-        context.Menus.AddRange(menus);
+        context.SecurityGuards.Add(demoGuard);
         await context.SaveChangesAsync();
 
-        // Assign menus to admin role
-        foreach (var menu in menus)
+        var guardUser = new User
         {
-            context.RoleMenus.Add(new RoleMenu
-            {
-                RoleId = adminRole.Id,
-                MenuId = menu.Id
-            });
-        }
+            TenantId = tenant.Id,
+            UserName = "guard",
+            Email = "guard@demoagency.com",
+            PasswordHash = passwordHasher.HashPassword(guardPlainPassword),
+            Password = guardPlainPassword,
+            FirstName = demoGuard.FirstName,
+            LastName = demoGuard.LastName,
+            PhoneNumber = demoGuard.PhoneNumber,
+            IsActive = true
+        };
+        context.Users.Add(guardUser);
         await context.SaveChangesAsync();
+        demoGuard.UserId = guardUser.Id;
+        context.SecurityGuards.Update(demoGuard);
+        context.UserRoles.Add(new UserRole { UserId = guardUser.Id, RoleId = guardRole.Id });
+        await context.SaveChangesAsync();
+
+        // Seed Menus: Main Menu + SubMenu hierarchy (department/role-wise from DB, no hardcoding)
+        var menuDashboard = new Menu { TenantId = tenant.Id, Name = "Dashboard", DisplayName = "Dashboard", Icon = "fas fa-home", Route = "Home", DisplayOrder = 1, IsActive = true };
+        var menuAdmin = new Menu { TenantId = tenant.Id, Name = "Administration", DisplayName = "Administration", Icon = "fas fa-cog", Route = "#", DisplayOrder = 2, IsActive = true };
+        var menuOps = new Menu { TenantId = tenant.Id, Name = "Operations", DisplayName = "Operations", Icon = "fas fa-tasks", Route = "#", DisplayOrder = 3, IsActive = true };
+        var menuFinance = new Menu { TenantId = tenant.Id, Name = "Finance", DisplayName = "Finance", Icon = "fas fa-money-bill-wave", Route = "#", DisplayOrder = 4, IsActive = true };
+        var menuHr = new Menu { TenantId = tenant.Id, Name = "HR", DisplayName = "HR", Icon = "fas fa-users-cog", Route = "#", DisplayOrder = 5, IsActive = true };
+        var menuMore = new Menu { TenantId = tenant.Id, Name = "More", DisplayName = "More", Icon = "fas fa-ellipsis-h", Route = "#", DisplayOrder = 6, IsActive = true };
+        context.Menus.AddRange(menuDashboard, menuAdmin, menuOps, menuFinance, menuHr, menuMore);
+        await context.SaveChangesAsync();
+
+        var mainMenus = new[] { menuDashboard, menuAdmin, menuOps, menuFinance, menuHr, menuMore };
+
+        // SubMenus under each main menu
+        var subAdmin = new List<SubMenu>
+        {
+            new SubMenu { TenantId = tenant.Id, MenuId = menuAdmin.Id, Name = "Users", DisplayName = "Users", Icon = "fas fa-users", Route = "Users", DisplayOrder = 1, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuAdmin.Id, Name = "Departments", DisplayName = "Departments", Icon = "fas fa-building", Route = "Departments", DisplayOrder = 2, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuAdmin.Id, Name = "Designations", DisplayName = "Designations", Icon = "fas fa-briefcase", Route = "Designations", DisplayOrder = 3, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuAdmin.Id, Name = "Roles", DisplayName = "Roles", Icon = "fas fa-user-tag", Route = "Roles", DisplayOrder = 4, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuAdmin.Id, Name = "Menus", DisplayName = "Menus", Icon = "fas fa-list", Route = "Menus", DisplayOrder = 5, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuAdmin.Id, Name = "SubMenus", DisplayName = "Sub Menus", Icon = "fas fa-list-ul", Route = "SubMenus", DisplayOrder = 6, IsActive = true }
+        };
+        var subOps = new List<SubMenu>
+        {
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "SecurityGuards", DisplayName = "Security Guards", Icon = "fas fa-user-shield", Route = "SecurityGuards", DisplayOrder = 1, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Sites", DisplayName = "Sites", Icon = "fas fa-building", Route = "Sites", DisplayOrder = 2, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "GuardAssignments", DisplayName = "Assignments", Icon = "fas fa-user-check", Route = "GuardAssignments", DisplayOrder = 3, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Attendance", DisplayName = "Attendance", Icon = "fas fa-calendar-check", Route = "Attendance", DisplayOrder = 4, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Incidents", DisplayName = "Incidents", Icon = "fas fa-exclamation-triangle", Route = "Incidents", DisplayOrder = 5, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Shifts", DisplayName = "Shifts", Icon = "fas fa-clock", Route = "Shifts", DisplayOrder = 6, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Visitors", DisplayName = "Visitors", Icon = "fas fa-user-friends", Route = "Visitors", DisplayOrder = 7, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "PatrolScans", DisplayName = "Patrol Scans", Icon = "fas fa-qrcode", Route = "PatrolScans", DisplayOrder = 8, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "FormBuilder", DisplayName = "Form Builder", Icon = "fas fa-file-alt", Route = "FormBuilder", DisplayOrder = 9, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Roster", DisplayName = "Roster", Icon = "fas fa-calendar-alt", Route = "Roster", DisplayOrder = 10, IsActive = true }
+        };
+        var subFinance = new List<SubMenu>
+        {
+            new SubMenu { TenantId = tenant.Id, MenuId = menuFinance.Id, Name = "Bills", DisplayName = "Bills", Icon = "fas fa-file-invoice", Route = "Bills", DisplayOrder = 1, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuFinance.Id, Name = "Wages", DisplayName = "Wages", Icon = "fas fa-money-bill-wave", Route = "Wages", DisplayOrder = 2, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuFinance.Id, Name = "Clients", DisplayName = "Clients", Icon = "fas fa-building", Route = "Clients", DisplayOrder = 3, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuFinance.Id, Name = "Contracts", DisplayName = "Contracts", Icon = "fas fa-file-contract", Route = "Contracts", DisplayOrder = 4, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuFinance.Id, Name = "Payments", DisplayName = "Payments", Icon = "fas fa-money-check", Route = "Payments", DisplayOrder = 5, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuFinance.Id, Name = "Expenses", DisplayName = "Expenses", Icon = "fas fa-receipt", Route = "Expenses", DisplayOrder = 6, IsActive = true }
+        };
+        var subHr = new List<SubMenu>
+        {
+            new SubMenu { TenantId = tenant.Id, MenuId = menuHr.Id, Name = "LeaveRequests", DisplayName = "Leave Requests", Icon = "fas fa-calendar-times", Route = "LeaveRequests", DisplayOrder = 1, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuHr.Id, Name = "TrainingRecords", DisplayName = "Training", Icon = "fas fa-graduation-cap", Route = "TrainingRecords", DisplayOrder = 2, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuHr.Id, Name = "Equipment", DisplayName = "Equipment", Icon = "fas fa-tools", Route = "Equipment", DisplayOrder = 3, IsActive = true }
+        };
+        var subMore = new List<SubMenu>
+        {
+            new SubMenu { TenantId = tenant.Id, MenuId = menuMore.Id, Name = "CompanyProfile", DisplayName = "Company Profile", Icon = "fas fa-building", Route = "CompanyProfile", DisplayOrder = 0, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuMore.Id, Name = "Compliance", DisplayName = "Compliance", Icon = "fas fa-clipboard-check", Route = "Compliance", DisplayOrder = 1, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuMore.Id, Name = "Announcements", DisplayName = "Announcements", Icon = "fas fa-bullhorn", Route = "Announcements", DisplayOrder = 2, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuMore.Id, Name = "Notifications", DisplayName = "Notifications", Icon = "fas fa-bell", Route = "Notifications", DisplayOrder = 3, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuMore.Id, Name = "Reports", DisplayName = "Monthly Report", Icon = "fas fa-file-excel", Route = "Reports", DisplayOrder = 4, IsActive = true }
+        };
+        context.SubMenus.AddRange(subAdmin);
+        context.SubMenus.AddRange(subOps);
+        context.SubMenus.AddRange(subFinance);
+        context.SubMenus.AddRange(subHr);
+        context.SubMenus.AddRange(subMore);
+        await context.SaveChangesAsync();
+
+        var allSubMenus = subAdmin.Concat(subOps).Concat(subFinance).Concat(subHr).Concat(subMore).ToList();
+
+        // Administrator: all menus + all submenus
+        foreach (var menu in mainMenus)
+            context.RoleMenus.Add(new RoleMenu { RoleId = adminRole.Id, MenuId = menu.Id });
+        foreach (var sub in allSubMenus)
+            context.RoleSubMenus.Add(new RoleSubMenu { RoleId = adminRole.Id, SubMenuId = sub.Id });
+        await context.SaveChangesAsync();
+
+        // Accounts: Dashboard + Finance menu and all finance submenus
+        context.RoleMenus.Add(new RoleMenu { RoleId = accountsRole.Id, MenuId = menuDashboard.Id });
+        context.RoleMenus.Add(new RoleMenu { RoleId = accountsRole.Id, MenuId = menuFinance.Id });
+        foreach (var sub in subFinance)
+            context.RoleSubMenus.Add(new RoleSubMenu { RoleId = accountsRole.Id, SubMenuId = sub.Id });
+        await context.SaveChangesAsync();
+
+        // Security Guard: Dashboard + Operations (incl. Roster) + More (Company Profile only)
+        context.RoleMenus.Add(new RoleMenu { RoleId = guardRole.Id, MenuId = menuDashboard.Id });
+        context.RoleMenus.Add(new RoleMenu { RoleId = guardRole.Id, MenuId = menuOps.Id });
+        context.RoleMenus.Add(new RoleMenu { RoleId = guardRole.Id, MenuId = menuMore.Id });
+        foreach (var sub in subOps)
+            context.RoleSubMenus.Add(new RoleSubMenu { RoleId = guardRole.Id, SubMenuId = sub.Id });
+        context.RoleSubMenus.Add(new RoleSubMenu { RoleId = guardRole.Id, SubMenuId = subMore[0].Id }); // Company Profile
+        await context.SaveChangesAsync();
+
+        // Supervisor: Dashboard + Operations (incl. Roster) + HR + More (Company Profile)
+        context.RoleMenus.Add(new RoleMenu { RoleId = supervisorRole.Id, MenuId = menuDashboard.Id });
+        context.RoleMenus.Add(new RoleMenu { RoleId = supervisorRole.Id, MenuId = menuOps.Id });
+        context.RoleMenus.Add(new RoleMenu { RoleId = supervisorRole.Id, MenuId = menuHr.Id });
+        context.RoleMenus.Add(new RoleMenu { RoleId = supervisorRole.Id, MenuId = menuMore.Id });
+        foreach (var sub in subOps.Concat(subHr))
+            context.RoleSubMenus.Add(new RoleSubMenu { RoleId = supervisorRole.Id, SubMenuId = sub.Id });
+        context.RoleSubMenus.Add(new RoleSubMenu { RoleId = supervisorRole.Id, SubMenuId = subMore[0].Id }); // Company Profile
+        await context.SaveChangesAsync();
+
+        return true; // Seed ran and data was inserted
     }
 
     /// <summary>
-    /// For existing databases: add any new menus that were added to the app but not yet in DB.
-    /// Call this on startup after SeedAsync so existing tenants get Visitors, Compliance, Announcements, PatrolScans, Notifications.
+    /// For existing databases: ensure new menu structure exists. If tenant has no "Administration" main menu, they use old flat structure; no auto-migration here.
+    /// Full menu hierarchy (Main + SubMenus) is created only in SeedAsync on fresh DB. Reset DB + run app to get new structure.
     /// </summary>
-    public static async Task EnsureNewMenusAsync(ApplicationDbContext context)
+    public static Task EnsureNewMenusAsync(ApplicationDbContext context)
     {
-        if (!context.Tenants.Any())
-            return;
-
-        var newMenusDef = new[]
-        {
-            ("Visitors", "Visitors", "fas fa-user-friends", "Visitors", 24),
-            ("Compliance", "Compliance", "fas fa-clipboard-check", "Compliance", 25),
-            ("Announcements", "Announcements", "fas fa-bullhorn", "Announcements", 26),
-            ("PatrolScans", "Patrol Scans", "fas fa-qrcode", "PatrolScans", 27),
-            ("Notifications", "Notifications", "fas fa-bell", "Notifications", 28)
-        };
-
-        foreach (var tenant in context.Tenants.Where(t => t.IsActive))
-        {
-            var existingNames = await context.Menus
-                .Where(m => m.TenantId == tenant.Id && newMenusDef.Select(x => x.Item1).Contains(m.Name))
-                .Select(m => m.Name)
-                .ToListAsync();
-
-            var adminRole = await context.Roles.FirstOrDefaultAsync(r => r.TenantId == tenant.Id && r.Code == "ADMIN");
-            if (adminRole == null)
-                continue;
-
-            foreach (var (name, displayName, icon, route, displayOrder) in newMenusDef)
-            {
-                if (existingNames.Contains(name))
-                    continue;
-
-                var menu = new Menu
-                {
-                    TenantId = tenant.Id,
-                    Name = name,
-                    DisplayName = displayName,
-                    Icon = icon,
-                    Route = route,
-                    DisplayOrder = displayOrder,
-                    IsActive = true
-                };
-                context.Menus.Add(menu);
-                await context.SaveChangesAsync();
-
-                context.RoleMenus.Add(new RoleMenu { RoleId = adminRole.Id, MenuId = menu.Id });
-                await context.SaveChangesAsync();
-            }
-        }
+        return Task.CompletedTask;
     }
 }

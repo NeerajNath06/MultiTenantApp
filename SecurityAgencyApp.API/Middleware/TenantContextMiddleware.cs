@@ -1,12 +1,13 @@
 using System.Security.Claims;
+using System.Text.Json;
 using SecurityAgencyApp.Application.Interfaces;
 using SecurityAgencyApp.Infrastructure.Services;
 
 namespace SecurityAgencyApp.API.Middleware;
 
 /// <summary>
-/// Sets tenant context from X-Tenant-Id header (or from JWT TenantId claim if header missing)
-/// so API handlers have TenantId for multi-tenant operations.
+/// Sets tenant context from X-Tenant-Id header (or from JWT TenantId claim if header missing).
+/// Enterprise: for authenticated API requests (except Auth and health), rejects with 403 if TenantId is missing.
 /// </summary>
 public class TenantContextMiddleware
 {
@@ -52,6 +53,28 @@ public class TenantContextMiddleware
                     cus.Email = context.User.FindFirst(ClaimTypes.Email)?.Value;
                 }
             }
+        }
+
+        // Enterprise: mandatory tenant on protected API routes (authenticated + tenant-scoped)
+        var path = context.Request.Path.Value ?? "";
+        if (context.User?.Identity?.IsAuthenticated == true &&
+            path.StartsWith("/api/", StringComparison.OrdinalIgnoreCase) &&
+            !path.StartsWith("/api/v1/Auth", StringComparison.OrdinalIgnoreCase) &&
+            !path.Equals("/health", StringComparison.OrdinalIgnoreCase) &&
+            !tc.TenantId.HasValue)
+        {
+            context.Response.StatusCode = 403;
+            context.Response.ContentType = "application/json";
+            var body = JsonSerializer.Serialize(new
+            {
+                success = false,
+                message = "Tenant context is required. Provide X-Tenant-Id header or ensure your token includes TenantId.",
+                data = (object?)null,
+                errors = new[] { "Missing or invalid tenant context." },
+                timestamp = DateTime.UtcNow
+            });
+            await context.Response.WriteAsync(body);
+            return;
         }
 
         await _next(context);

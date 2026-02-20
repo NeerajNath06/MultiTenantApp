@@ -214,6 +214,13 @@ public class ApiClient : IApiClient
             var root = doc.RootElement;
             var success = root.TryGetProperty("success", out var s) && s.GetBoolean();
             var message = root.TryGetProperty("message", out var m) ? m.GetString() ?? "" : "";
+            var errors = new List<string>();
+            if (root.TryGetProperty("errors", out var errArr) && errArr.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var e in errArr.EnumerateArray())
+                    if (e.ValueKind == JsonValueKind.String)
+                        errors.Add(e.GetString() ?? "");
+            }
             T? data = default;
             if (root.TryGetProperty("data", out var d) && d.ValueKind != JsonValueKind.Null && d.ValueKind != JsonValueKind.Undefined)
                 data = JsonSerializer.Deserialize<T>(d.GetRawText(), JsonOptions);
@@ -221,7 +228,8 @@ public class ApiClient : IApiClient
             {
                 Success = success,
                 Message = message ?? "",
-                Data = data
+                Data = data,
+                Errors = errors.Count > 0 ? errors : null
             };
         }
         catch
@@ -229,7 +237,8 @@ public class ApiClient : IApiClient
             return new ApiResult<T?>
             {
                 Success = false,
-                Message = response.IsSuccessStatusCode ? "Invalid response." : (json.Length > 200 ? json.Substring(0, 200) : json)
+                Message = response.IsSuccessStatusCode ? "Invalid response." : (json.Length > 200 ? json.Substring(0, 200) : json),
+                Errors = null
             };
         }
     }
