@@ -7,10 +7,9 @@ COPY SecurityAgencyApp.Application/*.csproj SecurityAgencyApp.Application/
 COPY SecurityAgencyApp.Infrastructure/*.csproj SecurityAgencyApp.Infrastructure/
 COPY SecurityAgencyApp.Domain/*.csproj SecurityAgencyApp.Domain/
 
-RUN dotnet restore
-
 COPY . .
-RUN dotnet publish SecurityAgencyApp.API/SecurityAgencyApp.API.csproj -c Release -o /app/publish
+RUN dotnet restore
+RUN dotnet publish -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
