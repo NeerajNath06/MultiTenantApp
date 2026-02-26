@@ -69,7 +69,7 @@ public class UsersController : Controller
             return NotFound();
         await LoadDropdownsAsync();
         var d = result.Data;
-        return View(new UpdateUserRequest { Id = d.Id, FirstName = d.FirstName ?? "", LastName = d.LastName, Email = d.Email, PhoneNumber = d.PhoneNumber, DepartmentId = d.DepartmentId, DesignationId = d.DesignationId, IsActive = d.IsActive, RoleIds = d.RoleIds ?? new List<Guid>() });
+        return View(new UpdateUserRequest { Id = d.Id, FirstName = d.FirstName ?? "", LastName = d.LastName, Email = d.Email, PhoneNumber = d.PhoneNumber, AadharNumber = d.AadharNumber, PANNumber = d.PANNumber, UAN = d.UAN, DepartmentId = d.DepartmentId, DesignationId = d.DesignationId, IsActive = d.IsActive, RoleIds = d.RoleIds ?? new List<Guid>() });
     }
 
     [HttpPost]
@@ -81,7 +81,7 @@ public class UsersController : Controller
             await LoadDropdownsAsync();
             return View(request);
         }
-        var result = await _apiClient.PutAsync<object>($"api/v1/Users/{request.Id}", new { id = request.Id, firstName = request.FirstName, lastName = request.LastName, email = request.Email, phoneNumber = request.PhoneNumber, departmentId = request.DepartmentId, designationId = request.DesignationId, isActive = request.IsActive, roleIds = request.RoleIds });
+        var result = await _apiClient.PutAsync<object>($"api/v1/Users/{request.Id}", new { id = request.Id, firstName = request.FirstName, lastName = request.LastName, email = request.Email, phoneNumber = request.PhoneNumber, aadharNumber = request.AadharNumber, panNumber = request.PANNumber, uan = request.UAN, departmentId = request.DepartmentId, designationId = request.DesignationId, isActive = request.IsActive, roleIds = request.RoleIds });
         if (result.Success)
         {
             TempData["SuccessMessage"] = "User updated successfully";
@@ -98,5 +98,19 @@ public class UsersController : Controller
         if (!result.Success || result.Data == null)
             return NotFound();
         return View(result.Data);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _apiClient.DeleteAsync($"api/v1/Users/{id}");
+        if (result.Success)
+        {
+            TempData["SuccessMessage"] = "User deleted successfully";
+            return RedirectToAction(nameof(Index));
+        }
+        TempData["Error"] = result.Message ?? "Failed to delete user.";
+        return RedirectToAction(nameof(Details), new { id });
     }
 }

@@ -22,9 +22,16 @@ public class GuardDto
     public string? City { get; set; }
     public string? State { get; set; }
     public string? PinCode { get; set; }
+    public string? AadharNumber { get; set; }
+    public string? PANNumber { get; set; }
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactPhone { get; set; }
+    public DateTime? JoiningDate { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime? ModifiedDate { get; set; }
     public Guid? SupervisorId { get; set; }
     public string? SupervisorName { get; set; }
+    /// <summary>Relative path or URL for guard profile photo.</summary>
+    public string? PhotoPath { get; set; }
 }

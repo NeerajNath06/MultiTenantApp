@@ -12,6 +12,12 @@ public class User : TenantEntity
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string? PhoneNumber { get; set; }
+    /// <summary>12-digit Aadhar number.</summary>
+    public string? AadharNumber { get; set; }
+    /// <summary>PAN number (e.g. ABCDExxxxx).</summary>
+    public string? PANNumber { get; set; }
+    /// <summary>UAN - Universal Account Number (PF/EPF).</summary>
+    public string? UAN { get; set; }
     public Guid? DepartmentId { get; set; }
     public Guid? DesignationId { get; set; }
     public bool IsActive { get; set; } = true;

@@ -43,9 +43,9 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Applicatio
             throw new InvalidOperationException("Connection string 'DefaultConnection' not found in appsettings.json");
         }
 
-        // Build DbContext options
+        // Build DbContext options (same provider as runtime: Database:Provider in appsettings)
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseSqlServer(connectionString);
+        optionsBuilder.UseConfiguredProvider(configuration);
 
         return new ApplicationDbContext(optionsBuilder.Options);
     }

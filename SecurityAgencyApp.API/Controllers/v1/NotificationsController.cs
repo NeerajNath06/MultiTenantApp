@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Notifications.Commands.MarkAllAsRead;
@@ -10,6 +11,7 @@ namespace SecurityAgencyApp.API.Controllers.v1;
 
 [ApiController]
 [Route("api/v1/[controller]")]
+[Authorize]
 public class NotificationsController : ControllerBase
 {
     private readonly IMediator _mediator;

@@ -31,14 +31,16 @@ public class UpdateSubMenuCommandHandler : IRequestHandler<UpdateSubMenuCommand,
             return ApiResponse<bool>.ErrorResponse("SubMenu not found");
         }
 
-        // Verify menu belongs to tenant
-        var menu = await _unitOfWork.Repository<Menu>().GetByIdAsync(request.MenuId, cancellationToken);
-        if (menu == null || menu.TenantId != _tenantContext.TenantId.Value)
+        // Update parent menu only when MenuId is provided (non-empty)
+        if (request.MenuId != Guid.Empty)
         {
-            return ApiResponse<bool>.ErrorResponse("Menu not found or access denied");
+            var menu = await _unitOfWork.Repository<Menu>().GetByIdAsync(request.MenuId, cancellationToken);
+            if (menu == null || menu.TenantId != _tenantContext.TenantId.Value)
+            {
+                return ApiResponse<bool>.ErrorResponse("Menu not found or access denied");
+            }
+            subMenu.MenuId = request.MenuId;
         }
-
-        subMenu.MenuId = request.MenuId;
         subMenu.Name = request.Name;
         subMenu.DisplayName = request.DisplayName ?? request.Name;
         subMenu.Icon = request.Icon;

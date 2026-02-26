@@ -78,6 +78,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Equipment> Equipment { get; set; }
     public DbSet<Announcement> Announcements { get; set; }
     public DbSet<Visitor> Visitors { get; set; }
+    public DbSet<VehicleLog> VehicleLogs { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<PatrolScan> PatrolScans { get; set; }
 
@@ -127,6 +128,8 @@ public class ApplicationDbContext : DbContext
             .HasIndex(e => new { e.TenantId, e.AttendanceDate });
         modelBuilder.Entity<GuardAssignment>()
             .HasIndex(e => new { e.TenantId, e.AssignmentStartDate });
+        modelBuilder.Entity<VehicleLog>()
+            .HasIndex(e => new { e.TenantId, e.EntryTime });
 
         // Global query filter: tenant-scoped entities only return data for current tenant (enterprise safety).
         if (_tenantContext != null)
@@ -160,6 +163,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Equipment>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<Announcement>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<Visitor>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
+        modelBuilder.Entity<VehicleLog>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<Notification>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<PatrolScan>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<FormSubmission>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);

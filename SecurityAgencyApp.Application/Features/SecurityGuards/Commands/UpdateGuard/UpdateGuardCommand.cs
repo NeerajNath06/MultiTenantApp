@@ -18,7 +18,14 @@ public class UpdateGuardCommand : IRequest<ApiResponse<bool>>
     public string City { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
     public string PinCode { get; set; } = string.Empty;
+    public string? AadharNumber { get; set; }
+    public string? PANNumber { get; set; }
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactPhone { get; set; }
+    public DateTime? JoiningDate { get; set; }
     public bool IsActive { get; set; } = true;
     /// <summary>User (Supervisor) ID responsible for this guard.</summary>
     public Guid? SupervisorId { get; set; }
+    /// <summary>Optional profile photo path. When provided, updates PhotoPath; when omitted, existing PhotoPath is preserved.</summary>
+    public string? PhotoPath { get; set; }
 }

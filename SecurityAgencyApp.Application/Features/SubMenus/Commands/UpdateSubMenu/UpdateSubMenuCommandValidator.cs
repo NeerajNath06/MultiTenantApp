@@ -9,8 +9,7 @@ public class UpdateSubMenuCommandValidator : AbstractValidator<UpdateSubMenuComm
         RuleFor(x => x.Id)
             .NotEmpty().WithMessage("SubMenu ID is required");
 
-        RuleFor(x => x.MenuId)
-            .NotEmpty().WithMessage("Menu ID is required");
+        // MenuId is optional on update; when provided it must be valid (handler validates). When omitted, parent menu is unchanged.
 
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("SubMenu name is required")

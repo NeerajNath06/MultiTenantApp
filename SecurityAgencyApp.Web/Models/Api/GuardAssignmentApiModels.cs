@@ -1,5 +1,21 @@
 namespace SecurityAgencyApp.Web.Models.Api;
 
+/// <summary>Response from GET /api/v1/Sites/{id}/Supervisors – only supervisors assigned to that site.</summary>
+public class GetSupervisorsBySiteResponse
+{
+    public List<SupervisorItemDto> Items { get; set; } = new();
+}
+
+public class SupervisorItemDto
+{
+    public Guid Id { get; set; }
+    public string DisplayName { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+}
+
 public class AssignmentListResponse
 {
     public List<AssignmentItemDto> Items { get; set; } = new();

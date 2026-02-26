@@ -61,6 +61,19 @@ public class CheckInCommandHandler : IRequestHandler<CheckInCommand, ApiResponse
         if (assignment == null)
             return ApiResponse<CheckInResultDto>.ErrorResponse("No active assignment found for this site and shift. Contact your supervisor.");
 
+        var shift = await _unitOfWork.Repository<Shift>().GetByIdAsync(assignment.ShiftId, cancellationToken);
+        if (shift == null)
+            return ApiResponse<CheckInResultDto>.ErrorResponse("Shift not found.");
+        var nowTime = nowLocal.TimeOfDay;
+        bool withinShift;
+        if (shift.EndTime > shift.StartTime)
+            withinShift = nowTime >= shift.StartTime && nowTime <= shift.EndTime;
+        else
+            withinShift = nowTime >= shift.StartTime || nowTime < shift.EndTime; // overnight shift
+        if (!withinShift)
+            return ApiResponse<CheckInResultDto>.ErrorResponse(
+                "Punch-in is only allowed during your shift time (" + shift.StartTime.ToString(@"hh\:mm") + " - " + shift.EndTime.ToString(@"hh\:mm") + "). Current time is outside this window. Please check in when your shift starts.");
+
         var existing = await _unitOfWork.Repository<GuardAttendance>().FirstOrDefaultAsync(
             a => a.GuardId == request.GuardId &&
                  a.AssignmentId == assignment.Id &&

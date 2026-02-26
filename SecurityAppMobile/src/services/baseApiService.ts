@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getBaseUrl } from '../config/api.config';
+import { getBaseUrl, DEFAULT_APP_TIMEZONE } from '../config/api.config';
 
 /**
  * Base API Service for all mobile services
@@ -29,6 +29,9 @@ class BaseApiService {
       headers['X-Agency-Id'] = agencyId;
       headers['X-Tenant-Id'] = agencyId;
     }
+
+    // App timezone (default India) so API uses same region for times (punch-in, shifts, notifications)
+    headers['X-Timezone'] = DEFAULT_APP_TIMEZONE;
 
     return headers;
   }

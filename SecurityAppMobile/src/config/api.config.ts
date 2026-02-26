@@ -1,6 +1,9 @@
 // API Configuration
 // Configure your development environment settings here
 
+/** Default app timezone (sent as X-Timezone to API). Use IANA id e.g. Asia/Kolkata for India. */
+export const DEFAULT_APP_TIMEZONE = 'Asia/Kolkata';
+
 export const API_CONFIG = {
   // Development settings
   DEVELOPMENT: {
@@ -9,7 +12,7 @@ export const API_CONFIG = {
     // - Windows: ipconfig in command prompt
     // - Mac/Linux: ifconfig or ip addr in terminal
     // - Or use: http://localhost:5014 in your browser and check network tab
-    BASE_URL: 'http://192.168.68.119:5286', // TODO: Replace with your actual IP
+    BASE_URL: 'http://192.168.68.126:5286', // TODO: Replace with your actual IP
     TIMEOUT: 10000, // 10 seconds
   },
   

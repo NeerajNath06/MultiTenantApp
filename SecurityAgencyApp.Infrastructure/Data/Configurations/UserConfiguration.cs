@@ -42,6 +42,15 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.PhoneNumber)
             .HasMaxLength(20);
 
+        builder.Property(u => u.AadharNumber)
+            .HasMaxLength(20);
+
+        builder.Property(u => u.PANNumber)
+            .HasMaxLength(20);
+
+        builder.Property(u => u.UAN)
+            .HasMaxLength(50);
+
         builder.Property(u => u.IsActive)
             .IsRequired()
             .HasDefaultValue(true);

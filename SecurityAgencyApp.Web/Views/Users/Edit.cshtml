@@ -42,6 +42,24 @@
             </div>
 
             <div class="row g-3 mt-2">
+                <div class="col-12">
+                    <h6 class="text-muted border-bottom pb-2 mb-2">Basic details (ID proof / PF)</h6>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="AadharNumber" class="form-label fw-semibold">Aadhar Number</label>
+                    <input asp-for="AadharNumber" class="form-control" maxlength="12" placeholder="12-digit Aadhar" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PANNumber" class="form-label fw-semibold">PAN Number</label>
+                    <input asp-for="PANNumber" class="form-control" maxlength="10" placeholder="e.g. ABCDExxxxx" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="UAN" class="form-label fw-semibold">UAN (PF/EPF)</label>
+                    <input asp-for="UAN" class="form-control" maxlength="50" placeholder="Universal Account Number" />
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
                 <div class="col-md-6">
                     <label asp-for="DepartmentId" class="form-label fw-semibold">Department</label>
                     <select asp-for="DepartmentId" class="form-select" asp-items="ViewBag.Departments">

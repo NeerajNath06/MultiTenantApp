@@ -51,6 +51,9 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, ApiRe
         user.LastName = request.LastName ?? string.Empty;
         user.Email = request.Email;
         user.PhoneNumber = request.PhoneNumber;
+        user.AadharNumber = request.AadharNumber;
+        user.PANNumber = request.PANNumber;
+        user.UAN = request.UAN;
         user.DepartmentId = request.DepartmentId;
         user.DesignationId = request.DesignationId;
         user.IsActive = request.IsActive;

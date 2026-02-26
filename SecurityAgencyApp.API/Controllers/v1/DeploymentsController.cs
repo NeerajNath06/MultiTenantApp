@@ -1,5 +1,7 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SecurityAgencyApp.Application.Common;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.GuardAssignments.Queries.GetAssignmentList;
 using SecurityAgencyApp.Application.Interfaces;
@@ -14,6 +16,7 @@ namespace SecurityAgencyApp.API.Controllers.v1;
 /// </summary>
 [ApiController]
 [Route("api/v1/[controller]")]
+[Authorize]
 public class DeploymentsController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -43,7 +46,7 @@ public class DeploymentsController : ControllerBase
         DateTime? toDate = !string.IsNullOrEmpty(dateTo) && DateTime.TryParse(dateTo, out var dt) ? dt : null;
         if (guardId.HasValue && !fromDate.HasValue && !toDate.HasValue)
         {
-            var today = DateTime.UtcNow.Date;
+            var today = AppTimeHelper.TodayInAppTimeZone().Date;
             fromDate = today;
             toDate = today;
         }
@@ -73,7 +76,7 @@ public class DeploymentsController : ControllerBase
         var shiftMap = shifts.ToDictionary(s => s.Id, s => s);
 
         var list = new List<DeploymentDto>();
-        var rangeRefDate = DateTime.UtcNow.Date;
+        var rangeRefDate = AppTimeHelper.TodayInAppTimeZone().Date;
         var rangeStart = fromDate ?? rangeRefDate.AddDays(-7);
         var rangeEnd = toDate ?? rangeRefDate.AddDays(30);
 

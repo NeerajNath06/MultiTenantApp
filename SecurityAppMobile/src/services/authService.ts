@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getBaseUrl } from '../config/api.config';
+import { getBaseUrl, DEFAULT_APP_TIMEZONE } from '../config/api.config';
 
 export interface LoginRequest {
   userEmail: string;
@@ -59,6 +59,7 @@ class AuthService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-Timezone': DEFAULT_APP_TIMEZONE,
         },
         body: JSON.stringify(credentials),
       });
@@ -202,6 +203,7 @@ class AuthService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-Timezone': DEFAULT_APP_TIMEZONE,
         },
         body: JSON.stringify({ refreshToken }),
       });

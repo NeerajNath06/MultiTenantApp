@@ -1,0 +1,85 @@
+@model SecurityAgencyApp.Web.Models.Api.VehicleLogSummaryBySiteResponse
+@{
+    ViewData["Title"] = "Vehicle Log Summary by Site";
+    var sites = ViewBag.Sites as SelectList;
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Vehicle Log Summary by Site</h1>
+            <p class="page-subtitle">Total, inside, and exited counts per site</p>
+        </div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-primary"><i class="fas fa-list me-2"></i>View All Logs</a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Site</label>
+                <select name="siteId" class="form-select" asp-items="sites">
+                    <option value="">All Sites</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">From Date</label>
+                <input type="date" name="dateFrom" class="form-control" value="@ViewContext.HttpContext.Request.Query["dateFrom"]" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">To Date</label>
+                <input type="date" name="dateTo" class="form-control" value="@ViewContext.HttpContext.Request.Query["dateTo"]" />
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-filter me-2"></i>Apply</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        @if (Model?.Sites != null && Model.Sites.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Site</th>
+                            <th class="text-end">Total Entries</th>
+                            <th class="text-end">Inside</th>
+                            <th class="text-end">Exited</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in Model.Sites)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@s.SiteName</strong>
+                                    @if (!string.IsNullOrEmpty(s.SiteAddress)) { <br /><small class="text-muted">@s.SiteAddress</small> }
+                                </td>
+                                <td class="text-end">@s.TotalEntries</td>
+                                <td class="text-end"><span class="badge bg-info">@s.InsideCount</span></td>
+                                <td class="text-end"><span class="badge bg-secondary">@s.ExitedCount</span></td>
+                                <td class="text-end">
+                                    <a href="@Url.Action("Index", new { siteId = s.SiteId, dateFrom = ViewContext.HttpContext.Request.Query["dateFrom"], dateTo = ViewContext.HttpContext.Request.Query["dateTo"] })" class="btn btn-sm btn-outline-primary">View Logs</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No summary data for the selected filters</h5>
+                <a href="@Url.Action("Index")" class="btn btn-primary mt-3"><i class="fas fa-car me-2"></i>Vehicle Log</a>
+            </div>
+        }
+    </div>
+</div>

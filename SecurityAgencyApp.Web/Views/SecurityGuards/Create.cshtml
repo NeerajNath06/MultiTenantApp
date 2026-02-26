@@ -82,6 +82,19 @@
 
             <div class="row g-3 mt-2">
                 <div class="col-md-6">
+                    <label asp-for="AadharNumber" class="form-label fw-semibold">Aadhar Number</label>
+                    <input asp-for="AadharNumber" class="form-control" maxlength="12" placeholder="12-digit Aadhar" />
+                    <span asp-validation-for="AadharNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PANNumber" class="form-label fw-semibold">PAN Number</label>
+                    <input asp-for="PANNumber" class="form-control" maxlength="10" placeholder="e.g. ABCDExxxxx" />
+                    <span asp-validation-for="PANNumber" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
                     <label asp-for="EmergencyContactName" class="form-label fw-semibold">Emergency Contact Name <span class="text-danger">*</span></label>
                     <input asp-for="EmergencyContactName" class="form-control" required />
                     <span asp-validation-for="EmergencyContactName" class="text-danger small"></span>

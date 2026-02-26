@@ -49,11 +49,17 @@ public class GetGuardByIdQueryHandler : IRequestHandler<GetGuardByIdQuery, ApiRe
             City = guard.City,
             State = guard.State,
             PinCode = guard.PinCode,
+            AadharNumber = guard.AadharNumber,
+            PANNumber = guard.PANNumber,
+            EmergencyContactName = guard.EmergencyContactName,
+            EmergencyContactPhone = guard.EmergencyContactPhone,
+            JoiningDate = guard.JoiningDate,
             IsActive = guard.IsActive,
             CreatedDate = guard.CreatedDate,
             ModifiedDate = guard.ModifiedDate,
             SupervisorId = guard.SupervisorId,
-            SupervisorName = supervisor != null ? $"{supervisor.FirstName} {supervisor.LastName}".Trim() : null
+            SupervisorName = supervisor != null ? $"{supervisor.FirstName} {supervisor.LastName}".Trim() : null,
+            PhotoPath = guard.PhotoPath
         };
 
         return ApiResponse<GuardDto>.SuccessResponse(guardDto, "Security guard retrieved successfully");

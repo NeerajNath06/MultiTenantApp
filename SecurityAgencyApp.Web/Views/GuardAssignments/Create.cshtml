@@ -82,4 +82,34 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (function () {
+            var siteSelect = document.querySelector('select[name="SiteId"]');
+            var supervisorSelect = document.querySelector('select[name="SupervisorId"]');
+            if (!siteSelect || !supervisorSelect) return;
+
+            siteSelect.addEventListener('change', function () {
+                var siteId = this.value;
+                supervisorSelect.innerHTML = '<option value="">-- Select Supervisor --</option>';
+                if (!siteId) return;
+
+                fetch('@Url.Action("SupervisorsBySite", "GuardAssignments")?siteId=' + encodeURIComponent(siteId), {
+                    method: 'GET',
+                    headers: { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || '' }
+                })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.success && data.items && data.items.length) {
+                        data.items.forEach(function (item) {
+                            var opt = document.createElement('option');
+                            opt.value = item.id;
+                            opt.textContent = item.name;
+                            supervisorSelect.appendChild(opt);
+                        });
+                    }
+                })
+                .catch(function () { });
+            });
+        })();
+    </script>
 }

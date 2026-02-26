@@ -29,10 +29,8 @@ builder.Services.AddSession(options =>
     options.Cookie.SameSite = SameSiteMode.Strict;
 });
 
-// Database
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+// Database: provider from config (SqlServer | PostgreSQL), same as API
+builder.Services.AddApplicationDbContextFromConfig(builder.Configuration);
 
 // Application Services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -84,13 +84,42 @@
 
             <div class="row g-3 mt-2">
                 <div class="col-md-6">
+                    <label asp-for="AadharNumber" class="form-label fw-semibold">Aadhar Number</label>
+                    <input asp-for="AadharNumber" class="form-control" maxlength="12" placeholder="12-digit Aadhar" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PANNumber" class="form-label fw-semibold">PAN Number</label>
+                    <input asp-for="PANNumber" class="form-control" maxlength="10" placeholder="e.g. ABCDExxxxx" />
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="EmergencyContactName" class="form-label fw-semibold">Emergency Contact Name</label>
+                    <input asp-for="EmergencyContactName" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="EmergencyContactPhone" class="form-label fw-semibold">Emergency Contact Phone</label>
+                    <input asp-for="EmergencyContactPhone" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="JoiningDate" class="form-label fw-semibold">Joining Date</label>
+                    <input asp-for="JoiningDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-6">
                     <label asp-for="SupervisorId" class="form-label fw-semibold">Supervisor</label>
                     <select asp-for="SupervisorId" class="form-select" asp-items="ViewBag.Supervisors">
                         <option value="">-- No Supervisor --</option>
                     </select>
                 </div>
-                <div class="col-md-6">
-                    <div class="form-check mt-4">
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-12">
+                    <div class="form-check">
                         <input asp-for="IsActive" type="checkbox" class="form-check-input" />
                         <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
                     </div>

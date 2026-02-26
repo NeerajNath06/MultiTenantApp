@@ -176,19 +176,19 @@ function AssignedDutiesScreen({ navigation }: any) {
 
     if (duty.status === 'upcoming') {
       actions.push({
-        text: 'Start Duty',
+        text: 'Punch In',
         style: 'default' as const,
-        onPress: () => handleStartDuty(duty),
+        onPress: () => navigation.navigate('CheckIn'),
       } as any);
     }
 
     if (duty.status === 'in-progress') {
       actions.push({
-        text: 'Complete Duty',
+        text: 'Punch Out',
         style: 'default' as const,
-        onPress: () => handleCompleteDuty(duty),
+        onPress: () => navigation.navigate('CheckOut'),
       } as any);
-      
+
       if (duty.checkpoints) {
         actions.push({
           text: 'View Checkpoints',
@@ -200,30 +200,8 @@ function AssignedDutiesScreen({ navigation }: any) {
 
     Alert.alert(
       duty.title,
-      `📍 ${duty.location}\n⏰ ${duty.time}\n📅 ${duty.date}\n\n${duty.description}\n\nPriority: ${duty.priority.toUpperCase()}\nStatus: ${getStatusText(duty.status)}`,
+      `📍 ${duty.location}\n⏰ ${duty.time}\n📅 ${duty.date}\n\n${duty.description}\n\nPriority: ${duty.priority.toUpperCase()}\nStatus: ${getStatusText(duty.status)}\n\nStatus is automatic: use Punch In / Punch Out only.`,
       actions
-    );
-  };
-
-  const handleStartDuty = (duty: Duty) => {
-    setDuties(duties.map(d => d.id === duty.id ? { ...d, status: 'in-progress' as const } : d));
-    Alert.alert('Duty Started', `You have started: ${duty.title}\n\nDon't forget to complete it when finished.`);
-  };
-
-  const handleCompleteDuty = (duty: Duty) => {
-    Alert.alert(
-      'Complete Duty',
-      `Are you sure you want to mark "${duty.title}" as completed?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Complete',
-          onPress: () => {
-            setDuties(duties.map(d => d.id === duty.id ? { ...d, status: 'completed' as const } : d));
-            Alert.alert('Success', 'Duty marked as completed!');
-          }
-        }
-      ]
     );
   };
 
@@ -240,24 +218,10 @@ function AssignedDutiesScreen({ navigation }: any) {
   const handleMarkAllComplete = () => {
     const inProgressDuties = duties.filter(d => d.status === 'in-progress');
     if (inProgressDuties.length === 0) {
-      Alert.alert('No Active Duties', 'There are no in-progress duties to complete.');
+      Alert.alert('No Active Duties', 'There are no in-progress duties. Use Punch In during your shift to start.');
       return;
     }
-
-    Alert.alert(
-      'Complete All Active Duties',
-      `Mark ${inProgressDuties.length} duty(s) as completed?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Complete All',
-          onPress: () => {
-            setDuties(duties.map(d => d.status === 'in-progress' ? { ...d, status: 'completed' as const } : d));
-            Alert.alert('Success', 'All active duties marked as completed!');
-          }
-        }
-      ]
-    );
+    navigation.navigate('CheckOut');
   };
 
   const handleViewTemplates = () => {
@@ -331,7 +295,7 @@ function AssignedDutiesScreen({ navigation }: any) {
           <View style={styles.actionsGrid}>
             <TouchableOpacity style={styles.actionCard} onPress={handleMarkAllComplete}>
               <MaterialCommunityIcons name="check-all" size={24} color={COLORS.primary} />
-              <Text style={styles.actionLabel}>Complete All</Text>
+              <Text style={styles.actionLabel}>Punch Out</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionCard} onPress={handleViewTemplates}>

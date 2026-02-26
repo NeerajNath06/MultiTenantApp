@@ -106,6 +106,14 @@ public class SecurityGuardsController : Controller
         ViewBag.Supervisors = new SelectList(supervisors.Select(s => new { Id = s.Id, Name = string.IsNullOrWhiteSpace($"{s.FirstName} {s.LastName}".Trim()) ? s.UserName : $"{s.FirstName} {s.LastName}".Trim() }), "Id", "Name", selectedSupervisorId);
     }
 
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var result = await _apiClient.GetAsync<GuardDetailDto>($"api/v1/SecurityGuards/{id}");
+        if (!result.Success || result.Data == null)
+            return NotFound();
+        return View(result.Data);
+    }
+
     public async Task<IActionResult> Edit(Guid id)
     {
         var result = await _apiClient.GetAsync<GuardDetailDto>($"api/v1/SecurityGuards/{id}");
@@ -128,6 +136,11 @@ public class SecurityGuardsController : Controller
             City = d.City ?? "",
             State = d.State ?? "",
             PinCode = d.PinCode ?? "",
+            AadharNumber = d.AadharNumber,
+            PANNumber = d.PANNumber,
+            EmergencyContactName = d.EmergencyContactName ?? "",
+            EmergencyContactPhone = d.EmergencyContactPhone ?? "",
+            JoiningDate = d.JoiningDate,
             IsActive = d.IsActive,
             SupervisorId = d.SupervisorId
         });
@@ -157,6 +170,11 @@ public class SecurityGuardsController : Controller
             city = request.City,
             state = request.State,
             pinCode = request.PinCode,
+            aadharNumber = request.AadharNumber,
+            panNumber = request.PANNumber,
+            emergencyContactName = request.EmergencyContactName,
+            emergencyContactPhone = request.EmergencyContactPhone,
+            joiningDate = request.JoiningDate,
             isActive = request.IsActive,
             supervisorId = request.SupervisorId
         };

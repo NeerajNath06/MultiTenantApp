@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, RefreshControl, Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../../constants/theme';
@@ -36,6 +38,9 @@ function ProfileScreen({ navigation }: any) {
   ]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [profileImageUri, setProfileImageUri] = useState<string | null>(null);
+
+  const PROFILE_PHOTO_KEY = (userId: string) => `profilePhoto_${userId}`;
 
   const loadProfile = useCallback(async () => {
     const stored = await authService.getStoredUser();
@@ -86,6 +91,13 @@ function ProfileScreen({ navigation }: any) {
       { label: 'Rating', value: rating, icon: 'star', color: COLORS.accent },
       { label: 'Incidents', value: String(incidentsCount), icon: 'shield-check', color: COLORS.secondary },
     ]);
+    try {
+      const base64 = await AsyncStorage.getItem(PROFILE_PHOTO_KEY(stored.id));
+      if (base64) setProfileImageUri('data:image/jpeg;base64,' + base64);
+      else setProfileImageUri(null);
+    } catch (_) {
+      setProfileImageUri(null);
+    }
     setLoading(false);
     setRefreshing(false);
   }, []);
@@ -98,6 +110,22 @@ function ProfileScreen({ navigation }: any) {
   useEffect(() => {
     loadProfile();
   }, [loadProfile]);
+
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        const stored = await authService.getStoredUser();
+        if (!stored?.id) return;
+        try {
+          const base64 = await AsyncStorage.getItem(PROFILE_PHOTO_KEY(stored.id));
+          if (base64) setProfileImageUri('data:image/jpeg;base64,' + base64);
+          else setProfileImageUri(null);
+        } catch (_) {
+          setProfileImageUri(null);
+        }
+      })();
+    }, [])
+  );
 
   const handleLogout = (): void => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -172,7 +200,11 @@ function ProfileScreen({ navigation }: any) {
             </TouchableOpacity>
             <View style={styles.avatarContainer}>
               <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{avatarInitials}</Text>
+                {profileImageUri ? (
+                  <Image source={{ uri: profileImageUri }} style={styles.avatarImage} />
+                ) : (
+                  <Text style={styles.avatarText}>{avatarInitials}</Text>
+                )}
               </View>
               <TouchableOpacity style={styles.editAvatarBtn} onPress={() => navigation.navigate('EditProfile')}>
                 <MaterialCommunityIcons name="camera" size={14} color={COLORS.white} />
@@ -311,11 +343,17 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
+    overflow: 'hidden',
     backgroundColor: COLORS.primaryBlue,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
     borderColor: 'rgba(255,255,255,0.3)',
+  },
+  avatarImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
   },
   avatarText: {
     fontSize: 36,

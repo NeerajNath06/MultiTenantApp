@@ -42,6 +42,11 @@ public class GuardDetailDto
     public string? City { get; set; }
     public string? State { get; set; }
     public string? PinCode { get; set; }
+    public string? AadharNumber { get; set; }
+    public string? PANNumber { get; set; }
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactPhone { get; set; }
+    public DateTime? JoiningDate { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime? ModifiedDate { get; set; }
@@ -87,6 +92,11 @@ public class UpdateGuardRequest
     public string City { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
     public string PinCode { get; set; } = string.Empty;
+    public string? AadharNumber { get; set; }
+    public string? PANNumber { get; set; }
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactPhone { get; set; }
+    public DateTime? JoiningDate { get; set; }
     public bool IsActive { get; set; }
     public Guid? SupervisorId { get; set; }
 }

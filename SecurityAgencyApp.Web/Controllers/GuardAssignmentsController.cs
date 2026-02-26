@@ -47,8 +47,25 @@ public class GuardAssignmentsController : Controller
 
     public async Task<IActionResult> Create()
     {
-        await LoadDropdowns();
+        await LoadDropdowns(null);
         return View(new CreateAssignmentRequest { AssignmentStartDate = DateTime.Today });
+    }
+
+    /// <summary>Returns supervisors for the given site (for Assign Guard form: supervisor dropdown when site changes). Called via AJAX.</summary>
+    [HttpGet]
+    public async Task<IActionResult> SupervisorsBySite(Guid siteId)
+    {
+        if (siteId == Guid.Empty)
+        {
+            return Json(new { success = true, items = Array.Empty<object>() });
+        }
+        var result = await _apiClient.GetAsync<GetSupervisorsBySiteResponse>($"api/v1/Sites/{siteId}/Supervisors", null);
+        if (!result.Success || result.Data == null)
+        {
+            return Json(new { success = false, items = Array.Empty<object>() });
+        }
+        var items = (result.Data.Items ?? new List<SupervisorItemDto>()).Select(s => new { id = s.Id, name = s.DisplayName }).ToList();
+        return Json(new { success = true, items });
     }
 
     [HttpPost]
@@ -57,7 +74,7 @@ public class GuardAssignmentsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            await LoadDropdowns();
+            await LoadDropdowns(request.SiteId);
             return View(request);
         }
         var body = new
@@ -80,11 +97,11 @@ public class GuardAssignmentsController : Controller
         if (result.Errors?.Count > 0)
             foreach (var err in result.Errors)
                 ModelState.AddModelError("", err);
-        await LoadDropdowns();
+        await LoadDropdowns(request.SiteId);
         return View(request);
     }
 
-    private async Task LoadDropdowns()
+    private async Task LoadDropdowns(Guid? selectedSiteId = null)
     {
         var guardResult = await _apiClient.GetAsync<GuardListResponse>("api/v1/SecurityGuards", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
         ViewBag.Guards = new SelectList(guardResult.Data?.Items ?? new List<GuardItemDto>(), "Id", "GuardCode");
@@ -92,8 +109,14 @@ public class GuardAssignmentsController : Controller
         ViewBag.Sites = new SelectList(siteResult.Data?.Items ?? new List<SiteDto>(), "Id", "SiteName");
         var shiftResult = await _apiClient.GetAsync<ShiftListResponse>("api/v1/Shifts", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
         ViewBag.Shifts = new SelectList(shiftResult.Data?.Items ?? new List<ShiftItemDto>(), "Id", "ShiftName");
-        var supervisorsRes = await _apiClient.GetAsync<UserListResponse>("api/v1/Supervisors", new Dictionary<string, string?> { ["pageSize"] = "1000", ["isActive"] = "true" });
-        var supervisors = supervisorsRes.Success && supervisorsRes.Data?.Items != null ? supervisorsRes.Data.Items : new List<UserItemDto>();
-        ViewBag.Supervisors = new SelectList(supervisors.Select(s => new { Id = s.Id, Name = string.IsNullOrWhiteSpace($"{s.FirstName} {s.LastName}".Trim()) ? s.UserName : $"{s.FirstName} {s.LastName}".Trim() }), "Id", "Name");
+        // Supervisors: load only for selected site (or empty). Frontend will refill on site change via /api/v1/Sites/{id}/Supervisors
+        var supervisors = new List<SupervisorItemDto>();
+        if (selectedSiteId.HasValue)
+        {
+            var supRes = await _apiClient.GetAsync<GetSupervisorsBySiteResponse>($"api/v1/Sites/{selectedSiteId.Value}/Supervisors", null);
+            if (supRes.Success && supRes.Data?.Items != null)
+                supervisors = supRes.Data.Items;
+        }
+        ViewBag.Supervisors = new SelectList(supervisors.Select(s => new { s.Id, Name = s.DisplayName }), "Id", "Name");
     }
 }

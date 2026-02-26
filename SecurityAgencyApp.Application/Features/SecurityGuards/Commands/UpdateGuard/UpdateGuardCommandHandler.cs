@@ -55,8 +55,16 @@ public class UpdateGuardCommandHandler : IRequestHandler<UpdateGuardCommand, Api
         guard.City = request.City;
         guard.State = request.State;
         guard.PinCode = request.PinCode;
+        guard.AadharNumber = request.AadharNumber;
+        guard.PANNumber = request.PANNumber;
+        guard.EmergencyContactName = request.EmergencyContactName ?? string.Empty;
+        guard.EmergencyContactPhone = request.EmergencyContactPhone ?? string.Empty;
+        if (request.JoiningDate.HasValue)
+            guard.JoiningDate = request.JoiningDate.Value;
         guard.IsActive = request.IsActive;
         guard.SupervisorId = request.SupervisorId;
+        if (request.PhotoPath != null)
+            guard.PhotoPath = request.PhotoPath;
         guard.ModifiedDate = DateTime.UtcNow;
 
         await guardRepo.UpdateAsync(guard, cancellationToken);

@@ -38,6 +38,7 @@ import PatrolTrackingScreen from '../screens/guard/PatrolTrackingScreen';
 import EmergencySOSScreen from '../screens/guard/EmergencySOSScreen';
 import VisitorManagementScreen from '../screens/guard/VisitorManagementScreen';
 import VehicleLogScreen from '../screens/guard/VehicleLogScreen';
+import AddVehicleEntryScreen from '../screens/guard/AddVehicleEntryScreen';
 import LeaveRequestScreen from '../screens/guard/LeaveRequestScreen';
 import SalaryScreen from '../screens/guard/SalaryScreen';
 import TrainingScreen from '../screens/guard/TrainingScreen';
@@ -66,6 +67,8 @@ import TrainingAssignmentScreen from '../screens/supervisor/TrainingAssignmentSc
 import ComplianceDashboardScreen from '../screens/supervisor/ComplianceDashboardScreen';
 import GuardMapScreen from '../screens/supervisor/GuardMapScreen';
 import VisitorAnalyticsScreen from '../screens/supervisor/VisitorAnalyticsScreen';
+import SiteVehicleLogScreen from '../screens/supervisor/SiteVehicleLogScreen';
+import SiteVehicleLogDetailScreen from '../screens/supervisor/SiteVehicleLogDetailScreen';
 import AssetManagementScreen from '../screens/supervisor/AssetManagementScreen';
 import CreateAnnouncementScreen from '../screens/supervisor/CreateAnnouncementScreen';
 import EditAnnouncementScreen from '../screens/supervisor/EditAnnouncementScreen';
@@ -242,6 +245,7 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen name="EmergencySOS" component={EmergencySOSScreen} />
         <Stack.Screen name="VisitorManagement" component={VisitorManagementScreen} />
         <Stack.Screen name="VehicleLog" component={VehicleLogScreen} />
+        <Stack.Screen name="AddVehicleEntry" component={AddVehicleEntryScreen} />
         <Stack.Screen name="LeaveRequest" component={LeaveRequestScreen} />
         <Stack.Screen name="Salary" component={SalaryScreen} />
         <Stack.Screen name="Training" component={TrainingScreen} />
@@ -269,6 +273,8 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen name="ComplianceDashboard" component={ComplianceDashboardScreen} />
         <Stack.Screen name="GuardMap" component={GuardMapScreen} />
         <Stack.Screen name="VisitorAnalytics" component={VisitorAnalyticsScreen} />
+        <Stack.Screen name="SiteVehicleLog" component={SiteVehicleLogScreen} />
+        <Stack.Screen name="SiteVehicleLogDetail" component={SiteVehicleLogDetailScreen} />
         <Stack.Screen name="AssetManagement" component={AssetManagementScreen} />
         
         {/* Common/Shared Screens */}

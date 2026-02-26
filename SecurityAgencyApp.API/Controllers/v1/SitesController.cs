@@ -6,6 +6,7 @@ using SecurityAgencyApp.Application.Features.Sites.Commands.DeleteSite;
 using SecurityAgencyApp.Application.Features.Sites.Commands.UpdateSite;
 using SecurityAgencyApp.Application.Features.Sites.Queries.GetSiteById;
 using SecurityAgencyApp.Application.Features.Sites.Queries.GetSiteList;
+using SecurityAgencyApp.Application.Features.Sites.Queries.GetSupervisorsBySite;
 using GetSiteById = SecurityAgencyApp.Application.Features.Sites.Queries.GetSiteById;
 
 namespace SecurityAgencyApp.API.Controllers.v1;
@@ -45,6 +46,20 @@ public class SitesController : ControllerBase
             SupervisorId = supervisorId
         };
         var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get supervisors assigned to this site (only those linked in Site Supervisors when site was created/updated).
+    /// Use this when site is selected in Assign Guard form to populate supervisor dropdown.
+    /// </summary>
+    [HttpGet("{id}/Supervisors")]
+    public async Task<ActionResult<ApiResponse<GetSupervisorsBySiteResponse>>> GetSupervisorsBySite(Guid id)
+    {
+        var query = new GetSupervisorsBySiteQuery { SiteId = id };
+        var result = await _mediator.Send(query);
+        if (!result.Success)
+            return BadRequest(result);
         return Ok(result);
     }
 

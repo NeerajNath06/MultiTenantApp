@@ -457,6 +457,14 @@ function SupervisorDashboardScreen({ navigation }: any) {
               <Text style={styles.managementTileSubtitle}>Visitor insights</Text>
             </TouchableOpacity>
 
+            <TouchableOpacity style={styles.managementTile} onPress={() => handleNavigateToScreen('SiteVehicleLog')}>
+              <View style={[styles.managementTileIcon, { backgroundColor: COLORS.warning + '15' }]}>
+                <MaterialCommunityIcons name="car-side" size={24} color={COLORS.warning} />
+              </View>
+              <Text style={styles.managementTileTitle}>Vehicle Log by Site</Text>
+              <Text style={styles.managementTileSubtitle}>View vehicle entries per site</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity style={styles.managementTile} onPress={() => handleNavigateToScreen('AnalyticsDashboard')}>
               <View style={[styles.managementTileIcon, { backgroundColor: COLORS.primaryBlue + '15' }]}>
                 <MaterialCommunityIcons name="chart-box" size={24} color={COLORS.primaryBlue} />

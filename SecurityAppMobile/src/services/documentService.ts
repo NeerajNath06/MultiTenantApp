@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system/legacy';
 import { getBaseUrl } from '../config/api.config';
 import BaseApiService from './baseApiService';
@@ -32,11 +31,6 @@ class DocumentService extends BaseApiService {
     fileName: string,
     options?: { documentNumber?: string; expiryDate?: string }
   ): Promise<{ success: boolean; data?: { id?: string }; error?: { code: string; message: string } }> {
-    const token = await AsyncStorage.getItem('authToken');
-    const userData = await AsyncStorage.getItem('userData');
-    const parsed = userData ? JSON.parse(userData) : {};
-    const agencyId = parsed.agencyId;
-
     const formData = new FormData();
     formData.append('guardId', guardId);
     formData.append('documentType', documentType);
@@ -50,37 +44,16 @@ class DocumentService extends BaseApiService {
     } as any;
     formData.append('file', file);
 
-    const headers: HeadersInit = {
-      Authorization: token ? `Bearer ${token}` : '',
+    const result = await this.postForm<unknown>('/api/v1/GuardDocuments', formData);
+    if (result.success && result.data != null) {
+      const raw = result.data as any;
+      const id = typeof raw === 'string' ? raw : (raw?.data ?? raw?.Data ?? raw?.id ?? raw?.Id);
+      return { success: true, data: id != null ? { id: String(id) } : undefined };
+    }
+    return {
+      success: false,
+      error: result.error ?? { code: 'API_ERROR', message: 'Upload failed' },
     };
-    if (agencyId) {
-      headers['X-Agency-Id'] = agencyId;
-      headers['X-Tenant-Id'] = agencyId;
-    }
-
-    try {
-      const response = await fetch(`${getBaseUrl()}/api/v1/GuardDocuments`, {
-        method: 'POST',
-        headers,
-        body: formData,
-      });
-      const text = await response.text();
-      let data: any = null;
-      try {
-        data = text ? JSON.parse(text) : null;
-      } catch (_) {}
-      if (response.ok) {
-        const id = data?.data ?? data?.Data ?? data?.id ?? data?.Id;
-        return { success: true, data: id != null ? { id: String(id) } : undefined };
-      }
-      return {
-        success: false,
-        error: { code: 'API_ERROR', message: (data?.message) || text || `Upload failed (${response.status})` },
-      };
-    } catch (error) {
-      console.error('Upload document error:', error);
-      return { success: false, error: { code: 'NETWORK_ERROR', message: 'Network error. Please check your connection.' } };
-    }
   }
 
   async getDownloadUrl(documentId: string): Promise<string> {
@@ -88,21 +61,15 @@ class DocumentService extends BaseApiService {
   }
 
   async downloadDocument(documentId: string, fileName: string): Promise<{ success: boolean; localUri?: string; error?: string }> {
-    const token = await AsyncStorage.getItem('authToken');
-    const userData = await AsyncStorage.getItem('userData');
-    const parsed = userData ? JSON.parse(userData) : {};
-    const agencyId = parsed.agencyId;
-    const headers: Record<string, string> = {};
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-    if (agencyId) {
-      headers['X-Agency-Id'] = agencyId;
-      headers['X-Tenant-Id'] = agencyId;
-    }
     try {
+      const headers = await this.getAuthHeaders();
       const url = await this.getDownloadUrl(documentId);
       const name = fileName || `${documentId}.bin`;
       const path = `${FileSystem.cacheDirectory ?? ''}${name}`;
-      const result = await FileSystem.downloadAsync(url, path, { headers });
+      const flatHeaders: Record<string, string> = {};
+      if (headers && typeof headers === 'object')
+        Object.entries(headers).forEach(([k, v]) => { if (typeof v === 'string') flatHeaders[k] = v; });
+      const result = await FileSystem.downloadAsync(url, path, { headers: flatHeaders });
       if (result.status !== 200) return { success: false, error: `Download failed (${result.status})` };
       return { success: true, localUri: result.uri };
     } catch (e) {

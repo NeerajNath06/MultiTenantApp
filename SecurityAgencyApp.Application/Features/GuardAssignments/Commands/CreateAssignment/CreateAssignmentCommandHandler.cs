@@ -49,6 +49,16 @@ public class CreateAssignmentCommandHandler : IRequestHandler<CreateAssignmentCo
             return ApiResponse<Guid>.ErrorResponse("Shift not found");
         }
 
+        // Supervisor must be one of the supervisors assigned to this site (SiteSupervisors)
+        if (request.SupervisorId.HasValue)
+        {
+            var isSupervisorForSite = await _unitOfWork.Repository<SiteSupervisor>().ExistsAsync(
+                ss => ss.SiteId == request.SiteId && ss.UserId == request.SupervisorId.Value && ss.TenantId == _tenantContext.TenantId.Value,
+                cancellationToken);
+            if (!isSupervisorForSite)
+                return ApiResponse<Guid>.ErrorResponse("Selected supervisor is not assigned to this site. Please choose a supervisor linked to the selected site.");
+        }
+
         var assignment = new GuardAssignment
         {
             TenantId = _tenantContext.TenantId.Value,

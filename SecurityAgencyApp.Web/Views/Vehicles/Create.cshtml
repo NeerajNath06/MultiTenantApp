@@ -1,0 +1,74 @@
+@model SecurityAgencyApp.Web.Models.Api.CreateVehicleEntryRequest
+@{
+    ViewData["Title"] = "Register Vehicle Entry";
+}
+
+<div class="page-header">
+    <h1 class="page-title">Register Vehicle Entry</h1>
+    <p class="page-subtitle">Log vehicle entry at site</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="VehicleNumber" class="form-label fw-semibold">Vehicle Number <span class="text-danger">*</span></label>
+                    <input asp-for="VehicleNumber" class="form-control" placeholder="e.g. MH 12 AB 1234" required />
+                    <span asp-validation-for="VehicleNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="VehicleType" class="form-label fw-semibold">Vehicle Type</label>
+                    <select asp-for="VehicleType" class="form-select">
+                        <option value="Car">Car</option>
+                        <option value="Bike">Bike</option>
+                        <option value="Truck">Truck</option>
+                        <option value="Auto">Auto</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DriverName" class="form-label fw-semibold">Driver Name <span class="text-danger">*</span></label>
+                    <input asp-for="DriverName" class="form-control" required />
+                    <span asp-validation-for="DriverName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DriverPhone" class="form-label fw-semibold">Driver Phone</label>
+                    <input asp-for="DriverPhone" class="form-control" placeholder="e.g. 9876543210" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Purpose" class="form-label fw-semibold">Purpose <span class="text-danger">*</span></label>
+                    <input asp-for="Purpose" class="form-control" placeholder="e.g. Employee, Delivery, Visitor" required />
+                    <span asp-validation-for="Purpose" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ParkingSlot" class="form-label fw-semibold">Parking Slot</label>
+                    <input asp-for="ParkingSlot" class="form-control" placeholder="e.g. P-101" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SiteId" class="form-label fw-semibold">Site <span class="text-danger">*</span></label>
+                    <select asp-for="SiteId" class="form-select" asp-items="ViewBag.Sites" required>
+                        <option value="">-- Select Site --</option>
+                    </select>
+                    <span asp-validation-for="SiteId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="GuardId" class="form-label fw-semibold">Registering Guard <span class="text-danger">*</span></label>
+                    <select asp-for="GuardId" class="form-select" asp-items="ViewBag.Guards" required>
+                        <option value="">-- Select Guard --</option>
+                    </select>
+                    <span asp-validation-for="GuardId" class="text-danger small"></span>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Register Entry</button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Users.Commands.CreateUser;
+using SecurityAgencyApp.Application.Features.Users.Commands.DeleteUser;
 using SecurityAgencyApp.Application.Features.Users.Queries.GetUserList;
 
 namespace SecurityAgencyApp.API.Controllers.v1;
@@ -80,6 +81,21 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<ApiResponse<bool>>> UpdateUser(Guid id, [FromBody] SecurityAgencyApp.Application.Features.Users.Commands.UpdateUser.UpdateUserCommand command)
     {
         command.Id = id;
+        var result = await _mediator.Send(command);
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+        return BadRequest(result);
+    }
+
+    /// <summary>
+    /// Delete user
+    /// </summary>
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteUser(Guid id)
+    {
+        var command = new DeleteUserCommand { Id = id };
         var result = await _mediator.Send(command);
         if (result.Success)
         {

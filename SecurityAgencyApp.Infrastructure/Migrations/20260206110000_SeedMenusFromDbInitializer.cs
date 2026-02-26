@@ -1,4 +1,6 @@
+using System.IO;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Configuration;
 
 #nullable disable
 
@@ -8,10 +10,26 @@ namespace SecurityAgencyApp.Infrastructure.Migrations
     /// <summary>Inserts the menu list from DbInitializer for every tenant (only where menu Name does not exist). Then assigns all menus to Administrator role.</summary>
     public partial class SeedMenusFromDbInitializer : Migration
     {
+        private static bool IsPostgres()
+        {
+            var dir = Directory.GetCurrentDirectory();
+            while (!string.IsNullOrEmpty(dir))
+            {
+                var f = Path.Combine(dir, "appsettings.json");
+                if (File.Exists(f))
+                {
+                    var config = new ConfigurationBuilder().SetBasePath(dir).AddJsonFile("appsettings.json", optional: true).AddJsonFile("appsettings.Development.json", optional: true).Build();
+                    return string.Equals(config["Database:Provider"] ?? "", "PostgreSQL", StringComparison.OrdinalIgnoreCase);
+                }
+                dir = Path.GetDirectoryName(dir);
+            }
+            return false;
+        }
+
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Same 23 menus as DbInitializer – insert for each tenant where (TenantId, Name) not exists
+            var isPg = IsPostgres();
             var menuRows = new[]
             {
                 ("Dashboard", "Dashboard", "fas fa-home", "Home", 1),
@@ -41,21 +59,43 @@ namespace SecurityAgencyApp.Infrastructure.Migrations
 
             foreach (var (name, displayName, icon, route, displayOrder) in menuRows)
             {
-                var displayNameEscaped = displayName.Replace("'", "''");
-                var iconEscaped = icon.Replace("'", "''");
-                var routeEscaped = route.Replace("'", "''");
-                var nameEscaped = name.Replace("'", "''");
+                var d = displayName.Replace("'", "''");
+                var i = icon.Replace("'", "''");
+                var r = route.Replace("'", "''");
+                var n = name.Replace("'", "''");
 
-                migrationBuilder.Sql($@"
+                if (isPg)
+                {
+                    migrationBuilder.Sql($@"INSERT INTO ""Menus"" (""Id"", ""TenantId"", ""Name"", ""DisplayName"", ""Icon"", ""Route"", ""DisplayOrder"", ""IsActive"", ""IsSystemMenu"", ""CreatedDate"")
+SELECT gen_random_uuid(), t.""Id"", '{n}', '{d}', '{i}', '{r}', {displayOrder}, true, false, (NOW() AT TIME ZONE 'UTC')
+FROM ""Tenants"" t
+WHERE NOT EXISTS (SELECT 1 FROM ""Menus"" m WHERE m.""TenantId"" = t.""Id"" AND m.""Name"" = '{n}');");
+                }
+                else
+                {
+                    migrationBuilder.Sql($@"
                     INSERT INTO Menus (Id, TenantId, Name, DisplayName, Icon, Route, DisplayOrder, IsActive, IsSystemMenu, CreatedDate)
-                    SELECT NEWID(), t.Id, N'{nameEscaped}', N'{displayNameEscaped}', N'{iconEscaped}', N'{routeEscaped}', {displayOrder}, 1, 0, GETUTCDATE()
+                    SELECT NEWID(), t.Id, N'{n}', N'{d}', N'{i}', N'{r}', {displayOrder}, 1, 0, GETUTCDATE()
                     FROM Tenants t
-                    WHERE NOT EXISTS (SELECT 1 FROM Menus m WHERE m.TenantId = t.Id AND m.Name = N'{nameEscaped}');
+                    WHERE NOT EXISTS (SELECT 1 FROM Menus m WHERE m.TenantId = t.Id AND m.Name = N'{n}');
                 ");
+                }
             }
 
-            // Assign all menus to Administrator role (Code = 'ADMIN') for each tenant where not already assigned
-            migrationBuilder.Sql(@"
+            if (isPg)
+            {
+                migrationBuilder.Sql(@"
+INSERT INTO ""RoleMenus"" (""Id"", ""RoleId"", ""MenuId"", ""CreatedDate"")
+SELECT gen_random_uuid(), r.""Id"", m.""Id"", (NOW() AT TIME ZONE 'UTC')
+FROM ""Roles"" r
+INNER JOIN ""Menus"" m ON m.""TenantId"" = r.""TenantId""
+WHERE r.""Code"" = 'ADMIN'
+  AND NOT EXISTS (SELECT 1 FROM ""RoleMenus"" rm WHERE rm.""RoleId"" = r.""Id"" AND rm.""MenuId"" = m.""Id"");
+");
+            }
+            else
+            {
+                migrationBuilder.Sql(@"
                 INSERT INTO RoleMenus (Id, RoleId, MenuId, CreatedDate)
                 SELECT NEWID(), r.Id, m.Id, GETUTCDATE()
                 FROM Roles r
@@ -63,6 +103,7 @@ namespace SecurityAgencyApp.Infrastructure.Migrations
                 WHERE r.Code = N'ADMIN'
                   AND NOT EXISTS (SELECT 1 FROM RoleMenus rm WHERE rm.RoleId = r.Id AND rm.MenuId = m.Id);
             ");
+            }
         }
 
         /// <inheritdoc />

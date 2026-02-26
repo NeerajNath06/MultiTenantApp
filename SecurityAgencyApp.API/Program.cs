@@ -13,6 +13,9 @@ using System.Text.Json.Serialization;
 using QuestPDF.Infrastructure;
 QuestPDF.Settings.License = LicenseType.Community;
 
+// PostgreSQL: allow DateTime with Kind=Unspecified to be written as UTC (timestamp with time zone)
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
@@ -54,14 +57,14 @@ builder.Services.AddSwaggerGen(c =>
     }
 });
 
-// Database (enterprise: prefer env for connection string in production)
-var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
-    ?? builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+// Database: provider from config (SqlServer | PostgreSQL | MySql), connection from config or env
+builder.Services.AddApplicationDbContextFromConfig(builder.Configuration);
 
 // Enterprise: in-memory cache for menus/sites (tenant-scoped keys, short TTL)
 builder.Services.AddMemoryCache();
+
+// Enterprise: background job – auto-complete assignments/attendance when end date or shift end passes; next-shift notifications
+builder.Services.AddHostedService<SecurityAgencyApp.API.HostedServices.AssignmentAndAttendanceBackgroundService>();
 
 // Application Services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -124,6 +127,10 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Application timezone: default India; mobile/web can send X-Timezone header to override per request
+SecurityAgencyApp.Application.Common.AppTimeHelper.SetDefaultTimeZone(
+    app.Configuration["App:TimeZone"] ?? "India Standard Time");
+
 // Apply migrations and seed database
 using (var scope = app.Services.CreateScope())
 {
@@ -156,12 +163,26 @@ using (var scope = app.Services.CreateScope())
 static string? GetDatabaseNameFromConnectionString(string? connectionString)
 {
     if (string.IsNullOrWhiteSpace(connectionString)) return null;
+    // PostgreSQL / SQL Server: Database=name;
     var key = "Database=";
     var idx = connectionString.IndexOf(key, StringComparison.OrdinalIgnoreCase);
-    if (idx < 0) return null;
-    idx += key.Length;
-    var end = connectionString.IndexOf(';', idx);
-    return end < 0 ? connectionString[idx..].Trim() : connectionString[idx..end].Trim();
+    if (idx >= 0)
+    {
+        idx += key.Length;
+        var end = connectionString.IndexOf(';', idx);
+        return end < 0 ? connectionString[idx..].Trim() : connectionString[idx..end].Trim();
+    }
+    // PostgreSQL URL: postgresql://user:pass@host:port/dbname
+    if (connectionString.TrimStart().StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+    {
+        try
+        {
+            var uri = new Uri(connectionString);
+            return uri.AbsolutePath.TrimStart('/').Split('/')[0];
+        }
+        catch { /* ignore */ }
+    }
+    return null;
 }
 
 // Configure the HTTP request pipeline
@@ -179,6 +200,8 @@ app.UseCors("ApiCors");
 
 // Enterprise: correlation ID for request tracing (early in pipeline)
 app.UseMiddleware<SecurityAgencyApp.API.Middleware.CorrelationIdMiddleware>();
+// App timezone: use X-Timezone header from mobile/web if sent; else use App:TimeZone (default India)
+app.UseMiddleware<SecurityAgencyApp.API.Middleware.AppTimeZoneMiddleware>();
 
 // Global exception handler: consistent ApiResponse shape for 500 (enterprise)
 app.UseExceptionHandler(appError =>

@@ -3,11 +3,15 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert, Act
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../../constants/theme';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import { authService } from '../../services/authService';
 import { userService } from '../../services/userService';
+
+const PROFILE_PHOTO_KEY = (userId: string) => `profilePhoto_${userId}`;
 
 function EditProfileScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
@@ -31,7 +35,6 @@ function EditProfileScreen({ navigation }: any) {
     }
     setUserId(stored.id);
     const result = await userService.getProfile(stored.id);
-    setLoadingProfile(false);
     if (result.success && result.data) {
       const p = result.data;
       setFormData(prev => ({
@@ -43,11 +46,27 @@ function EditProfileScreen({ navigation }: any) {
         employeeId: (stored as { guardId?: string }).guardId ? `Guard: ${(stored as { guardId?: string }).guardId}` : stored.id,
       }));
     }
+    try {
+      const base64 = await AsyncStorage.getItem(PROFILE_PHOTO_KEY(stored.id));
+      if (base64) setProfileImage('data:image/jpeg;base64,' + base64);
+    } catch (_) {}
+    setLoadingProfile(false);
   }, []);
 
   useEffect(() => {
     loadProfile();
   }, [loadProfile]);
+
+  const persistProfilePhoto = useCallback(async (base64OrUri: string, isBase64?: boolean) => {
+    const stored = await authService.getStoredUser();
+    if (!stored?.id) return;
+    try {
+      const base64 = isBase64 ? base64OrUri : await FileSystem.readAsStringAsync(base64OrUri, { encoding: FileSystem.EncodingType.Base64 });
+      if (base64) await AsyncStorage.setItem(PROFILE_PHOTO_KEY(stored.id), base64);
+    } catch (e) {
+      console.warn('persistProfilePhoto failed', e);
+    }
+  }, []);
 
   const handlePickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -61,10 +80,16 @@ function EditProfileScreen({ navigation }: any) {
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,
+      base64: true,
     });
 
     if (!result.canceled) {
-      setProfileImage(result.assets[0].uri);
+      const asset = result.assets[0];
+      const uri = asset.uri;
+      const base64 = asset.base64;
+      setProfileImage(uri);
+      if (base64) await persistProfilePhoto(base64, true);
+      else await persistProfilePhoto(uri, false);
     }
   };
 
@@ -79,10 +104,16 @@ function EditProfileScreen({ navigation }: any) {
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,
+      base64: true,
     });
 
     if (!result.canceled) {
-      setProfileImage(result.assets[0].uri);
+      const asset = result.assets[0];
+      const uri = asset.uri;
+      const base64 = asset.base64;
+      setProfileImage(uri);
+      if (base64) await persistProfilePhoto(base64, true);
+      else await persistProfilePhoto(uri, false);
     }
   };
 

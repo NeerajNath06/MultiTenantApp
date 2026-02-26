@@ -33,6 +33,9 @@ public class UserDetailDto
     public string FirstName { get; set; } = string.Empty;
     public string? LastName { get; set; }
     public string? PhoneNumber { get; set; }
+    public string? AadharNumber { get; set; }
+    public string? PANNumber { get; set; }
+    public string? UAN { get; set; }
     public Guid? DepartmentId { get; set; }
     public string? DepartmentName { get; set; }
     public Guid? DesignationId { get; set; }
@@ -64,6 +67,9 @@ public class UpdateUserRequest
     public string? LastName { get; set; }
     public string Email { get; set; } = string.Empty;
     public string? PhoneNumber { get; set; }
+    public string? AadharNumber { get; set; }
+    public string? PANNumber { get; set; }
+    public string? UAN { get; set; }
     public Guid? DepartmentId { get; set; }
     public Guid? DesignationId { get; set; }
     public bool IsActive { get; set; }

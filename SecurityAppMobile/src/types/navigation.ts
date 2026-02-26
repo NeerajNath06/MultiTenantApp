@@ -28,6 +28,7 @@ export type RootStackParamList = {
   EmergencySOS: undefined;
   VisitorManagement: undefined;
   VehicleLog: undefined;
+  AddVehicleEntry: { guardId: string; siteId: string };
   LeaveRequest: undefined;
   Salary: undefined;
   Training: undefined;
@@ -55,6 +56,8 @@ export type RootStackParamList = {
   ClientCommunication: undefined;
   AssetManagement: undefined;
   VisitorAnalytics: undefined;
+  SiteVehicleLog: undefined;
+  SiteVehicleLogDetail: { siteId: string; siteName: string };
   GuardPerformance: undefined;
   
   // Common screens
