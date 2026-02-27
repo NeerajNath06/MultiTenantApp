@@ -1,16 +1,16 @@
-name: Deploy API and Web to Azure
+name: Deploy API to Azure
 
 on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
-  
+
 permissions:
   id-token: write
   contents: read
-  
+
 jobs:
-  build:
+  build-and-deploy-api:
     runs-on: windows-latest
 
     steps:
@@ -20,51 +20,11 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      # Publish API
+      # Publish API Project Only
       - name: Publish API
-        run: dotnet publish SecurityAgencyApp.API -c Release -o publish/api
+        run: dotnet publish SecurityAgencyApp.API/SecurityAgencyApp.API.csproj -c Release -o publish/api
 
-      # Publish MVC Web
-      - name: Publish Web
-        run: dotnet publish SecurityAgencyApp.Web -c Release -o publish/web
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: app
-          path: .
-
-  deploy-api:
-    runs-on: windows-latest
-    needs: build
-
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: app
-
-      - name: Login to Azure 
-        uses: azure/login@v2 
-        with: 
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_55D67EF875C747A1B3EC51BF13803822 }} 
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_56E7C586C12D49209BE8C8C6BCB130CE }} 
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_133788F472644E8AA1A6FCB3A810D282 }}
-
-      - name: Deploy API
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ssspvtltd
-          package: publish/api
-
-  deploy-web:
-    runs-on: windows-latest
-    needs: build
-
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: app
-
+      # Azure Login
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -72,12 +32,9 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_56E7C586C12D49209BE8C8C6BCB130CE }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_133788F472644E8AA1A6FCB3A810D282 }}
 
-      - name: Deploy Web
+      # Deploy API
+      - name: Deploy API to Azure
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ssspvtltd-web
-          package: publish/web
-
-
-
-
+          app-name: ssspvtltd
+          package: publish/api
