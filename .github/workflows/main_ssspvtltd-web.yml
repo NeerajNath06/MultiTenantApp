@@ -1,0 +1,44 @@
+# Deploy ASP.NET Core MVC Web App
+
+name: Deploy MVC Web App to Azure - ssspvtltd-web
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      # Publish ONLY MVC project
+      - name: Publish MVC Web
+        run: dotnet publish SecurityAgencyApp.Web/SecurityAgencyApp.Web.csproj -c Release -o publish/web
+
+      # Azure Login
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_76A849FB31F74B18A068CF59D89100BC }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_875EF2F026CE414796A742398069C3EC }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_54C9BDDCA7154B23AFF7CF0614E2AA7A }}
+
+      # Deploy to Azure Web App
+      - name: Deploy MVC to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ssspvtltd-web
+          package: publish/web
