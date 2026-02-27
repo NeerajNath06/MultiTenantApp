@@ -85,7 +85,7 @@ app.UseRouting();
 app.UseSession();
 
 // Set tenant context from session
-app.UseMiddleware<SecurityAgencyApp.Web.Middleware.TenantContextMiddleware>();
+//app.UseMiddleware<SecurityAgencyApp.Web.Middleware.TenantContextMiddleware>();
 
 app.UseAuthorization();
 
