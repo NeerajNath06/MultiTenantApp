@@ -322,6 +322,20 @@ form .row [class*="col-"] {
     margin-bottom: 0;
 }
 
+/* ---------- Auth pages (Login/Register): keep Bootstrap grid intact ---------- */
+.auth-page form .row {
+    gap: 0 !important; /* our global row-gap breaks col-md-* layouts */
+}
+
+.auth-page .form-check {
+    gap: 0.5rem;
+}
+
+.auth-page .form-check-input {
+    cursor: pointer;
+    margin-top: 0;
+}
+
 /* ---------- Input groups (search forms) ---------- */
 .input-group {
     flex-wrap: nowrap;
