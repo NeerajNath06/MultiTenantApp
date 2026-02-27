@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app
-          path: publish
+          path: .
 
   deploy-api:
     runs-on: windows-latest
@@ -54,7 +54,7 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: ssspvtltd
-          package: ./publish/api
+          package: publish/api
 
   deploy-web:
     runs-on: windows-latest
@@ -76,7 +76,8 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: ssspvtltd-web
-          package: ./publish/web
+          package: publish/web
+
 
 
 
