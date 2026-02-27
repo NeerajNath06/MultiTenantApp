@@ -1,10 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
-    <Compile Include="Dockerfile" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\SecurityAgencyApp.Application\SecurityAgencyApp.Application.csproj" />
     <ProjectReference Include="..\SecurityAgencyApp.Infrastructure\SecurityAgencyApp.Infrastructure.csproj" />
   </ItemGroup>
