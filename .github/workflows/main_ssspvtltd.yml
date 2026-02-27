@@ -4,7 +4,11 @@ on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
-
+  
+permissions:
+  id-token: write
+  contents: read
+  
 jobs:
   build:
     runs-on: windows-latest
@@ -73,4 +77,5 @@ jobs:
         with:
           app-name: ssspvtltd-web
           package: publish/web
+
 
