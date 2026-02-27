@@ -193,6 +193,7 @@ static string? GetDatabaseNameFromConnectionString(string? connectionString)
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Security Agency API v1");
     });
+    app.UseDeveloperExceptionPage();
 //}
 
 app.UseHttpsRedirection();
@@ -228,5 +229,6 @@ app.UseAuthorization();
 //app.MapHealthChecks("/health");
 app.MapControllers();
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
-app.Run($"http://0.0.0.0:{port}");
+//var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+//app.Run($"http://0.0.0.0:{port}");
+app.Run();
