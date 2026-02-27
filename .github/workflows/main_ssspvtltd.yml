@@ -1,53 +1,44 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy ASP.Net Core app to Azure Web App - ssspvtltd
+name: Deploy API and Web to Azure
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
-    permissions:
-      contents: read #This is required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
+      # Publish API
+      - name: Publish API
+        run: dotnet publish SecurityAgencyApp.API -c Release -o publish/api
 
-      - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+      # Publish MVC Web
+      - name: Publish Web
+        run: dotnet publish SecurityAgencyApp.Web -c Release -o publish/web
 
-      - name: Upload artifact for deployment job
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          name: app
+          path: publish
 
-  deploy:
+  deploy-api:
     runs-on: windows-latest
     needs: build
-    permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
 
     steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
-          name: .net-app
-      
+          name: app
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -55,11 +46,30 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_56E7C586C12D49209BE8C8C6BCB130CE }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_133788F472644E8AA1A6FCB3A810D282 }}
 
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
+      - name: Deploy API
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'ssspvtltd'
-          slot-name: 'Production'
-          package: .
-          
+          app-name: ssspvtltd
+          package: publish/api
+
+  deploy-web:
+    runs-on: windows-latest
+    needs: build
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: app
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_55D67EF875C747A1B3EC51BF13803822 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_56E7C586C12D49209BE8C8C6BCB130CE }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_133788F472644E8AA1A6FCB3A810D282 }}
+
+      - name: Deploy Web
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ssspvtltd-web
+          package: publish/web
