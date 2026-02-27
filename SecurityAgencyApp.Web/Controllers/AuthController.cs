@@ -42,16 +42,25 @@ public class AuthController : Controller
             return View(command);
         }
 
-        var result = await _mediator.Send(command);
-
-        if (result.Success && result.Data != null)
+        try
         {
-            TempData["SuccessMessage"] = result.Data.Message;
-            return RedirectToAction("Login", new { message = "Registration successful. Please login with your credentials." });
-        }
+            var result = await _mediator.Send(command);
 
-        ModelState.AddModelError("", result.Message ?? "Registration failed");
-        return View(command);
+            if (result.Success && result.Data != null)
+            {
+                TempData["SuccessMessage"] = result.Data.Message;
+                return RedirectToAction("Login", new { message = "Registration successful. Please login with your credentials." });
+            }
+
+            ModelState.AddModelError("", result.Message ?? "Registration failed");
+            return View(command);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Agency registration failed. Company: {Company}, Email: {Email}", command.CompanyName, command.Email);
+            ModelState.AddModelError("", "Registration could not be completed. Please check that the database is reachable and try again. If the problem persists, contact support.");
+            return View(command);
+        }
     }
 
     [HttpPost]
