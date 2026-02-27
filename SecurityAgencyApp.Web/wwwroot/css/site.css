@@ -307,10 +307,19 @@ form .row [class*="col-"] {
     display: flex;
     align-items: center;
     padding: 6px 0;
+    padding-left: 0; /* override Bootstrap's left padding to avoid overflow */
+}
+
+.form-check-input {
+    position: static; /* reset absolute positioning */
+    margin-left: 0;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
 }
 
 .form-check-label {
     cursor: pointer;
+    margin-bottom: 0;
 }
 
 /* ---------- Input groups (search forms) ---------- */
@@ -555,10 +564,6 @@ form .row [class*="col-"] {
     .form-check {
         padding: 12px 0;
         min-height: var(--touch-min);
-    }
-
-    .form-check-label {
-        padding-left: 10px;
     }
 }
 
