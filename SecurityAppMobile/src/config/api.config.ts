@@ -12,13 +12,13 @@ export const API_CONFIG = {
     // - Windows: ipconfig in command prompt
     // - Mac/Linux: ifconfig or ip addr in terminal
     // - Or use: http://localhost:5014 in your browser and check network tab
-    BASE_URL: 'http://192.168.68.126:5286', // TODO: Replace with your actual IP
+    BASE_URL: 'https://ssspvtltd-dff0dkdjfahxdrg5.centralindia-01.azurewebsites.net', // TODO: Replace with your actual IP
     TIMEOUT: 10000, // 10 seconds
   },
   
   // Production settings
   PRODUCTION: {
-    BASE_URL: 'https://your-production-api.com', // TODO: Update with your production URL
+    BASE_URL: 'https://ssspvtltd-dff0dkdjfahxdrg5.centralindia-01.azurewebsites.net', // TODO: Update with your production URL
     TIMEOUT: 15000, // 15 seconds
   },
   
