@@ -227,6 +227,10 @@ app.UseMiddleware<SecurityAgencyApp.API.Middleware.RateLimitMiddleware>();
 app.UseAuthorization();
 
 //app.MapHealthChecks("/health");
+app.MapGet("/check-db", (IConfiguration config) =>
+{
+    return config.GetConnectionString("DefaultConnection");
+});
 app.MapControllers();
 
 //var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";

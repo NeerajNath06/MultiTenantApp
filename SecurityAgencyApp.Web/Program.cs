@@ -30,14 +30,14 @@ builder.Services.AddSession(options =>
 });
 
 // Database: provider from config (SqlServer | PostgreSQL), same as API
-builder.Services.AddApplicationDbContextFromConfig(builder.Configuration);
+//builder.Services.AddApplicationDbContextFromConfig(builder.Configuration);
 
 // Application Services
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<ITenantContext, TenantContext>();
+//builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+//builder.Services.AddScoped<ITenantContext, TenantContext>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-builder.Services.AddScoped<IJwtService, SecurityAgencyApp.Infrastructure.Identity.JwtService>();
-builder.Services.AddScoped<IPasswordHasher, SecurityAgencyApp.Infrastructure.Identity.PasswordHasher>();
+//builder.Services.AddScoped<IJwtService, SecurityAgencyApp.Infrastructure.Identity.JwtService>();
+//builder.Services.AddScoped<IPasswordHasher, SecurityAgencyApp.Infrastructure.Identity.PasswordHasher>();
 
 // MediatR
 builder.Services.AddMediatR(cfg =>
@@ -53,22 +53,22 @@ builder.Services.AddValidatorsFromAssembly(typeof(SecurityAgencyApp.Application.
 var app = builder.Build();
 
 // Seed database and ensure new menus exist for existing tenants
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<ApplicationDbContext>();
-        var passwordHasher = services.GetRequiredService<IPasswordHasher>();
-        await SecurityAgencyApp.Infrastructure.Data.DbInitializer.SeedAsync(context, passwordHasher);
-        await SecurityAgencyApp.Infrastructure.Data.DbInitializer.EnsureNewMenusAsync(context);
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
-    }
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    try
+//    {
+//        var context = services.GetRequiredService<ApplicationDbContext>();
+//        var passwordHasher = services.GetRequiredService<IPasswordHasher>();
+//        await SecurityAgencyApp.Infrastructure.Data.DbInitializer.SeedAsync(context, passwordHasher);
+//        await SecurityAgencyApp.Infrastructure.Data.DbInitializer.EnsureNewMenusAsync(context);
+//    }
+//    catch (Exception ex)
+//    {
+//        var logger = services.GetRequiredService<ILogger<Program>>();
+//        logger.LogError(ex, "An error occurred while seeding the database.");
+//    }
+//}
 
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
@@ -85,7 +85,7 @@ app.UseRouting();
 app.UseSession();
 
 // Set tenant context from session
-app.UseMiddleware<SecurityAgencyApp.Web.Middleware.TenantContextMiddleware>();
+//app.UseMiddleware<SecurityAgencyApp.Web.Middleware.TenantContextMiddleware>();
 
 app.UseAuthorization();
 
