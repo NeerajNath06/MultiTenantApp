@@ -1,5 +1,5 @@
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Authentication.Commands.Login;
 using SecurityAgencyApp.Application.Features.Authentication.Commands.RegisterAgency;
 using SecurityAgencyApp.Web.Models.Api;
@@ -9,13 +9,11 @@ namespace SecurityAgencyApp.Web.Controllers;
 
 public class AuthController : Controller
 {
-    private readonly IMediator _mediator;
     private readonly IApiClient _apiClient;
     private readonly ILogger<AuthController> _logger;
 
-    public AuthController(IMediator mediator, IApiClient apiClient, ILogger<AuthController> logger)
+    public AuthController(IApiClient apiClient, ILogger<AuthController> logger)
     {
-        _mediator = mediator;
         _apiClient = apiClient;
         _logger = logger;
     }
@@ -44,7 +42,8 @@ public class AuthController : Controller
 
         try
         {
-            var result = await _mediator.Send(command);
+            // Use API client for registration
+            var result = await _apiClient.PostAsync<ApiResponse<RegisterAgencyResponseDto>>("api/v1/Auth/register", command);
 
             if (result.Success && result.Data != null)
             {
@@ -72,7 +71,7 @@ public class AuthController : Controller
             return View(command);
         }
 
-        // Call API for login (Web lightweight – no MediatR for auth)
+        // Call API for login
         var result = await _apiClient.PostAsync<LoginResponse>("api/v1/Auth/login", new
         {
             userName = command.UserName,

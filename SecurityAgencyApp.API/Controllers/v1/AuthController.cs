@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Authentication.Commands.Login;
+using SecurityAgencyApp.Application.Features.Authentication.Commands.RegisterAgency;
 using SecurityAgencyApp.Application.Interfaces;
 using SecurityAgencyApp.Domain.Entities;
 
@@ -27,6 +28,16 @@ public class AuthController : ControllerBase
     /// </summary>
     [HttpPost("login")]
     public async Task<ActionResult<ApiResponse<LoginResponseDto>>> Login([FromBody] LoginCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// User login
+    /// </summary>
+    [HttpPost("register")]
+    public async Task<ActionResult<ApiResponse<LoginResponseDto>>> Register([FromBody] RegisterAgencyCommand command)
     {
         var result = await _mediator.Send(command);
         return Ok(result);

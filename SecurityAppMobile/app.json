@@ -29,11 +29,15 @@
       },
       "package": "com.securityapp.guard",
       "permissions": [
-        "CAMERA",
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
     "web": {
@@ -58,6 +62,11 @@
           "photosPermission": "Allow Security Guard App to access your photos for uploading incident evidence."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "caaadf4f-2384-47f1-b2b5-c254201bb846"
+      }
+    }
   }
 }
