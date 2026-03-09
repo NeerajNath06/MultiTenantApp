@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnv
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -151,10 +152,9 @@
         </div>
     </div>
 
-    @await Html.PartialAsync("_ConfirmModal")
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await Html.PartialAsync("_ConfirmModal")
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
         (function () {
