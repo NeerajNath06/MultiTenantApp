@@ -9,7 +9,7 @@
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="page-title">Vehicle Log</h1>
-            <p class="page-subtitle">Register and track vehicle entries</p>
+            <p class="page-subtitle mb-0">Register and track vehicle entries</p>
         </div>
         <div class="d-flex gap-2">
             <a href="@Url.Action("Summary")" class="btn btn-outline-primary">
@@ -119,7 +119,7 @@
                                     <a href="@Url.Action("Details", new { id = v.Id })" class="btn btn-sm btn-outline-secondary" title="View">View</a>
                                     @if (!v.ExitTime.HasValue)
                                     {
-                                        <form asp-action="RecordExit" method="post" class="d-inline" onsubmit="return confirm('Record exit for this vehicle?');">
+                                        <form asp-action="RecordExit" method="post" class="d-inline" data-confirm-message="Record exit for this vehicle?">
                                             <input type="hidden" name="id" value="@v.Id" />
                                             @Html.AntiForgeryToken()
                                             <button type="submit" class="btn btn-sm btn-outline-success" title="Record Exit">Exit</button>

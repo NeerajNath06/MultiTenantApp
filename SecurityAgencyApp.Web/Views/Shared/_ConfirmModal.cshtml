@@ -1,0 +1,71 @@
+@* Enterprise delete/action confirmation modal. Use data-confirm-message on form to show this instead of browser confirm(). *@
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalTitle" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title d-flex align-items-center gap-2" id="confirmModalTitle">
+                    <span class="confirm-modal-icon text-danger"><i class="fas fa-exclamation-triangle"></i></span>
+                    <span>Confirm</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <p class="confirm-modal-message mb-0 text-secondary"></p>
+            </div>
+            <div class="modal-footer border-0 pt-0 gap-2">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger btn-confirm-submit">
+                    <i class="fas fa-trash-alt me-2"></i><span class="btn-confirm-label">Confirm</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    var modalEl = document.getElementById('confirmModal');
+    if (!modalEl) return;
+    var modal = new bootstrap.Modal(modalEl);
+    var messageEl = modalEl.querySelector('.confirm-modal-message');
+    var confirmBtn = modalEl.querySelector('.btn-confirm-submit');
+    var confirmLabel = modalEl.querySelector('.btn-confirm-label');
+    var pendingForm = null;
+
+    function onSubmit(e) {
+        var form = e.target;
+        var msg = form.getAttribute('data-confirm-message') || form.getAttribute('data-confirm');
+        if (!msg) return;
+        e.preventDefault();
+        e.stopPropagation();
+        pendingForm = form;
+        if (messageEl) messageEl.textContent = msg;
+        var btnType = form.getAttribute('data-confirm-button');
+        if (confirmLabel) confirmLabel.textContent = btnType === 'resolve' ? 'Mark Resolved' : 'Confirm';
+        if (confirmBtn) {
+            confirmBtn.classList.toggle('btn-danger', btnType !== 'resolve');
+            confirmBtn.classList.toggle('btn-primary', btnType === 'resolve');
+        }
+        modal.show();
+    }
+
+    function doSubmit() {
+        if (pendingForm) {
+            var form = pendingForm;
+            pendingForm = null;
+            modal.hide();
+            form.removeAttribute('data-confirm-message');
+            form.removeAttribute('data-confirm');
+            form.submit();
+        }
+    }
+
+    if (confirmBtn) confirmBtn.addEventListener('click', doSubmit);
+    modalEl.addEventListener('hidden.bs.modal', function () { pendingForm = null; });
+
+    document.addEventListener('submit', function (e) {
+        if (e.target && (e.target.getAttribute('data-confirm-message') || e.target.getAttribute('data-confirm'))) {
+            onSubmit(e);
+        }
+    }, true);
+})();
+</script>

@@ -5,10 +5,10 @@
 
 <div class="page-header">
     <h1 class="page-title">Mark Attendance</h1>
-    <p class="page-subtitle">Record guard attendance</p>
+    <p class="page-subtitle mb-0">Record guard attendance</p>
 </div>
 
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
         <form asp-action="Mark" method="post">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
@@ -66,7 +66,7 @@
                 </div>
             </div>
 
-            <div class="mt-4 d-flex gap-2">
+            <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Mark Attendance
                 </button>

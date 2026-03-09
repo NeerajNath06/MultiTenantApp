@@ -1,0 +1,41 @@
+@{
+    var breadcrumbs = ViewData["Breadcrumbs"] as IEnumerable<(string Label, string? Url)>;
+    if (breadcrumbs == null || !breadcrumbs.Any())
+    {
+        var title = ViewData["Title"]?.ToString();
+        if (!string.IsNullOrEmpty(title))
+        {
+            breadcrumbs = new[] { (title, (string?)null) };
+        }
+    }
+}
+@if (breadcrumbs != null && breadcrumbs.Any())
+{
+    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Home")"><i class="fas fa-home me-1"></i>Home</a>
+            </li>
+            @{
+                var items = breadcrumbs.ToList();
+                for (var i = 0; i < items.Count; i++)
+                {
+                    var (label, url) = items[i];
+                    var isLast = i == items.Count - 1;
+                    if (isLast && string.IsNullOrEmpty(url))
+                    {
+                        <li class="breadcrumb-item active" aria-current="page">@label</li>
+                    }
+                    else if (!string.IsNullOrEmpty(url))
+                    {
+                        <li class="breadcrumb-item"><a href="@url">@label</a></li>
+                    }
+                    else
+                    {
+                        <li class="breadcrumb-item active" aria-current="page">@label</li>
+                    }
+                }
+            }
+        </ol>
+    </nav>
+}

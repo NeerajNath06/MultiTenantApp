@@ -6,7 +6,7 @@
 
 <div class="page-header">
     <h1 class="page-title">Manage Permissions</h1>
-    <p class="page-subtitle">Assign permissions to role: <strong>@role?.Name</strong></p>
+    <p class="page-subtitle mb-0">Assign permissions to role: <strong>@role?.Name</strong></p>
 </div>
 
 @if (TempData["Error"] != null)
@@ -17,9 +17,9 @@
     </div>
 }
 
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form method="post" asp-action="ManagePermissions" asp-route-id="@role?.Id">
+        <form method="post" asp-action="ManagePermissions" asp-route-id="@role?.Id" class="form">
             <div class="row">
                 @if (permissions != null && permissions.Any())
                 {
@@ -65,7 +65,7 @@
                 }
             </div>
 
-            <div class="mt-4 d-flex gap-2">
+            <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Save Permissions
                 </button>

@@ -5,12 +5,12 @@
 
 <div class="page-header">
     <h1 class="page-title">Create New SubMenu</h1>
-    <p class="page-subtitle">Add a new submenu item</p>
+    <p class="page-subtitle mb-0">Add a new submenu item</p>
 </div>
 
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Create" method="post">
+        <form asp-action="Create" method="post" class="form">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
             
             <input type="hidden" asp-for="MenuId" />
@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            <div class="mt-4 d-flex gap-2">
+            <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Create SubMenu
                 </button>

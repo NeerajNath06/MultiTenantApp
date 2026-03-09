@@ -10,7 +10,7 @@
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="page-title">Incident Reports</h1>
-            <p class="page-subtitle">Manage and track incident reports</p>
+            <p class="page-subtitle mb-0">Manage and track incident reports</p>
         </div>
         <div class="d-flex flex-wrap gap-2 align-items-center">
             <div class="btn-group" role="group">
@@ -216,7 +216,7 @@
                                 <td class="text-end">
                                     @if (incident.Status != "Resolved" && incident.Status != "Closed")
                                     {
-                                        <form asp-action="Resolve" method="post" class="d-inline" onsubmit="return confirm('Mark as resolved?');">
+                                        <form asp-action="Resolve" method="post" class="d-inline" data-confirm-message="Mark this incident as resolved?" data-confirm-button="resolve">
                                             <input type="hidden" name="id" value="@incident.Id" />
                                             <button type="submit" class="btn btn-sm btn-outline-success" title="Resolve">
                                                 <i class="fas fa-check"></i>

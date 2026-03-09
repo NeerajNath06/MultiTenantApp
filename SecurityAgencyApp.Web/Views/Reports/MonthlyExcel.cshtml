@@ -6,7 +6,7 @@
 
 <div class="page-header">
     <h1 class="page-title">Monthly Report</h1>
-    <p class="page-subtitle">Download agency monthly Excel with BILL, ATTENDANCE, Wages and Other sheets (like reference format).</p>
+    <p class="page-subtitle mb-0">Download agency monthly Excel with BILL, ATTENDANCE, Wages and Other sheets (like reference format).</p>
 </div>
 
 @if (TempData["Error"] != null)
@@ -17,7 +17,7 @@
     </div>
 }
 
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
         <form method="get" asp-action="DownloadMonthlyExcel" target="_blank" class="row g-3">
             <div class="col-md-3">

@@ -5,12 +5,12 @@
 
 <div class="page-header">
     <h1 class="page-title">Edit Security Guard</h1>
-    <p class="page-subtitle">Update guard information</p>
+    <p class="page-subtitle mb-0">Update guard information</p>
 </div>
 
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Edit" method="post">
+        <form asp-action="Edit" method="post" class="form">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="GuardCode" />
@@ -126,7 +126,7 @@
                 </div>
             </div>
 
-            <div class="mt-4 d-flex gap-2">
+            <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Update Guard
                 </button>

@@ -1,0 +1,30 @@
+@*
+    Page header component: title, optional subtitle, optional actions.
+    Set ViewData["Title"], ViewData["PageSubtitle"], and optionally ViewData["PageActions"] (HTML string or IHtmlContent).
+    Breadcrumbs are rendered separately via _Breadcrumb.
+*@
+@{
+    var title = ViewData["Title"]?.ToString();
+    var subtitle = ViewData["PageSubtitle"]?.ToString();
+    var actions = ViewData["PageActions"];
+}
+@if (!string.IsNullOrEmpty(title))
+{
+    <header class="page-header">
+        <div class="page-header-inner">
+            <div class="page-header-text">
+                <h1 class="page-title">@title</h1>
+                @if (!string.IsNullOrEmpty(subtitle))
+                {
+                    <p class="page-subtitle">@subtitle</p>
+                }
+            </div>
+            @if (actions != null)
+            {
+                <div class="page-header-actions">
+                    @actions
+                </div>
+            }
+        </div>
+    </header>
+}

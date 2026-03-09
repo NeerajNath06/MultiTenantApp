@@ -6,26 +6,30 @@
 
 <div class="page-header">
     <h1 class="page-title">Create Bill</h1>
-    <p class="page-subtitle">Generate a new bill for client</p>
+    <p class="page-subtitle mb-0">Generate a new bill for client</p>
 </div>
 
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Create" method="post" id="billForm">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <form asp-action="Create" method="post" id="billForm" class="form">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-            <div class="row g-3 mb-4">
-                <div class="col-md-4">
+            <div class="form-section">
+                <h5 class="section-title">
+                    <i class="fas fa-file-invoice"></i>Bill Information
+                </h5>
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
                     <label asp-for="BillNumber" class="form-label fw-semibold">Bill Number <span class="text-danger">*</span></label>
                     <input asp-for="BillNumber" class="form-control" required />
                     <span asp-validation-for="BillNumber" class="text-danger small"></span>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <label asp-for="BillDate" class="form-label fw-semibold">Bill Date <span class="text-danger">*</span></label>
                     <input asp-for="BillDate" type="date" class="form-control" required />
                     <span asp-validation-for="BillDate" class="text-danger small"></span>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <label asp-for="Status" class="form-label fw-semibold">Status</label>
                     <select asp-for="Status" class="form-select">
                         <option value="Draft">Draft</option>
@@ -35,8 +39,8 @@
                 </div>
             </div>
 
-            <div class="row g-3 mb-4">
-                <div class="col-md-6">
+            <div class="row g-3 mt-2">
+                <div class="col-12 col-md-6">
                     <label asp-for="SiteId" class="form-label fw-semibold">Site (Optional)</label>
                     <select asp-for="SiteId" class="form-select">
                         <option value="">Select Site</option>
@@ -49,33 +53,38 @@
                         }
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <label asp-for="ClientName" class="form-label fw-semibold">Client Name <span class="text-danger">*</span></label>
                     <input asp-for="ClientName" class="form-control" required />
                     <span asp-validation-for="ClientName" class="text-danger small"></span>
                 </div>
             </div>
 
-            <div class="row g-3 mb-4">
-                <div class="col-md-6">
+            <div class="row g-3 mt-2">
+                <div class="col-12 col-md-6">
                     <label asp-for="DueDate" class="form-label fw-semibold">Due Date</label>
                     <input asp-for="DueDate" type="date" class="form-control" />
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <label asp-for="PaymentTerms" class="form-label fw-semibold">Payment Terms</label>
                     <input asp-for="PaymentTerms" class="form-control" placeholder="e.g., Net 30" />
                 </div>
             </div>
 
-            <div class="mb-4">
-                <label class="form-label fw-semibold">Description</label>
-                <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+            <div class="row g-3 mt-2">
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
             </div>
 
             <!-- Bill Items -->
-            <div class="mb-4">
+            <div class="form-section">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">Bill Items</h5>
+                    <h5 class="section-title mb-0">
+                        <i class="fas fa-list"></i>Bill Items
+                    </h5>
                     <button type="button" class="btn btn-sm btn-primary" onclick="addBillItem()">
                         <i class="fas fa-plus me-1"></i>Add Item
                     </button>
@@ -85,15 +94,20 @@
                 </div>
             </div>
 
-            <div class="row g-3 mb-4">
-                <div class="col-md-6">
+            <div class="form-section">
+                <h5 class="section-title">
+                    <i class="fas fa-calculator"></i>Tax & Discount
+                </h5>
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
                     <label asp-for="TaxAmount" class="form-label fw-semibold">Additional Tax Amount</label>
                     <input asp-for="TaxAmount" type="number" step="0.01" class="form-control" value="0" onchange="calculateTotal()" />
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <label asp-for="DiscountAmount" class="form-label fw-semibold">Additional Discount</label>
                     <input asp-for="DiscountAmount" type="number" step="0.01" class="form-control" value="0" onchange="calculateTotal()" />
                 </div>
+            </div>
             </div>
 
             <div class="card bg-light mb-4">
@@ -111,12 +125,19 @@
                 </div>
             </div>
 
-            <div class="mb-4">
-                <label asp-for="Notes" class="form-label fw-semibold">Notes</label>
-                <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+            <div class="form-section">
+                <h5 class="section-title">
+                    <i class="fas fa-sticky-note"></i>Notes
+                </h5>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label asp-for="Notes" class="form-label fw-semibold">Notes</label>
+                        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
             </div>
 
-            <div class="d-flex gap-2">
+            <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Create Bill
                 </button>

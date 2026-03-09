@@ -1,13 +1,16 @@
 @model SecurityAgencyApp.Web.Models.Api.ClientListResponse
 @{
-    ViewData["Title"] = "Clients Management";
+    ViewData["Title"] = "Clients";
+    ViewData["Breadcrumbs"] = new[] { ("Clients", (string)null) };
+    var search = ViewBag.Search as string;
+    var status = ViewBag.Status as string;
 }
 
 <div class="page-header">
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
             <h1 class="page-title">Clients</h1>
-            <p class="page-subtitle">Manage client information</p>
+            <p class="page-subtitle mb-0">Manage client information</p>
         </div>
         <a href="@Url.Action("Create")" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>Add New Client
@@ -19,16 +22,37 @@
 {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
-<div class="card border-0 shadow-sm">
-    <div class="card-body">
+<div class="card">
+    <form method="get" action="@Url.Action("Index")" class="table-toolbar">
+        <div class="search-wrap">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                <input type="text" name="search" class="form-control border-start-0" placeholder="Search by name, code, email..." value="@search" />
+            </div>
+        </div>
+        <select name="status" class="form-select form-select-sm" style="max-width: 140px;">
+            <option value="">All statuses</option>
+            @if (status == "Active") { <option value="Active" selected>Active</option> } else { <option value="Active">Active</option> }
+            @if (status == "Inactive") { <option value="Inactive" selected>Inactive</option> } else { <option value="Inactive">Inactive</option> }
+            @if (status == "Suspended") { <option value="Suspended" selected>Suspended</option> } else { <option value="Suspended">Suspended</option> }
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">
+            <i class="fas fa-filter me-1"></i>Apply
+        </button>
+        @if (!string.IsNullOrEmpty(search) || !string.IsNullOrEmpty(status))
+        {
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-sm">Clear</a>
+        }
+    </form>
+    <div class="card-body p-0">
         @if (Model?.Items != null && Model.Items.Any())
         {
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
                             <th>Client Code</th>
@@ -47,22 +71,24 @@
                             <tr>
                                 <td><strong>@client.ClientCode</strong></td>
                                 <td>@client.CompanyName</td>
-                                <td>@(client.ContactPerson ?? "-")</td>
-                                <td>@(client.Email ?? "-")</td>
-                                <td>@(client.PhoneNumber ?? "-")</td>
-                                <td>@client.City</td>
+                                <td>@(client.ContactPerson ?? "–")</td>
+                                <td>@(client.Email ?? "–")</td>
+                                <td>@(client.PhoneNumber ?? "–")</td>
+                                <td>@(client.City ?? "–")</td>
                                 <td>
-                                    <span class="badge bg-@(client.Status == "Active" ? "success" : "secondary")">
+                                    <span class="badge bg-@(client.Status == "Active" ? "success" : client.Status == "Suspended" ? "warning" : "secondary")">
                                         @client.Status
                                     </span>
                                 </td>
                                 <td class="text-end">
-                                    <a href="@Url.Action("Details", new { id = client.Id })" class="btn btn-sm btn-outline-primary" title="View">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="@Url.Action("Edit", new { id = client.Id })" class="btn btn-sm btn-outline-secondary" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
+                                    <div class="action-btns">
+                                        <a href="@Url.Action("Details", new { id = client.Id })" class="btn btn-sm btn-outline-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action("Edit", new { id = client.Id })" class="btn btn-sm btn-outline-secondary" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -72,39 +98,45 @@
 
             @if (Model.TotalPages > 1)
             {
-                <nav aria-label="Page navigation" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        @if (Model.PageNumber > 1)
-                        {
-                            <li class="page-item">
-                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize, search = ViewBag.Search, status = ViewBag.Status })">
-                                    <i class="fas fa-chevron-left"></i> Previous
-                                </a>
-                            </li>
-                        }
-                        @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
-                        {
-                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = i, pageSize = Model.PageSize, search = ViewBag.Search, status = ViewBag.Status })">@i</a>
-                            </li>
-                        }
-                        @if (Model.PageNumber < Model.TotalPages)
-                        {
-                            <li class="page-item">
-                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize, search = ViewBag.Search, status = ViewBag.Status })">
-                                    Next <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                </nav>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-4 py-3 border-top">
+                    <small class="text-muted">
+                        Page @Model.PageNumber of @Model.TotalPages · @Model.TotalCount total
+                    </small>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm mb-0">
+                            @if (Model.PageNumber > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize, search = ViewBag.Search, status = ViewBag.Status })">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            }
+                            @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
+                            {
+                                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", new { pageNumber = i, pageSize = Model.PageSize, search = ViewBag.Search, status = ViewBag.Status })">@i</a>
+                                </li>
+                            }
+                            @if (Model.PageNumber < Model.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize, search = ViewBag.Search, status = ViewBag.Status })">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
             }
         }
         else
         {
             <div class="text-center py-5">
-                <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                <i class="fas fa-building fa-3x text-muted mb-3 opacity-50"></i>
                 <h5 class="text-muted">No clients found</h5>
+                <p class="text-muted small mb-0">Try adjusting your search or add a new client.</p>
                 <a href="@Url.Action("Create")" class="btn btn-primary mt-3">
                     <i class="fas fa-plus me-2"></i>Add New Client
                 </a>

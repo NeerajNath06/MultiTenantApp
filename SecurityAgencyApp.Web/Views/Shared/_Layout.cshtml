@@ -5,263 +5,131 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
     <meta name="theme-color" content="#1e293b" />
     <title>@ViewData["Title"] - Security Agency Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/design-system.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <style>
-        /* Mobile-first layout variables */
-        :root {
-            --sidebar-width: 260px;
-            --sidebar-bg: #1e293b;
-            --sidebar-hover: #334155;
-            --primary-color: #3b82f6;
-            --primary-dark: #2563eb;
-            --touch-min: 44px;
-        }
-
-        body {
-            font-family: 'Inter', 'Segoe UI', sans-serif;
-            background-color: #f1f5f9;
-            overflow-x: hidden;
-        }
-
-        /* ---------- Sidebar: off-canvas by default (mobile-first) ---------- */
+        /* Enterprise dashboard layout: fixed sidebar + main content. Main content width is constrained so sidebar + content never exceed viewport. */
         .sidebar {
             position: fixed;
-            top: 0;
-            left: 0;
+            top: 0; left: 0;
             height: 100vh;
             width: var(--sidebar-width);
             max-width: 85vw;
-            background: var(--sidebar-bg);
-            color: white;
+            background: var(--bg-sidebar);
+            color: var(--text-sidebar);
             z-index: 1050;
             transform: translateX(-100%);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: width 0.25s var(--ease-out), transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+            overflow-x: hidden;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-sidebar);
         }
-
-        .sidebar.show {
-            transform: translateX(0);
-            box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+        .sidebar.show { transform: translateX(0); box-shadow: var(--shadow-lg); }
+        @@media (min-width: 992px) {
+            .sidebar { transform: translateX(0); box-shadow: none; }
+            .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+            .sidebar.collapsed .sidebar-brand span,
+            .sidebar.collapsed .menu-item span,
+            .sidebar.collapsed .menu-chevron,
+            .sidebar.collapsed .menu-parent .menu-chevron,
+            .sidebar.collapsed .submenu-list { display: none !important; }
+            .sidebar.collapsed .menu-item { justify-content: center; padding-left: 0; padding-right: 0; border-radius: var(--radius-md); margin: 0 var(--space-2); }
+            .sidebar.collapsed .menu-item i { margin-right: 0; }
+            .sidebar.collapsed .menu-parent { justify-content: center; margin: 0 var(--space-2); border-radius: var(--radius-md); }
+            .sidebar.collapsed .submenu-item { padding-left: 0 !important; justify-content: center; }
+            .sidebar.collapsed .menu-group .menu-parent[aria-expanded="true"] + .submenu-list { display: none; }
         }
-
-        .sidebar-header {
-            padding: 16px 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
+        .sidebar-header { padding: var(--space-5) var(--space-6); border-bottom: 1px solid var(--border-sidebar); flex-shrink: 0; }
         .sidebar-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: white;
-            text-decoration: none;
-            font-size: 1.15rem;
-            font-weight: 600;
+            display: flex; align-items: center; gap: var(--space-3);
+            color: #fff; text-decoration: none; font-size: var(--text-lg); font-weight: var(--font-semibold); letter-spacing: -0.025em;
         }
-
-        .sidebar-brand i {
-            font-size: 1.4rem;
-            color: var(--primary-color);
-        }
-
-        .sidebar-menu {
-            padding: 12px 0;
-        }
-
+        .sidebar-brand i { font-size: 1.35rem; color: var(--primary); flex-shrink: 0; }
+        .sidebar-brand span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sidebar-menu { padding: var(--space-4) var(--space-3); flex: 1; }
         .menu-item {
-            display: flex;
-            align-items: center;
-            padding: 14px 20px;
-            min-height: var(--touch-min);
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
+            display: flex; align-items: center; padding: 10px 14px; min-height: 40px;
+            color: var(--text-sidebar-muted); text-decoration: none;
+            transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+            border-radius: var(--radius-md); margin-bottom: 2px;
         }
-
-        .menu-item:hover {
-            background: var(--sidebar-hover);
-            color: white;
-            border-left-color: var(--primary-color);
-        }
-
-        .menu-item.active {
-            background: var(--sidebar-hover);
-            color: white;
-            border-left-color: var(--primary-color);
-        }
-
-        .menu-item i {
-            width: 20px;
-            margin-right: 12px;
-            flex-shrink: 0;
-        }
-
-        .menu-group { margin-bottom: 2px; }
+        .menu-item:hover { background: var(--bg-sidebar-hover); color: var(--text-sidebar); }
+        .menu-item.active { background: var(--bg-sidebar-active); color: var(--primary); font-weight: var(--font-medium); }
+        .menu-item i { width: 20px; margin-right: var(--space-3); flex-shrink: 0; text-align: center; opacity: 0.9; }
+        .menu-group { margin-bottom: var(--space-1); }
         .menu-parent { display: flex; align-items: center; justify-content: space-between; }
-        .menu-chevron { font-size: 0.7rem; transition: transform 0.2s; margin-left: auto; }
+        .menu-chevron { font-size: 0.65rem; transition: transform var(--duration-normal) var(--ease-out); margin-left: auto; opacity: 0.7; }
         .menu-parent[aria-expanded="true"] .menu-chevron { transform: rotate(180deg); }
-        .submenu-list { background: rgba(0,0,0,0.15); }
-        .submenu-item { padding-left: 44px !important; font-size: 0.9rem; }
-
+        .submenu-list { background: transparent; }
+        .submenu-item { padding-left: 44px !important; font-size: var(--text-sm); }
+        .menu-item.active { box-shadow: inset 3px 0 0 var(--primary); }
         .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1040;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.45); z-index: 1040; opacity: 0; transition: opacity 0.25s var(--ease-out);
+            backdrop-filter: blur(4px);
         }
-        .sidebar-overlay.show {
-            display: block;
-            opacity: 1;
-        }
-
-        /* ---------- Main: full width on mobile ---------- */
+        .sidebar-overlay.show { display: block; opacity: 1; }
+        /* Main content: fills remaining space; constrained so sidebar + content never overflow viewport */
         .main-content {
             margin-left: 0;
             min-height: 100vh;
-            transition: margin-left 0.3s ease;
-        }
-
-        /* ---------- Topbar: flex, wrap, touch-friendly ---------- */
-        .topbar {
-            background: white;
-            padding: 12px 16px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .topbar-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            flex: 1 1 0%;
             min-width: 0;
-            flex: 1 1 auto;
-        }
-
-        .topbar-title {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            min-width: 0;
-        }
-
-        .topbar-title h5 {
-            font-size: 1rem;
-            margin: 0;
-        }
-
-        .topbar-title small {
-            font-size: 0.75rem;
-        }
-
-        .btn-sidebar-toggle {
+            width: 100%;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            width: var(--touch-min);
-            min-width: var(--touch-min);
-            height: var(--touch-min);
-            padding: 0;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            background: white;
-            color: #475569;
-            flex-shrink: 0;
+            flex-direction: column;
+            transition: margin-left 0.25s var(--ease-out), width 0.25s var(--ease-out);
+            overflow-x: hidden;
         }
-        .btn-sidebar-toggle:hover {
-            background: #f1f5f9;
-            color: #1e293b;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-        }
-
-        .user-info .text-end {
-            display: none;
-        }
-
-        .user-avatar {
-            width: 38px;
-            height: 38px;
-            min-width: 38px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .content-wrapper {
-            padding: 12px 16px;
-        }
-
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .card-header {
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
-            padding: 16px 20px;
-            font-weight: 600;
-            border-radius: 12px 12px 0 0;
-        }
-
-        /* ---------- Tablet (576px+) ---------- */
-        @@media (min-width: 576px) {
-            .topbar { padding: 12px 20px; }
-            .topbar-title h5 { font-size: 1.1rem; }
-            .content-wrapper { padding: 16px; }
-        }
-
-        /* ---------- Desktop: sidebar visible (992px+) ---------- */
         @@media (min-width: 992px) {
-            .btn-sidebar-toggle { display: none; }
-            .main-content { margin-left: var(--sidebar-width); }
-            .sidebar {
-                transform: translateX(0);
-                box-shadow: none;
+            .main-content {
+                margin-left: var(--sidebar-width);
+                width: calc(100% - var(--sidebar-width));
+                max-width: calc(100% - var(--sidebar-width));
             }
-            .sidebar.show { box-shadow: none; }
-            .user-info .text-end { display: block; }
-            .content-wrapper { padding: 20px; }
+            .sidebar.collapsed ~ .main-content {
+                margin-left: var(--sidebar-collapsed-width);
+                width: calc(100% - var(--sidebar-collapsed-width));
+                max-width: calc(100% - var(--sidebar-collapsed-width));
+            }
+            .btn-sidebar-toggle { display: none !important; }
         }
-
-        /* ---------- Extra small (320px) ---------- */
-        @@media (max-width: 374px) {
-            .topbar { padding: 10px 12px; }
-            .content-wrapper { padding: 12px; }
+        .content-wrapper {
+            flex: 1 1 auto;
+            min-width: 0;
+            width: 100%;
+            max-width: 100%;
+            padding: var(--space-6);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
         }
+        .page-content {
+            flex: 1 1 auto;
+            min-width: 0;
+            width: 100%;
+            max-width: 100%;
+            margin-top: var(--space-4);
+        }
+        @@media (min-width: 576px) { .content-wrapper { padding: var(--space-8); } }
+        @@media (min-width: 992px) {
+            .content-wrapper { padding: var(--space-8) var(--space-10); }
+            .page-content { margin-top: var(--space-6); }
+        }
+        @@media (max-width: 374px) { .content-wrapper { padding: var(--space-4); } }
     </style>
 </head>
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
-    <div class="sidebar" id="sidebar" role="navigation" aria-label="Main menu">
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main menu">
         <div class="sidebar-header">
             <a href="@Url.Action("Index", "Home")" class="sidebar-brand">
                 <i class="fas fa-shield-alt"></i>
@@ -271,63 +139,76 @@
         <nav class="sidebar-menu">
             @await Component.InvokeAsync("SidebarMenu")
         </nav>
-    </div>
+    </aside>
 
     <div class="main-content">
-        <div class="topbar">
-            <div class="topbar-left">
-                <button type="button" class="btn-sidebar-toggle" id="btnSidebarToggle" aria-label="Open menu">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="topbar-title">
-                    <h5 class="mb-0">@ViewData["Title"]</h5>
-                    <small class="text-muted">@(Context.Session.GetString("TenantName") ?? "Security Agency")</small>
-                </div>
-            </div>
-            <div class="user-info">
-                <div class="text-end d-none d-lg-block">
-                    <div class="fw-semibold small">@(Context.Session.GetString("UserFullName") ?? "User")</div>
-                    <small class="text-muted">@(Context.Session.GetString("UserEmail") ?? "")</small>
-                </div>
-                <div class="user-avatar" title="@(Context.Session.GetString("UserFullName") ?? "User")">
-                    @((Context.Session.GetString("UserFullName") ?? "U").Substring(0, 1).ToUpper())
-                </div>
-                <form method="post" action="@Url.Action("Logout", "Auth")" class="d-inline">
-                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                        <i class="fas fa-sign-out-alt"></i><span class="d-none d-sm-inline ms-1">Logout</span>
-                    </button>
-                </form>
-            </div>
-        </div>
-
+        @await Html.PartialAsync("_Topbar")
         <div class="content-wrapper">
-            @RenderBody()
+            @await Html.PartialAsync("_Breadcrumb")
+            <div class="page-content">
+                @RenderBody()
+            </div>
         </div>
     </div>
+
+    @await Html.PartialAsync("_ConfirmModal")
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
         (function () {
+            var html = document.documentElement;
+            function setTheme(theme) {
+                html.setAttribute('data-theme', theme || 'light');
+                try { localStorage.setItem('appTheme', theme || 'light'); } catch (e) {}
+            }
+            try {
+                var saved = localStorage.getItem('appTheme');
+                if (saved === 'dark' || saved === 'light') setTheme(saved);
+            } catch (e) {}
+            window.setAppTheme = setTheme;
+        })();
+    </script>
+    <script>
+        (function () {
             var sidebar = document.getElementById('sidebar');
             var overlay = document.getElementById('sidebarOverlay');
-            var btn = document.getElementById('btnSidebarToggle');
+            var btnToggle = document.getElementById('btnSidebarToggle');
+            var btnCollapse = document.getElementById('btnSidebarCollapse');
             function openMenu() {
                 sidebar.classList.add('show');
                 overlay.classList.add('show');
                 overlay.setAttribute('aria-hidden', 'false');
-                btn.setAttribute('aria-label', 'Close menu');
+                if (btnToggle) btnToggle.setAttribute('aria-label', 'Close menu');
             }
             function closeMenu() {
                 sidebar.classList.remove('show');
                 overlay.classList.remove('show');
                 overlay.setAttribute('aria-hidden', 'true');
-                btn.setAttribute('aria-label', 'Open menu');
+                if (btnToggle) btnToggle.setAttribute('aria-label', 'Open menu');
             }
-            if (btn) btn.addEventListener('click', function () { sidebar.classList.contains('show') ? closeMenu() : openMenu(); });
+            function toggleCollapse() {
+                sidebar.classList.toggle('collapsed');
+                var icon = btnCollapse ? btnCollapse.querySelector('i') : null;
+                if (icon) {
+                    icon.classList.toggle('fa-chevron-left');
+                    icon.classList.toggle('fa-chevron-right');
+                }
+                var collapsed = sidebar.classList.contains('collapsed');
+                try { localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0'); } catch (e) {}
+            }
+            if (btnToggle) btnToggle.addEventListener('click', function () { sidebar.classList.contains('show') ? closeMenu() : openMenu(); });
             if (overlay) overlay.addEventListener('click', closeMenu);
             document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
+            if (btnCollapse) btnCollapse.addEventListener('click', toggleCollapse);
+            try {
+                if (localStorage.getItem('sidebarCollapsed') === '1' && window.innerWidth >= 992) {
+                    sidebar.classList.add('collapsed');
+                    var icon = btnCollapse ? btnCollapse.querySelector('i') : null;
+                    if (icon) { icon.classList.remove('fa-chevron-left'); icon.classList.add('fa-chevron-right'); }
+                }
+            } catch (e) {}
         })();
     </script>
     @await RenderSectionAsync("Scripts", required: false)

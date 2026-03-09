@@ -57,6 +57,23 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, ApiResponse<Log
             return ApiResponse<LoginResponseDto>.ErrorResponse("Invalid username or password");
         }
 
+        // Get roles early to block Guard-only users from web portal (guards use mobile app only)
+        var userRolesForCheck = await _unitOfWork.Repository<UserRole>().FindAsync(
+            ur => ur.UserId == user.Id, cancellationToken);
+        var roleIdsForCheck = userRolesForCheck.Select(ur => ur.RoleId).ToList();
+        var rolesForCheck = await _unitOfWork.Repository<Role>().FindIgnoreFiltersAsync(
+            r => roleIdsForCheck.Contains(r.Id), cancellationToken);
+        var roleCodes = rolesForCheck.Select(r => r.Code).ToList();
+        bool isGuardOnly = roleCodes.Any(c => string.Equals(c, "GUARD", StringComparison.OrdinalIgnoreCase))
+            && !roleCodes.Any(c => string.Equals(c, "ADMIN", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(c, "SUPERVISOR", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(c, "ACCOUNTS", StringComparison.OrdinalIgnoreCase));
+        if (isGuardOnly)
+        {
+            return ApiResponse<LoginResponseDto>.ErrorResponse(
+                "Security guards cannot log in to the web portal. Please use the Security Agency mobile app to sign in.");
+        }
+
         // Update last login
         user.LastLoginDate = DateTime.UtcNow;
         await _unitOfWork.Repository<User>().UpdateAsync(user, cancellationToken);

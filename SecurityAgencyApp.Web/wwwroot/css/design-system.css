@@ -1,0 +1,187 @@
+/**
+ * Premium SaaS Design System — Security Agency Management
+ * Stripe · Linear · Notion · Metronic · Vercel · Tabler inspired.
+ * Light & dark theme, elevation, typography, spacing, glassmorphism.
+ */
+
+/* ========== LIGHT THEME (default) ========== */
+:root,
+[data-theme="light"] {
+    /* Brand */
+    --primary: #635bff;
+    --primary-hover: #5851ea;
+    --primary-muted: rgba(99, 91, 255, 0.12);
+    --primary-foreground: #ffffff;
+
+    /* Semantic */
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #0ea5e9;
+
+    /* Neutral grayscale */
+    --neutral-50: #fafafa;
+    --neutral-100: #f4f4f5;
+    --neutral-200: #e4e4e7;
+    --neutral-300: #d4d4d8;
+    --neutral-400: #a1a1aa;
+    --neutral-500: #71717a;
+    --neutral-600: #52525b;
+    --neutral-700: #3f3f46;
+    --neutral-800: #27272a;
+    --neutral-900: #18181b;
+
+    /* Surfaces */
+    --bg-page: #f8fafc;
+    --bg-elevated: #ffffff;
+    --bg-muted: #f1f5f9;
+    --bg-sidebar: #0f172a;
+    --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
+    --bg-sidebar-active: rgba(99, 91, 255, 0.15);
+
+    /* Glassmorphism (light) */
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.8);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+
+    /* Borders */
+    --border-default: #e2e8f0;
+    --border-muted: #f1f5f9;
+    --border-sidebar: rgba(255, 255, 255, 0.06);
+
+    /* Text */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-sidebar: rgba(255, 255, 255, 0.85);
+    --text-sidebar-muted: rgba(255, 255, 255, 0.65);
+
+    /* Elevation shadows */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    --shadow-glow: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 2px 4px rgba(0, 0, 0, 0.05), 0 12px 24px rgba(0, 0, 0, 0.08);
+    --shadow-focus: 0 0 0 3px rgba(99, 91, 255, 0.2);
+
+    /* Layout */
+    --sidebar-width: 268px;
+    --sidebar-collapsed-width: 72px;
+    --topbar-height: 60px;
+    --content-max-width: 1440px; /* optional: e.g. inner form card body; main content wrapper is full-width */
+    /* Dashboard: fixed sidebar + main content; main content width = calc(100% - sidebar-width) on desktop to avoid viewport overflow */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 20px;
+
+    /* Spacing scale (8px base) */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+    /* Typography scale */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+    --leading-tight: 1.25;
+    --leading-snug: 1.375;
+    --leading-normal: 1.5;
+
+    /* Transitions */
+    --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --duration-fast: 150ms;
+    --duration-normal: 200ms;
+    --duration-slow: 300ms;
+
+    /* Form system (enterprise SaaS) */
+    --form-label-color: var(--text-primary);
+    --form-label-weight: var(--font-semibold);
+    --form-control-border: var(--border-default);
+    --form-control-bg: var(--bg-elevated);
+    --form-control-radius: var(--radius-md);
+    --form-section-border: var(--border-default);
+    --form-section-spacing: var(--space-8);
+    --form-row-gap: var(--space-4);
+    --form-actions-border: var(--border-default);
+
+    /* Skeleton / loading */
+    --skeleton-base: var(--neutral-200);
+    --skeleton-highlight: var(--neutral-100);
+}
+
+/* ========== DARK THEME ========== */
+[data-theme="dark"] {
+    --bg-page: #0f172a;
+    --bg-elevated: #1e293b;
+    --bg-muted: #334155;
+    --bg-sidebar: #020617;
+    --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
+    --bg-sidebar-active: rgba(99, 91, 255, 0.2);
+
+    --glass-bg: rgba(30, 41, 59, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+    --border-default: #334155;
+    --border-muted: #1e293b;
+    --border-sidebar: rgba(255, 255, 255, 0.06);
+
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-sidebar: rgba(255, 255, 255, 0.9);
+    --text-sidebar-muted: rgba(255, 255, 255, 0.6);
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -2px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.45);
+    --shadow-glow: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-focus: 0 0 0 3px rgba(99, 91, 255, 0.4);
+
+    --skeleton-base: rgba(255, 255, 255, 0.08);
+    --skeleton-highlight: rgba(255, 255, 255, 0.12);
+}
+
+/* Base */
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color var(--duration-normal) var(--ease-out), color var(--duration-normal) var(--ease-out);
+}
+
+/* Typography hierarchy */
+h1, .h1 { font-size: var(--text-3xl); font-weight: var(--font-bold); letter-spacing: -0.03em; line-height: var(--leading-tight); }
+h2, .h2 { font-size: var(--text-2xl); font-weight: var(--font-semibold); letter-spacing: -0.02em; }
+h3, .h3 { font-size: var(--text-xl); font-weight: var(--font-semibold); }
+h4, .h4 { font-size: var(--text-lg); font-weight: var(--font-semibold); }
+h5, .h5 { font-size: var(--text-base); font-weight: var(--font-semibold); }
+h6, .h6 { font-size: var(--text-sm); font-weight: var(--font-semibold); }

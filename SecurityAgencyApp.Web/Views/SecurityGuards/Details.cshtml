@@ -7,13 +7,13 @@
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="page-title">Security Guard Details</h1>
-            <p class="page-subtitle">@Model.FirstName @Model.LastName — @Model.GuardCode</p>
+            <p class="page-subtitle mb-0">@Model.FirstName @Model.LastName — @Model.GuardCode</p>
         </div>
         <div class="d-flex gap-2">
             <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-warning">
                 <i class="fas fa-edit me-2"></i>Edit
             </a>
-            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this guard? This cannot be undone.');">
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline" data-confirm-message="Are you sure you want to delete this guard? This cannot be undone.">
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-danger">
                     <i class="fas fa-trash me-2"></i>Delete

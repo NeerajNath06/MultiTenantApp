@@ -26,6 +26,8 @@ public class ClientsController : Controller
         if (!string.IsNullOrEmpty(search)) query["search"] = search;
         if (!string.IsNullOrEmpty(status)) query["status"] = status;
         var result = await _apiClient.GetAsync<ClientListResponse>("api/v1/Clients", query);
+        ViewBag.Search = search;
+        ViewBag.Status = status;
         if (result.Success && result.Data != null)
             return View(result.Data);
         return View(new ClientListResponse());

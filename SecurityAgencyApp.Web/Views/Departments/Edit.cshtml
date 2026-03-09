@@ -1,71 +1,59 @@
 @model SecurityAgencyApp.Web.Models.Api.UpdateDepartmentRequest
 @{
     ViewData["Title"] = "Edit Department";
-    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">Edit Department</h4>
+<div class="page-header">
+    <h1 class="page-title">Edit Department</h1>
+    <p class="page-subtitle mb-0">Update department information</p>
+</div>
+
+<div class="card border-0 shadow-sm enterprise-form-card">
+    <div class="card-body">
+        <form asp-action="Edit" method="post" class="form">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-section">
+                <h5 class="section-title"><i class="fas fa-sitemap"></i>Department Information</h5>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label asp-for="Name" class="form-label fw-semibold">Department Name <span class="text-danger">*</span></label>
+                        <input asp-for="Name" class="form-control" placeholder="Enter department name" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label asp-for="Code" class="form-label fw-semibold">Department Code <span class="text-danger">*</span></label>
+                        <input asp-for="Code" class="form-control" placeholder="Enter department code" />
+                        <span asp-validation-for="Code" class="text-danger small"></span>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form asp-action="Edit" method="post">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        <input type="hidden" asp-for="Id" />
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label asp-for="Name" class="form-label">Department Name *</label>
-                                    <input asp-for="Name" class="form-control" />
-                                    <span asp-validation-for="Name" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label asp-for="Code" class="form-label">Department Code *</label>
-                                    <input asp-for="Code" class="form-control" />
-                                    <span asp-validation-for="Code" class="text-danger"></span>
-                                </div>
-                            </div>
+                <div class="row g-3 mt-2">
+                    <div class="col-12">
+                        <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter department description"></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="row g-3 mt-2">
+                    <div class="col-12 col-md-6">
+                        <div class="form-check">
+                            <input asp-for="IsActive" type="checkbox" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
                         </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group mb-3">
-                                    <label asp-for="Description" class="form-label">Description</label>
-                                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                                    <span asp-validation-for="Description" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <div class="form-check">
-                                        <input asp-for="IsActive" type="checkbox" class="form-check-input" />
-                                        <label asp-for="IsActive" class="form-check-label">Active</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Update Department
-                            </button>
-                            <a href="@Url.Action("Index")" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancel
-                            </a>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Update Department
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
     </div>
 </div>
 

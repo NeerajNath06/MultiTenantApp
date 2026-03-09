@@ -9,7 +9,7 @@
 
 <div class="page-header">
     <h1 class="page-title">Company Profile</h1>
-    <p class="page-subtitle">Manage your organization details and company documents (enterprise).</p>
+    <p class="page-subtitle mb-0">Manage your organization details and company documents (enterprise).</p>
 </div>
 
 @if (!string.IsNullOrEmpty(successMessage))
@@ -213,7 +213,7 @@
                                     <a href="@Url.Action("DownloadDocument", new { id = d.Id })" class="btn btn-sm btn-outline-primary me-1" target="_blank">
                                         <i class="fas fa-download"></i>
                                     </a>
-                                    <form asp-action="DeleteDocument" method="post" class="d-inline" onsubmit="return confirm('Delete this document?');">
+                                    <form asp-action="DeleteDocument" method="post" class="d-inline" data-confirm-message="Delete this document?">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="id" value="@d.Id" />
                                         <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>

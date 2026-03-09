@@ -91,6 +91,23 @@
             background-color: #667eea;
             border-color: #667eea;
         }
+        /* Remember me: prevent checkbox/label overlap */
+        .auth-login .form-check {
+            display: inline-flex !important;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 8px 0;
+        }
+        .auth-login .form-check-input {
+            position: static !important;
+            margin: 0 !important;
+            width: 1.125rem;
+            height: 1.125rem;
+            flex-shrink: 0;
+        }
+        .auth-login .form-check-label {
+            margin: 0;
+        }
         .text-danger { color: #ef4444 !important; }
         @@media (max-width: 375px) {
             body { padding: 10px; }
@@ -142,9 +159,9 @@
                         <a href="@Url.Action("ResetPassword", "Auth")" class="text-decoration-none small">Reset password</a>
                     </div>
                     <div class="mb-4">
-                        <div class="form-check">
-                            <input asp-for="RememberMe" class="form-check-input" type="checkbox" />
-                            <label asp-for="RememberMe" class="form-check-label">
+                        <div class="form-check remember-me-check">
+                            <input asp-for="RememberMe" class="form-check-input" type="checkbox" id="RememberMe" />
+                            <label asp-for="RememberMe" class="form-check-label" for="RememberMe">
                                 Remember me
                             </label>
                         </div>
