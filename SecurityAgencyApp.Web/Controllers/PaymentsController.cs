@@ -146,6 +146,20 @@ public class PaymentsController : Controller
         return View(result.Data);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _apiClient.DeleteAsync($"api/v1/Payments/{id}");
+        if (result.Success)
+        {
+            TempData["SuccessMessage"] = "Payment deleted successfully";
+            return RedirectToAction(nameof(Index));
+        }
+        TempData["Error"] = result.Message ?? "Delete failed.";
+        return RedirectToAction(nameof(Index));
+    }
+
     private async Task LoadDropdowns()
     {
         var billResult = await _apiClient.GetAsync<BillListResponse>("api/v1/Bills", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });

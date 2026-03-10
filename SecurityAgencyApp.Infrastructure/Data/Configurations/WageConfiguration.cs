@@ -36,6 +36,9 @@ public class WageConfiguration : IEntityTypeConfiguration<Wage>
         builder.Property(w => w.NetAmount)
             .HasColumnType("decimal(18,2)");
 
+        builder.Property(w => w.RateAmount)
+            .HasColumnType("decimal(18,2)");
+
         builder.HasOne(w => w.Tenant)
             .WithMany()
             .HasForeignKey(w => w.TenantId)
@@ -50,6 +53,7 @@ public class WageConfiguration : IEntityTypeConfiguration<Wage>
         builder.HasIndex(w => w.WageSheetNumber);
         builder.HasIndex(w => w.WagePeriodStart);
         builder.HasIndex(w => w.WagePeriodEnd);
+        builder.HasIndex(w => new { w.TenantId, w.SiteId, w.WageYear, w.WageMonth });
     }
 }
 

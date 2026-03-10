@@ -49,3 +49,14 @@
         </a>
     }
 }
+
+<div class="menu-group mt-2 pt-2" style="border-top: 1px solid rgba(255,255,255,0.08);">
+    @{
+        var dashActive = string.Equals(controller, "MonthlyDashboard", StringComparison.OrdinalIgnoreCase);
+        var dashUrl = Url.Action("Index", "MonthlyDashboard") ?? "#";
+    }
+    <a href="@dashUrl" class="menu-item @(dashActive ? "active" : "")">
+        <i class="fas fa-chart-line"></i>
+        <span>Monthly Dashboard</span>
+    </a>
+</div>

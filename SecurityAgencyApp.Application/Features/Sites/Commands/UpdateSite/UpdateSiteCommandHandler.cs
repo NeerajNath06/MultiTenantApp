@@ -33,7 +33,21 @@ public class UpdateSiteCommandHandler : IRequestHandler<UpdateSiteCommand, ApiRe
 
         site.SiteCode = request.SiteCode;
         site.SiteName = request.SiteName;
-        site.ClientName = request.ClientName;
+        // Link to client if provided; keep ClientName in sync with Client.CompanyName
+        if (request.ClientId.HasValue && request.ClientId.Value != Guid.Empty)
+        {
+            var client = await _unitOfWork.Repository<Client>().GetByIdAsync(request.ClientId.Value, cancellationToken);
+            if (client != null && client.TenantId == _tenantContext.TenantId.Value)
+            {
+                site.ClientId = client.Id;
+                site.ClientName = client.CompanyName;
+            }
+        }
+        else
+        {
+            site.ClientId = null;
+            site.ClientName = request.ClientName;
+        }
         site.Address = request.Address;
         site.City = request.City;
         site.State = request.State;

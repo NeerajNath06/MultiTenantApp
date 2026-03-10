@@ -29,6 +29,14 @@ public class GetAttendanceListQueryHandler : IRequestHandler<GetAttendanceListQu
 
         if (request.GuardId.HasValue)
             query = query.Where(a => a.GuardId == request.GuardId.Value);
+        if (request.SiteId.HasValue)
+        {
+            var assignmentIdsForSite = (await _unitOfWork.Repository<GuardAssignment>()
+                .FindAsync(a => a.SiteId == request.SiteId.Value, cancellationToken))
+                .Select(a => a.Id)
+                .ToList();
+            query = query.Where(a => assignmentIdsForSite.Contains(a.AssignmentId));
+        }
         if (request.AssignmentId.HasValue)
             query = query.Where(a => a.AssignmentId == request.AssignmentId.Value);
         if (request.StartDate.HasValue)

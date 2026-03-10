@@ -167,6 +167,12 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-info" title="Generate Report" data-site-id="@site.Id" data-bs-toggle="modal" data-bs-target="#generateReportModal">
+                                            <i class="fas fa-file-alt"></i>
+                                        </button>
+                                        <a class="btn btn-sm btn-outline-primary" title="Rate Management" href="@Url.Action("Index", "SiteRates", new { siteId = site.Id })">
+                                            <i class="fas fa-rupee-sign"></i>
+                                        </a>
                                         <a href="@Url.Action("Edit", new { id = site.Id })" class="btn btn-sm btn-outline-warning" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
@@ -231,6 +237,62 @@
     </div>
 </div>
 
+<!-- Generate Report Modal (for Index page) -->
+<div class="modal fade" id="generateReportModal" tabindex="-1" aria-labelledby="generateReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generateReportModalLabel"><i class="fas fa-file-alt me-2"></i>Generate Monthly Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="reportSiteId" value="" />
+                <div class="mb-3">
+                    <label for="reportYear" class="form-label fw-semibold">Year</label>
+                    <select id="reportYear" class="form-select"></select>
+                </div>
+                <div class="mb-3">
+                    <label for="reportMonth" class="form-label fw-semibold">Month</label>
+                    <select id="reportMonth" class="form-select">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="reportFormat" class="form-label fw-semibold">Format</label>
+                    <select id="reportFormat" class="form-select">
+                        <option value="Excel">Excel</option>
+                        <option value="PDF">PDF</option>
+                    </select>
+                </div>
+                <div id="reportTracking" class="alert alert-secondary d-none">
+                    <div class="fw-semibold mb-1">Tracking</div>
+                    <div class="small">Bill ID: <span id="trackBillId">-</span></div>
+                    <div class="small">Wage ID: <span id="trackWageId">-</span></div>
+                </div>
+                <div id="reportMessage" class="alert d-none mb-0" role="alert"></div>
+            </div>
+            <div class="modal-footer flex-wrap">
+                <button type="button" class="btn btn-primary report-btn" data-report-type="bill"><i class="fas fa-file-invoice-dollar me-1"></i>Generate Bill</button>
+                <button type="button" class="btn btn-primary report-btn" data-report-type="attendance"><i class="fas fa-clipboard-list me-1"></i>Generate Attendance</button>
+                <button type="button" class="btn btn-primary report-btn" data-report-type="wages"><i class="fas fa-money-bill-wave me-1"></i>Generate Wages</button>
+                <button type="button" class="btn btn-success report-btn" data-report-type="full"><i class="fas fa-file-archive me-1"></i>Generate All</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     function changePageSize(size) {
         const url = new URL(window.location.href);
@@ -238,4 +300,94 @@
         url.searchParams.set('pageNumber', '1');
         window.location.href = url.toString();
     }
+
+    (function () {
+        var modalEl = document.getElementById('generateReportModal');
+        if (!modalEl) return;
+        var yearSelect = document.getElementById('reportYear');
+        var curYear = new Date().getFullYear();
+        var curMonth = new Date().getMonth() + 1;
+        for (var y = curYear; y >= curYear - 5; y--) {
+            var opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            if (y === curYear) opt.selected = true;
+            yearSelect.appendChild(opt);
+        }
+        document.getElementById('reportMonth').value = curMonth;
+
+        modalEl.addEventListener('show.bs.modal', function (e) {
+            var btn = e.relatedTarget;
+            if (btn && btn.getAttribute('data-site-id'))
+                document.getElementById('reportSiteId').value = btn.getAttribute('data-site-id');
+        });
+
+        document.querySelectorAll('.report-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var siteId = document.getElementById('reportSiteId').value;
+                if (!siteId) { alert('Please select a site first.'); return; }
+                var year = document.getElementById('reportYear').value;
+                var month = document.getElementById('reportMonth').value;
+                var format = document.getElementById('reportFormat').value;
+                var reportType = btn.getAttribute('data-report-type');
+                var msgEl = document.getElementById('reportMessage');
+                var trackingEl = document.getElementById('reportTracking');
+                var trackBillIdEl = document.getElementById('trackBillId');
+                var trackWageIdEl = document.getElementById('trackWageId');
+                msgEl.classList.add('d-none');
+                if (trackingEl) trackingEl.classList.add('d-none');
+                var url = '@(Url.Content("~/Sites/DownloadReport"))?siteId=' + encodeURIComponent(siteId) + '&year=' + encodeURIComponent(year) + '&month=' + encodeURIComponent(month) + '&format=' + encodeURIComponent(format) + '&reportType=' + encodeURIComponent(reportType);
+                var trackingUrl = '@(Url.Content("~/Sites/GenerateMonthlyTracking"))?siteId=' + encodeURIComponent(siteId) + '&year=' + encodeURIComponent(year) + '&month=' + encodeURIComponent(month);
+                btn.disabled = true;
+                var ensureTracking = (reportType === 'full')
+                    ? fetch(trackingUrl, { credentials: 'include' })
+                        .then(function (r) { if (!r.ok) return r.text().then(function (t) { throw new Error(t || r.statusText); }); return r.json(); })
+                        .then(function (data) {
+                            if (trackingEl && trackBillIdEl && trackWageIdEl) {
+                                trackBillIdEl.textContent = data.billId || '-';
+                                trackWageIdEl.textContent = data.wageId || '-';
+                                trackingEl.classList.remove('d-none');
+                            }
+                        })
+                    : Promise.resolve();
+
+                ensureTracking.then(function () {
+                    return fetch(url, { credentials: 'include' });
+                })
+                    .then(function (response) {
+                        if (!response.ok) return response.text().then(function (t) { throw new Error(t || response.statusText); });
+                        var cd = response.headers.get('Content-Disposition');
+                        var fileName = 'report';
+                        if (cd) {
+                            var m = cd.match(/filename\*?=(?:UTF-8'')?"?([^";\n]+)"?/i) || cd.match(/filename="?([^";\n]+)"?/i);
+                            if (m && m[1]) fileName = m[1].trim().replace(/^["']|["']$/g, '');
+                        }
+                        return response.blob().then(function (blob) {
+                            var a = document.createElement('a');
+                            a.href = URL.createObjectURL(blob);
+                            a.download = fileName;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(a.href);
+                        });
+                    })
+                    .then(function () {
+                        if (msgEl) {
+                            msgEl.classList.remove('d-none', 'alert-danger');
+                            msgEl.classList.add('alert-success');
+                            msgEl.textContent = 'Report downloaded successfully.';
+                        }
+                    })
+                    .catch(function (err) {
+                        if (msgEl) {
+                            msgEl.classList.remove('d-none', 'alert-success');
+                            msgEl.classList.add('alert-danger');
+                            msgEl.textContent = (err && err.message) ? err.message : 'Download failed.';
+                        }
+                    })
+                    .finally(function () { btn.disabled = false; });
+            });
+        });
+    })();
 </script>

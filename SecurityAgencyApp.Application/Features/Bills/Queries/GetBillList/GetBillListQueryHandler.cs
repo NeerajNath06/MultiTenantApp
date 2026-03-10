@@ -53,6 +53,11 @@ public class GetBillListQueryHandler : IRequestHandler<GetBillListQuery, ApiResp
             query = query.Where(b => b.BillDate <= request.EndDate.Value);
         }
 
+        if (request.SiteId.HasValue)
+        {
+            query = query.Where(b => b.SiteId == request.SiteId.Value);
+        }
+
         // Apply sorting
         query = request.SortBy?.ToLower() switch
         {

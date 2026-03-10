@@ -36,6 +36,7 @@ public class GetSiteByIdQueryHandler : IRequestHandler<GetSiteByIdQuery, ApiResp
             Id = site.Id,
             SiteCode = site.SiteCode,
             SiteName = site.SiteName,
+            ClientId = site.ClientId,
             ClientName = site.ClientName,
             Address = site.Address,
             City = site.City,

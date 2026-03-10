@@ -73,6 +73,28 @@ public class ExpensesController : Controller
         return View(request);
     }
 
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var result = await _apiClient.GetAsync<ExpenseDetailDto>($"api/v1/Expenses/{id}");
+        if (!result.Success || result.Data == null)
+            return NotFound();
+        return View(result.Data);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _apiClient.DeleteAsync($"api/v1/Expenses/{id}");
+        if (result.Success)
+        {
+            TempData["SuccessMessage"] = "Expense deleted successfully";
+            return RedirectToAction(nameof(Index));
+        }
+        TempData["Error"] = result.Message ?? "Delete failed.";
+        return RedirectToAction(nameof(Index));
+    }
+
     private async Task LoadDropdowns()
     {
         var siteResult = await _apiClient.GetAsync<SiteListResponse>("api/v1/Sites", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });

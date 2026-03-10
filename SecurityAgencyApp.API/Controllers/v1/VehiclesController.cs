@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.VehicleLogs.Commands.RecordVehicleExit;
+using SecurityAgencyApp.Application.Features.VehicleLogs.Commands.DeleteVehicleLog;
 using SecurityAgencyApp.Application.Features.VehicleLogs.Commands.RegisterVehicleEntry;
 using SecurityAgencyApp.Application.Features.VehicleLogs.Queries.GetVehicleLogById;
 using SecurityAgencyApp.Application.Features.VehicleLogs.Queries.GetVehicleLogList;
@@ -101,6 +102,14 @@ public class VehiclesController : ControllerBase
         var result = await _mediator.Send(command);
         if (result.Success) return Ok(result);
         return NotFound(result);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteVehicleLog(Guid id, CancellationToken cancellationToken = default)
+    {
+        var result = await _mediator.Send(new DeleteVehicleLogCommand { Id = id }, cancellationToken);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
     }
 }
 

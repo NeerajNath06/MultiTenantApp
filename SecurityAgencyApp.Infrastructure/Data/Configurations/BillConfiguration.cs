@@ -46,6 +46,9 @@ public class BillConfiguration : IEntityTypeConfiguration<Bill>
         builder.Property(b => b.TotalAmount)
             .HasColumnType("decimal(18,2)");
 
+        builder.Property(b => b.RateAmount)
+            .HasColumnType("decimal(18,2)");
+
         builder.HasOne(b => b.Tenant)
             .WithMany()
             .HasForeignKey(b => b.TenantId)
@@ -70,6 +73,7 @@ public class BillConfiguration : IEntityTypeConfiguration<Bill>
         builder.HasIndex(b => b.ClientId);
         builder.HasIndex(b => b.BillNumber);
         builder.HasIndex(b => b.BillDate);
+        builder.HasIndex(b => new { b.TenantId, b.SiteId, b.BillYear, b.BillMonth });
     }
 }
 

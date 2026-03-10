@@ -157,4 +157,18 @@ public class BillsController : Controller
             return NotFound();
         return View(result.Data);
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _apiClient.DeleteAsync($"api/v1/Bills/{id}");
+        if (result.Success)
+        {
+            TempData["SuccessMessage"] = "Bill deleted successfully";
+            return RedirectToAction(nameof(Index));
+        }
+        TempData["Error"] = result.Message ?? "Delete failed.";
+        return RedirectToAction(nameof(Index));
+    }
 }

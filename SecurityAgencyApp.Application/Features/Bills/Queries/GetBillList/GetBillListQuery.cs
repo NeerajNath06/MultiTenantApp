@@ -11,6 +11,7 @@ public class GetBillListQuery : IRequest<ApiResponse<BillListResponseDto>>
     public string? Status { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
+    public Guid? SiteId { get; set; }
     public bool IncludeInactive { get; set; } = false;
     public string? SortBy { get; set; }
     public string? SortDirection { get; set; } = "desc";

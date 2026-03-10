@@ -73,4 +73,24 @@ public class LeaveRequestsController : Controller
             TempData["ErrorMessage"] = result.Message;
         return RedirectToAction(nameof(Index));
     }
+
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var result = await _apiClient.GetAsync<LeaveRequestDetailDto>($"api/v1/LeaveRequests/{id}");
+        if (!result.Success || result.Data == null)
+            return NotFound();
+        return View(result.Data);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _apiClient.DeleteAsync($"api/v1/LeaveRequests/{id}");
+        if (result.Success)
+            TempData["SuccessMessage"] = "Leave request deleted successfully";
+        else
+            TempData["ErrorMessage"] = result.Message;
+        return RedirectToAction(nameof(Index));
+    }
 }

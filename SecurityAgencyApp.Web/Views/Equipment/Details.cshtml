@@ -1,0 +1,114 @@
+@model SecurityAgencyApp.Web.Models.Api.EquipmentDetailDto
+@{
+    ViewData["Title"] = "Equipment Details";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Equipment Details</h1>
+            <p class="page-subtitle mb-0">@Model.EquipmentCode - @Model.EquipmentName</p>
+        </div>
+        <div>
+            <form asp-action="Delete" method="post" class="d-inline" data-confirm-message="Are you sure you want to delete this equipment?">
+                <input type="hidden" name="id" value="@Model.Id" />
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="fas fa-trash me-2"></i>Delete
+                </button>
+            </form>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title mb-4">Equipment Information</h5>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Equipment Code</label>
+                <p class="mb-0"><strong>@Model.EquipmentCode</strong></p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Equipment Name</label>
+                <p class="mb-0">@Model.EquipmentName</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Category</label>
+                <p class="mb-0">@Model.Category</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Status</label>
+                <p class="mb-0">
+                    <span class="badge bg-@(Model.Status == "Available" ? "success" : Model.Status == "Assigned" ? "info" : Model.Status == "Maintenance" ? "warning" : "danger")">
+                        @Model.Status
+                    </span>
+                </p>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.Manufacturer))
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted">Manufacturer</label>
+                    <p class="mb-0">@Model.Manufacturer</p>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.ModelNumber))
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted">Model Number</label>
+                    <p class="mb-0">@Model.ModelNumber</p>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.SerialNumber))
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted">Serial Number</label>
+                    <p class="mb-0">@Model.SerialNumber</p>
+                </div>
+            }
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Purchase Date</label>
+                <p class="mb-0">@Model.PurchaseDate.ToString("dd MMM yyyy")</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Purchase Cost</label>
+                <p class="mb-0">₹@Model.PurchaseCost.ToString("N2")</p>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.AssignedToGuardName))
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted">Assigned to Guard</label>
+                    <p class="mb-0">@Model.AssignedToGuardName</p>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.AssignedToSiteName))
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted">Assigned to Site</label>
+                    <p class="mb-0">@Model.AssignedToSiteName</p>
+                </div>
+            }
+            @if (Model.NextMaintenanceDate.HasValue)
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted">Next Maintenance</label>
+                    <p class="mb-0">@Model.NextMaintenanceDate.Value.ToString("dd MMM yyyy")</p>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.Notes))
+            {
+                <div class="col-12">
+                    <label class="form-label fw-semibold text-muted">Notes</label>
+                    <p class="mb-0">@Model.Notes</p>
+                </div>
+            }
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Created Date</label>
+                <p class="mb-0">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</p>
+            </div>
+        </div>
+    </div>
+</div>

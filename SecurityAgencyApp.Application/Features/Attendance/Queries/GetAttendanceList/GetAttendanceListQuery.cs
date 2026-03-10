@@ -6,6 +6,7 @@ namespace SecurityAgencyApp.Application.Features.Attendance.Queries.GetAttendanc
 public class GetAttendanceListQuery : IRequest<ApiResponse<AttendanceListResponseDto>>
 {
     public Guid? GuardId { get; set; }
+    public Guid? SiteId { get; set; }
     public Guid? AssignmentId { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }

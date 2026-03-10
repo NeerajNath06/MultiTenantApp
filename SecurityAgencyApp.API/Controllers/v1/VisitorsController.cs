@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Visitors.Commands.CreateVisitor;
 using SecurityAgencyApp.Application.Features.Visitors.Commands.UpdateVisitorExit;
+using SecurityAgencyApp.Application.Features.Visitors.Commands.UpdateVisitor;
+using SecurityAgencyApp.Application.Features.Visitors.Commands.DeleteVisitor;
 using SecurityAgencyApp.Application.Features.Visitors.Queries.GetVisitorAnalytics;
 using SecurityAgencyApp.Application.Features.Visitors.Queries.GetVisitorById;
 using SecurityAgencyApp.Application.Features.Visitors.Queries.GetVisitorList;
@@ -97,6 +99,23 @@ public class VisitorsController : ControllerBase
         var result = await _mediator.Send(command);
         if (result.Success) return Ok(result);
         return NotFound(result);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<ApiResponse<bool>>> UpdateVisitor(Guid id, [FromBody] UpdateVisitorCommand command)
+    {
+        command.Id = id;
+        var result = await _mediator.Send(command);
+        if (result.Success) return Ok(result);
+        return BadRequest(result);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteVisitor(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new DeleteVisitorCommand { Id = id }, cancellationToken);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
     }
 }
 

@@ -63,6 +63,12 @@
                                     <a href="@Url.Action("Edit", new { id = bill.Id })" class="btn btn-sm btn-outline-secondary" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    <form asp-action="Delete" method="post" class="d-inline" data-confirm-message="Are you sure you want to delete this bill?">
+                                        <input type="hidden" name="id" value="@bill.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         }

@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.TrainingRecords.Commands.CreateTrainingRecord;
+using SecurityAgencyApp.Application.Features.TrainingRecords.Queries.GetTrainingRecordById;
+using SecurityAgencyApp.Application.Features.TrainingRecords.Commands.DeleteTrainingRecord;
 using SecurityAgencyApp.Application.Features.TrainingRecords.Queries.GetTrainingRecordList;
 
 namespace SecurityAgencyApp.API.Controllers.v1;
@@ -43,6 +45,23 @@ public class TrainingRecordsController : ControllerBase
         };
         var result = await _mediator.Send(query);
         return Ok(result);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ApiResponse<TrainingRecordDetailDto>>> GetTrainingRecordById(Guid id)
+    {
+        var result = await _mediator.Send(new GetTrainingRecordByIdQuery { Id = id });
+        if (!result.Success) return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteTrainingRecord(Guid id)
+    {
+        var result = await _mediator.Send(new DeleteTrainingRecordCommand { Id = id });
+        if (result.Success) return Ok(result);
+        if (result.Message?.Contains("not found") == true) return NotFound(result);
+        return BadRequest(result);
     }
 
     [HttpPost]

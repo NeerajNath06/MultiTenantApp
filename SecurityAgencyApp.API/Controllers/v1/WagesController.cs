@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Wages.Commands.CreateWage;
 using SecurityAgencyApp.Application.Features.Wages.Queries.GetWageDetailsByGuard;
+using SecurityAgencyApp.Application.Features.Wages.Queries.GetWageWithDetails;
 using SecurityAgencyApp.Application.Features.Wages.Queries.GetWageList;
 
 namespace SecurityAgencyApp.API.Controllers.v1;
@@ -64,6 +65,14 @@ public class WagesController : ControllerBase
             SortDirection = sortDirection
         };
         var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ApiResponse<WageWithDetailsDto>>> GetWageById(Guid id)
+    {
+        var result = await _mediator.Send(new GetWageWithDetailsQuery { WageId = id });
+        if (!result.Success) return NotFound(result);
         return Ok(result);
     }
 

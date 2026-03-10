@@ -5,10 +5,18 @@ namespace SecurityAgencyApp.Domain.Entities;
 public class Wage : TenantEntity
 {
     public string WageSheetNumber { get; set; } = string.Empty;
+    /// <summary>Optional: site for which this wage sheet is generated.</summary>
+    public Guid? SiteId { get; set; }
     public DateTime WagePeriodStart { get; set; }
     public DateTime WagePeriodEnd { get; set; }
     public DateTime PaymentDate { get; set; }
     public string Status { get; set; } = "Draft"; // Draft, Approved, Paid, Cancelled
+    /// <summary>Snapshot month (1-12) for monthly linkage.</summary>
+    public int? WageMonth { get; set; }
+    /// <summary>Snapshot year for monthly linkage.</summary>
+    public int? WageYear { get; set; }
+    /// <summary>Per-day rate used for auto-calculation (snapshot).</summary>
+    public decimal? RateAmount { get; set; }
     public decimal TotalWages { get; set; }
     public decimal TotalDeductions { get; set; }
     public decimal TotalAllowances { get; set; }

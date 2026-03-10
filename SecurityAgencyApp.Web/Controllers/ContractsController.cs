@@ -157,6 +157,20 @@ public class ContractsController : Controller
         return View(result.Data);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _apiClient.DeleteAsync($"api/v1/Contracts/{id}");
+        if (result.Success)
+        {
+            TempData["SuccessMessage"] = "Contract deleted successfully";
+            return RedirectToAction(nameof(Index));
+        }
+        TempData["Error"] = result.Message ?? "Delete failed.";
+        return RedirectToAction(nameof(Index));
+    }
+
     private async Task LoadDropdowns()
     {
         var clientResult = await _apiClient.GetAsync<ClientListResponse>("api/v1/Clients", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });

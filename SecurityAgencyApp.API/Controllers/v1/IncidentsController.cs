@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Incidents.Commands.CreateIncident;
 using SecurityAgencyApp.Application.Features.Incidents.Commands.UpdateIncident;
+using SecurityAgencyApp.Application.Features.Incidents.Commands.DeleteIncident;
 using SecurityAgencyApp.Application.Features.Incidents.Queries.GetIncidentList;
+using SecurityAgencyApp.Application.Features.Incidents.Queries.GetIncidentById;
 using SecurityAgencyApp.Application.Features.TenantProfile.Queries.GetTenantProfile;
 using SecurityAgencyApp.API.Services;
 
@@ -148,5 +150,21 @@ public class IncidentsController : ControllerBase
         var result = await _mediator.Send(command);
         if (result.Success) return Ok(result);
         return BadRequest(result);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ApiResponse<IncidentDetailDto>>> GetIncidentById(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetIncidentByIdQuery { Id = id }, cancellationToken);
+        if (!result.Success) return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteIncident(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new DeleteIncidentCommand { Id = id }, cancellationToken);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
     }
 }

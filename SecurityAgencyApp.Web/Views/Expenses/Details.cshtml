@@ -1,0 +1,104 @@
+@model SecurityAgencyApp.Web.Models.Api.ExpenseDetailDto
+@{
+    ViewData["Title"] = "Expense Details";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Expense Details</h1>
+            <p class="page-subtitle mb-0">@Model.ExpenseNumber</p>
+        </div>
+        <div>
+            <form asp-action="Delete" method="post" class="d-inline" data-confirm-message="Are you sure you want to delete this expense?">
+                <input type="hidden" name="id" value="@Model.Id" />
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="fas fa-trash me-2"></i>Delete
+                </button>
+            </form>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title mb-4">Expense Information</h5>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Expense Number</label>
+                <p class="mb-0"><strong>@Model.ExpenseNumber</strong></p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Date</label>
+                <p class="mb-0">@Model.ExpenseDate.ToString("dd MMM yyyy")</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Category</label>
+                <p class="mb-0">@Model.Category</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Status</label>
+                <p class="mb-0">
+                    <span class="badge bg-@(Model.Status == "Approved" ? "success" : Model.Status == "Paid" ? "info" : "warning")">
+                        @Model.Status
+                    </span>
+                </p>
+            </div>
+            <div class="col-12">
+                <label class="form-label fw-semibold text-muted">Description</label>
+                <p class="mb-0">@Model.Description</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Amount</label>
+                <p class="mb-0"><strong class="text-success">₹@Model.Amount.ToString("N2")</strong></p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Payment Method</label>
+                <p class="mb-0">@Model.PaymentMethod</p>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.VendorName))
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted">Vendor</label>
+                    <p class="mb-0">@Model.VendorName</p>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.ReceiptNumber))
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted">Receipt Number</label>
+                    <p class="mb-0">@Model.ReceiptNumber</p>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.SiteName))
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted">Site</label>
+                    <p class="mb-0">@Model.SiteName</p>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.GuardName))
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted">Guard</label>
+                    <p class="mb-0">@Model.GuardName</p>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.Notes))
+            {
+                <div class="col-12">
+                    <label class="form-label fw-semibold text-muted">Notes</label>
+                    <p class="mb-0">@Model.Notes</p>
+                </div>
+            }
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Created Date</label>
+                <p class="mb-0">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</p>
+            </div>
+        </div>
+    </div>
+</div>

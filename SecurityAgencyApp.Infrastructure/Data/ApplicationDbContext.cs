@@ -46,6 +46,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<GuardAssignment> GuardAssignments { get; set; }
     public DbSet<Site> Sites { get; set; }
     public DbSet<SiteSupervisor> SiteSupervisors { get; set; }
+    public DbSet<SiteRatePlan> SiteRatePlans { get; set; }
     public DbSet<Shift> Shifts { get; set; }
 
     // Form Builder Entities
@@ -157,6 +158,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Payment>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<Bill>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<Wage>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
+        modelBuilder.Entity<SiteRatePlan>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<LeaveRequest>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<Expense>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<TrainingRecord>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);

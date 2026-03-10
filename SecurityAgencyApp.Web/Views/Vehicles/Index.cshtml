@@ -116,15 +116,24 @@
                                 <td>@v.EntryTime.ToString("dd MMM yyyy HH:mm")</td>
                                 <td>@(v.ExitTime.HasValue ? v.ExitTime.Value.ToString("dd MMM yyyy HH:mm") : "-")</td>
                                 <td class="text-end">
-                                    <a href="@Url.Action("Details", new { id = v.Id })" class="btn btn-sm btn-outline-secondary" title="View">View</a>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action("Details", new { id = v.Id })" class="btn btn-outline-primary" title="View">View</a>
+                                    </div>
                                     @if (!v.ExitTime.HasValue)
                                     {
                                         <form asp-action="RecordExit" method="post" class="d-inline" data-confirm-message="Record exit for this vehicle?">
-                                            <input type="hidden" name="id" value="@v.Id" />
                                             @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@v.Id" />
                                             <button type="submit" class="btn btn-sm btn-outline-success" title="Record Exit">Exit</button>
                                         </form>
                                     }
+                                    <form asp-action="Delete" method="post" class="d-inline" data-confirm-message="Are you sure you want to delete this vehicle log entry?">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@v.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         }

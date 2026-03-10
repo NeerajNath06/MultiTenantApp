@@ -9,6 +9,7 @@ using SecurityAgencyApp.Infrastructure.Services;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using SecurityAgencyApp.API.Services;
 
 using QuestPDF.Infrastructure;
 QuestPDF.Settings.License = LicenseType.Community;
@@ -80,6 +81,7 @@ builder.Services.AddMediatR(cfg =>
     cfg.AddOpenBehavior(typeof(SecurityAgencyApp.Application.Common.Behaviors.LoggingBehavior<,>));
     cfg.AddOpenBehavior(typeof(SecurityAgencyApp.Application.Common.Behaviors.ValidationBehavior<,>));
 });
+builder.Services.AddScoped<MonthlyReportService>();
 
 // FluentValidation
 builder.Services.AddValidatorsFromAssembly(typeof(SecurityAgencyApp.Application.Common.Models.ApiResponse<>).Assembly);

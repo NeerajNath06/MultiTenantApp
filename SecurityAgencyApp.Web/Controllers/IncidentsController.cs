@@ -94,6 +94,53 @@ public class IncidentsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var result = await _apiClient.GetAsync<IncidentDetailDto>($"api/v1/Incidents/{id}");
+        if (!result.Success || result.Data == null)
+            return NotFound();
+        return View(result.Data);
+    }
+
+    public async Task<IActionResult> Edit(Guid id)
+    {
+        var result = await _apiClient.GetAsync<IncidentDetailDto>($"api/v1/Incidents/{id}");
+        if (!result.Success || result.Data == null)
+            return NotFound();
+        ViewBag.SeverityList = new SelectList(new[] { new { Value = "Low", Text = "Low" }, new { Value = "Medium", Text = "Medium" }, new { Value = "High", Text = "High" }, new { Value = "Critical", Text = "Critical" } }, "Value", "Text");
+        return View(new UpdateIncidentRequest { Id = result.Data.Id, ActionTaken = result.Data.ActionTaken, Status = result.Data.Status });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(UpdateIncidentRequest request)
+    {
+        if (string.IsNullOrEmpty(request.Status))
+            request.Status = "Open";
+        var body = new { id = request.Id, actionTaken = request.ActionTaken, status = request.Status };
+        var result = await _apiClient.PutAsync<object>($"api/v1/Incidents/{request.Id}", body);
+        if (result.Success)
+        {
+            TempData["SuccessMessage"] = "Incident updated successfully";
+            return RedirectToAction(nameof(Details), new { id = request.Id });
+        }
+        ModelState.AddModelError("", result.Message ?? "Update failed");
+        ViewBag.SeverityList = new SelectList(new[] { new { Value = "Low", Text = "Low" }, new { Value = "Medium", Text = "Medium" }, new { Value = "High", Text = "High" }, new { Value = "Critical", Text = "Critical" } }, "Value", "Text");
+        return View(request);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _apiClient.DeleteAsync($"api/v1/Incidents/{id}");
+        if (result.Success)
+            TempData["SuccessMessage"] = "Incident deleted successfully";
+        else
+            TempData["Error"] = result.Message;
+        return RedirectToAction(nameof(Index));
+    }
+
     private async Task LoadDropdowns()
     {
         var siteResult = await _apiClient.GetAsync<SiteListResponse>("api/v1/Sites", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });

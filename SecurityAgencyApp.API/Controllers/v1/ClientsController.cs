@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Clients.Commands.CreateClient;
 using SecurityAgencyApp.Application.Features.Clients.Commands.UpdateClient;
+using SecurityAgencyApp.Application.Features.Clients.Commands.DeleteClient;
 using SecurityAgencyApp.Application.Features.Clients.Queries.GetClientById;
 using SecurityAgencyApp.Application.Features.Clients.Queries.GetClientList;
 
@@ -66,6 +67,15 @@ public class ClientsController : ControllerBase
         command.Id = id;
         var result = await _mediator.Send(command);
         if (result.Success) return Ok(result);
+        return BadRequest(result);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteClient(Guid id)
+    {
+        var result = await _mediator.Send(new DeleteClientCommand { Id = id });
+        if (result.Success) return Ok(result);
+        if (result.Message?.Contains("not found") == true) return NotFound(result);
         return BadRequest(result);
     }
 }

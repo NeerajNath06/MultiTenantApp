@@ -73,4 +73,26 @@ public class TrainingRecordsController : Controller
         ViewBag.Guards = guardRes.Data?.Items ?? new List<GuardItemDto>();
         return View(request);
     }
+
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var result = await _apiClient.GetAsync<TrainingRecordDetailDto>($"api/v1/TrainingRecords/{id}");
+        if (!result.Success || result.Data == null)
+            return NotFound();
+        return View(result.Data);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _apiClient.DeleteAsync($"api/v1/TrainingRecords/{id}");
+        if (result.Success)
+        {
+            TempData["SuccessMessage"] = "Training record deleted successfully";
+            return RedirectToAction(nameof(Index));
+        }
+        TempData["Error"] = result.Message ?? "Delete failed.";
+        return RedirectToAction(nameof(Index));
+    }
 }

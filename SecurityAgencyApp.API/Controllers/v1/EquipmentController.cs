@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Equipment.Commands.CreateEquipment;
+using SecurityAgencyApp.Application.Features.Equipment.Queries.GetEquipmentById;
+using SecurityAgencyApp.Application.Features.Equipment.Commands.DeleteEquipment;
 using SecurityAgencyApp.Application.Features.Equipment.Queries.GetEquipmentList;
 
 namespace SecurityAgencyApp.API.Controllers.v1;
@@ -45,6 +47,23 @@ public class EquipmentController : ControllerBase
         };
         var result = await _mediator.Send(query);
         return Ok(result);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ApiResponse<EquipmentDetailDto>>> GetEquipmentById(Guid id)
+    {
+        var result = await _mediator.Send(new GetEquipmentByIdQuery { Id = id });
+        if (!result.Success) return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteEquipment(Guid id)
+    {
+        var result = await _mediator.Send(new DeleteEquipmentCommand { Id = id });
+        if (result.Success) return Ok(result);
+        if (result.Message?.Contains("not found") == true) return NotFound(result);
+        return BadRequest(result);
     }
 
     [HttpPost]

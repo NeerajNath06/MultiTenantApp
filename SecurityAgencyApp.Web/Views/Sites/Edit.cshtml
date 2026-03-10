@@ -30,10 +30,15 @@
                     </div>
                 </div>
                 <div class="row g-3 mt-2">
-                    <div class="col-12">
-                        <label asp-for="ClientName" class="form-label fw-semibold">Client Name <span class="text-danger">*</span></label>
-                        <input asp-for="ClientName" class="form-control" required />
-                        <span asp-validation-for="ClientName" class="text-danger small"></span>
+                    <div class="col-12 col-md-6">
+                        <label asp-for="ClientId" class="form-label fw-semibold">Client (link for billing)</label>
+                        @{
+                            var clients = ViewBag.Clients as IEnumerable<SecurityAgencyApp.Web.Models.Api.ClientItemDto> ?? new List<SecurityAgencyApp.Web.Models.Api.ClientItemDto>();
+                        }
+                        <select asp-for="ClientId" class="form-select" id="siteClientIdDropdown" asp-items="@(new SelectList(clients, nameof(SecurityAgencyApp.Web.Models.Api.ClientItemDto.Id), nameof(SecurityAgencyApp.Web.Models.Api.ClientItemDto.CompanyName), Model.ClientId))">
+                            <option value="">-- Select Client --</option>
+                        </select>
+                        <span class="small text-muted">Select client for this site; required before saving rate.</span>
                     </div>
                 </div>
                 <div class="row g-3 mt-2">
@@ -147,11 +152,188 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Update Site
                 </button>
+                <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#generateReportModal">
+                    <i class="fas fa-file-alt me-2"></i>Generate Report
+                </button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
                     <i class="fas fa-times me-2"></i>Cancel
                 </a>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Rate plan: separate form so "Save Rate" does not submit the site form -->
+@{
+    var rate = ViewBag.SiteRate as SecurityAgencyApp.Web.Models.Api.SiteRateDto;
+    var ratePlans = ViewBag.SiteRatePlans as IEnumerable<SecurityAgencyApp.Web.Models.Api.SiteRateHistoryDto> ?? new List<SecurityAgencyApp.Web.Models.Api.SiteRateHistoryDto>();
+    var effectiveFrom = rate?.EffectiveFrom.ToString("yyyy-MM-dd") ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
+    var rateDisplay = rate != null ? rate.RateAmount.ToString("0.00") : "Not set";
+    var rateClientName = rate?.ClientName ?? "—";
+}
+<div class="card border-0 shadow-sm enterprise-form-card mt-4">
+    <div class="card-body">
+        <h5 class="section-title"><i class="fas fa-rupee-sign"></i>Billing Rate &amp; Wages (Per Day)</h5>
+        <p class="small text-muted mb-3">Per-day rate aur wages ke liye EPF/ESIC/Allowance % + EPF cap set karein. <b>Save Rate</b> dabane se ye sab save ho jate hain — Wages sheet me <b>Total Deduction</b> = EPF deduction + ESIC deduction inhi % se nikalti hai.</p>
+        <div class="row g-3 align-items-end">
+            <div class="col-6 col-lg-3">
+                <label class="form-label fw-semibold">Current Rate</label>
+                <input type="text" class="form-control" value="@rateDisplay" readonly />
+            </div>
+            <div class="col-6 col-lg-3">
+                <label class="form-label fw-semibold">For Client</label>
+                <input type="text" class="form-control" value="@rateClientName" readonly />
+            </div>
+            <div class="col-6 col-lg-3">
+                <label class="form-label fw-semibold">Effective From</label>
+                <input type="date" class="form-control" id="rateEffectiveFrom" value="@effectiveFrom" />
+            </div>
+            <div class="col-6 col-lg-3">
+                <label class="form-label fw-semibold">New Rate (₹)</label>
+                <input type="number" step="0.01" min="0" class="form-control" id="rateAmount" placeholder="e.g. 500" />
+            </div>
+        </div>
+        <div class="row g-3 align-items-end mt-0">
+            <div class="col-6 col-lg-3">
+                <label class="form-label fw-semibold">EPF %</label>
+                <input type="number" step="0.01" min="0" max="100" class="form-control" id="rateEpfPercent" placeholder="e.g. 12" title="Deduction of EPF @@ 12%" />
+            </div>
+            <div class="col-6 col-lg-3">
+                <label class="form-label fw-semibold">ESIC %</label>
+                <input type="number" step="0.01" min="0" max="100" class="form-control" id="rateEsicPercent" placeholder="e.g. 0.75" title="Deduction of ESIC @@ .75%" />
+            </div>
+            <div class="col-6 col-lg-3">
+                <label class="form-label fw-semibold">Allowance %</label>
+                <input type="number" step="0.01" min="0" max="100" class="form-control" id="rateAllowancePercent" placeholder="0" />
+            </div>
+            <div class="col-6 col-lg-3">
+                <label class="form-label fw-semibold">EPF Wage Cap (₹)</label>
+                <input type="number" step="1" min="0" class="form-control" id="rateEpfWageCap" placeholder="e.g. 15000" title="Epf Wages @@ 15000 - cap for EPF calculation" />
+            </div>
+        </div>
+        <div class="row g-3 align-items-end mt-0">
+            <div class="col-12 col-md-4">
+                <form id="rateForm" asp-action="SaveRate" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="siteId" value="@Model.Id" />
+                    <input type="hidden" name="clientId" id="rateFormClientId" value="@(Model.ClientId?.ToString() ?? "")" />
+                    <input type="hidden" name="effectiveFrom" id="rateFormEffectiveFrom" />
+                    <input type="hidden" name="rateAmount" id="rateFormRateAmount" />
+                    <input type="hidden" name="ratePlanId" id="rateFormRatePlanId" value="" />
+                    <input type="hidden" name="epfPercent" id="rateFormEpfPercent" value="" />
+                    <input type="hidden" name="esicPercent" id="rateFormEsicPercent" value="" />
+                    <input type="hidden" name="allowancePercent" id="rateFormAllowancePercent" value="" />
+                    <input type="hidden" name="epfWageCap" id="rateFormEpfWageCap" value="" />
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Rate
+                    </button>
+                </form>
+                <span class="small text-muted ms-2">(Rate + EPF/ESIC/Allowance % + EPF cap sab save honge)</span>
+            </div>
+        </div>
+        @if (ratePlans.Any())
+        {
+            <div class="mt-4">
+                <label class="form-label fw-semibold">Rate plans (Edit = update in place, Delete = deactivate)</label>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Effective From</th>
+                                <th>Effective To</th>
+                                <th>Rate (₹)</th>
+                                <th>Status</th>
+                                <th style="width:140px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var rp in ratePlans)
+                            {
+                                <tr>
+                                    <td>@rp.EffectiveFrom.ToString("dd-MMM-yyyy")</td>
+                                    <td>@(rp.EffectiveTo?.ToString("dd-MMM-yyyy") ?? "—")</td>
+                                    <td>@rp.RateAmount.ToString("N2")</td>
+                                    <td>@(rp.IsActive ? "Active" : "Inactive")</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary me-1 rate-plan-edit" data-id="@rp.Id" data-rate="@rp.RateAmount" data-from="@rp.EffectiveFrom.ToString("yyyy-MM-dd")" data-clientid="@rp.ClientId" data-epf="@(rp.EpfPercent.HasValue ? rp.EpfPercent.Value.ToString() : "")" data-esic="@(rp.EsicPercent.HasValue ? rp.EsicPercent.Value.ToString() : "")" data-allow="@(rp.AllowancePercent.HasValue ? rp.AllowancePercent.Value.ToString() : "")" data-cap="@(rp.EpfWageCap.HasValue ? rp.EpfWageCap.Value.ToString() : "")">Edit</button>
+                                        <form asp-action="DeleteRate" method="post" class="d-inline" onsubmit="return confirm('Deactivate this rate plan?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@rp.Id" />
+                                            <input type="hidden" name="siteId" value="@Model.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+        <p class="small text-muted mt-2 mb-0">Tip: Pehle client select karein, phir rate + EPF/ESIC % + EPF cap daal kar <b>Save Rate</b> dabayein. Wages sheet me <b>Total Deduction</b> = EPF @@ % + ESIC @@ % inhi values se aayegi. Kisi plan ko update karne ke liye list me <b>Edit</b> dabayein.</p>
+    </div>
+</div>
+
+<!-- Generate Report Modal -->
+<div class="modal fade" id="generateReportModal" tabindex="-1" aria-labelledby="generateReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generateReportModalLabel"><i class="fas fa-file-alt me-2"></i>Generate Monthly Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="reportYear" class="form-label fw-semibold">Year</label>
+                    <select id="reportYear" class="form-select"></select>
+                </div>
+                <div class="mb-3">
+                    <label for="reportMonth" class="form-label fw-semibold">Month</label>
+                    <select id="reportMonth" class="form-select">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="reportFormat" class="form-label fw-semibold">Format</label>
+                    <select id="reportFormat" class="form-select">
+                        <option value="Excel">Excel</option>
+                        <option value="PDF">PDF</option>
+                    </select>
+                </div>
+                <div id="reportTracking" class="alert alert-secondary d-none">
+                    <div class="fw-semibold mb-1">Tracking</div>
+                    <div class="small">Bill ID: <span id="trackBillId">-</span></div>
+                    <div class="small">Wage ID: <span id="trackWageId">-</span></div>
+                </div>
+                <div id="reportMessage" class="alert d-none mb-0" role="alert"></div>
+            </div>
+            <div class="modal-footer flex-wrap">
+                <button type="button" class="btn btn-primary report-btn" data-report-type="bill">
+                    <i class="fas fa-file-invoice-dollar me-1"></i>Generate Bill
+                </button>
+                <button type="button" class="btn btn-primary report-btn" data-report-type="attendance">
+                    <i class="fas fa-clipboard-list me-1"></i>Generate Attendance
+                </button>
+                <button type="button" class="btn btn-primary report-btn" data-report-type="wages">
+                    <i class="fas fa-money-bill-wave me-1"></i>Generate Wages
+                </button>
+                <button type="button" class="btn btn-success report-btn" data-report-type="full">
+                    <i class="fas fa-file-archive me-1"></i>Generate All
+                </button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -180,6 +362,126 @@
             });
             syncHidden();
             document.getElementById('siteSupervisorsMenu').addEventListener('click', function (e) { e.stopPropagation(); });
+
+            // Rate form: copy dropdown client + date + amount into hidden inputs so the correct form submits
+            var rateForm = document.getElementById('rateForm');
+            var siteClientDropdown = document.getElementById('siteClientIdDropdown');
+            if (rateForm && siteClientDropdown) {
+                rateForm.addEventListener('submit', function () {
+                    var clientVal = siteClientDropdown.value || '00000000-0000-0000-0000-000000000000';
+                    document.getElementById('rateFormClientId').value = clientVal;
+                    document.getElementById('rateFormEffectiveFrom').value = document.getElementById('rateEffectiveFrom').value || new Date().toISOString().slice(0, 10);
+                    document.getElementById('rateFormRateAmount').value = document.getElementById('rateAmount').value || '0';
+                    var epf = document.getElementById('rateEpfPercent').value;
+                    var esic = document.getElementById('rateEsicPercent').value;
+                    var allow = document.getElementById('rateAllowancePercent').value;
+                    var cap = document.getElementById('rateEpfWageCap').value;
+                    document.getElementById('rateFormEpfPercent').value = epf || '';
+                    document.getElementById('rateFormEsicPercent').value = esic || '';
+                    document.getElementById('rateFormAllowancePercent').value = allow || '';
+                    document.getElementById('rateFormEpfWageCap').value = cap || '';
+                });
+            }
+            // Edit rate plan: populate form and set ratePlanId so Save Rate updates existing plan
+            document.querySelectorAll('.rate-plan-edit').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var id = this.getAttribute('data-id');
+                    var rateVal = this.getAttribute('data-rate');
+                    var fromVal = this.getAttribute('data-from');
+                    var clientId = this.getAttribute('data-clientid');
+                    var epf = this.getAttribute('data-epf');
+                    var esic = this.getAttribute('data-esic');
+                    var allow = this.getAttribute('data-allow');
+                    var cap = this.getAttribute('data-cap');
+                    document.getElementById('rateFormRatePlanId').value = id || '';
+                    document.getElementById('rateAmount').value = rateVal || '';
+                    document.getElementById('rateEffectiveFrom').value = fromVal || '';
+                    if (siteClientDropdown && clientId) siteClientDropdown.value = clientId;
+                    if (epf !== null && epf !== '') document.getElementById('rateEpfPercent').value = epf;
+                    if (esic !== null && esic !== '') document.getElementById('rateEsicPercent').value = esic;
+                    if (allow !== null && allow !== '') document.getElementById('rateAllowancePercent').value = allow;
+                    if (cap !== null && cap !== '') document.getElementById('rateEpfWageCap').value = cap;
+                });
+            });
+
+            // Generate Report modal: year dropdown and report buttons
+            var siteId = '@Model?.Id.ToString()';
+            var yearSelect = document.getElementById('reportYear');
+            var curYear = new Date().getFullYear();
+            var curMonth = new Date().getMonth() + 1;
+            for (var y = curYear; y >= curYear - 5; y--) {
+                var opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y;
+                if (y === curYear) opt.selected = true;
+                yearSelect.appendChild(opt);
+            }
+            document.getElementById('reportMonth').value = curMonth;
+            document.querySelectorAll('.report-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var year = document.getElementById('reportYear').value;
+                    var month = document.getElementById('reportMonth').value;
+                    var format = document.getElementById('reportFormat').value;
+                    var reportType = btn.getAttribute('data-report-type');
+                    var msgEl = document.getElementById('reportMessage');
+                    var trackingEl = document.getElementById('reportTracking');
+                    var trackBillIdEl = document.getElementById('trackBillId');
+                    var trackWageIdEl = document.getElementById('trackWageId');
+                    msgEl.classList.add('d-none');
+                    if (trackingEl) trackingEl.classList.add('d-none');
+                    var url = '@(Url.Content("~/Sites/DownloadReport"))?siteId=' + encodeURIComponent(siteId) + '&year=' + encodeURIComponent(year) + '&month=' + encodeURIComponent(month) + '&format=' + encodeURIComponent(format) + '&reportType=' + encodeURIComponent(reportType);
+                    var trackingUrl = '@(Url.Content("~/Sites/GenerateMonthlyTracking"))?siteId=' + encodeURIComponent(siteId) + '&year=' + encodeURIComponent(year) + '&month=' + encodeURIComponent(month);
+                    btn.disabled = true;
+                    var ensureTracking = (reportType === 'full')
+                        ? fetch(trackingUrl, { credentials: 'include' })
+                            .then(function (r) { if (!r.ok) return r.text().then(function (t) { throw new Error(t || r.statusText); }); return r.json(); })
+                            .then(function (data) {
+                                if (trackingEl && trackBillIdEl && trackWageIdEl) {
+                                    trackBillIdEl.textContent = data.billId || '-';
+                                    trackWageIdEl.textContent = data.wageId || '-';
+                                    trackingEl.classList.remove('d-none');
+                                }
+                            })
+                        : Promise.resolve();
+
+                    ensureTracking.then(function () {
+                        return fetch(url, { credentials: 'include' });
+                    })
+                        .then(function (response) {
+                            if (!response.ok) return response.text().then(function (t) { throw new Error(t || response.statusText); });
+                            var cd = response.headers.get('Content-Disposition');
+                            var fileName = 'report';
+                            if (cd) {
+                                var m = cd.match(/filename\*?=(?:UTF-8'')?"?([^";\n]+)"?/i) || cd.match(/filename="?([^";\n]+)"?/i);
+                                if (m && m[1]) fileName = m[1].trim().replace(/^["']|["']$/g, '');
+                            }
+                            return response.blob().then(function (blob) {
+                                var a = document.createElement('a');
+                                a.href = URL.createObjectURL(blob);
+                                a.download = fileName;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(a.href);
+                            });
+                        })
+                        .then(function () {
+                            if (msgEl) {
+                                msgEl.classList.remove('d-none', 'alert-danger');
+                                msgEl.classList.add('alert-success');
+                                msgEl.textContent = 'Report downloaded successfully.';
+                            }
+                        })
+                        .catch(function (err) {
+                            if (msgEl) {
+                                msgEl.classList.remove('d-none', 'alert-success');
+                                msgEl.classList.add('alert-danger');
+                                msgEl.textContent = (err && err.message) ? err.message : 'Download failed.';
+                            }
+                        })
+                        .finally(function () { btn.disabled = false; });
+                });
+            });
         })();
     </script>
 }

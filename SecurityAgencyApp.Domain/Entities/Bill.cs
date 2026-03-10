@@ -10,6 +10,12 @@ public class Bill : TenantEntity
     public Guid? ClientId { get; set; }
     public string ClientName { get; set; } = string.Empty;
     public string? Description { get; set; }
+    /// <summary>Month of billing period (1-12). Snapshot for reporting. Duplicates allowed.</summary>
+    public int? BillMonth { get; set; }
+    /// <summary>Year of billing period. Snapshot for reporting. Duplicates allowed.</summary>
+    public int? BillYear { get; set; }
+    /// <summary>Per-day rate used for auto-calculation (snapshot).</summary>
+    public decimal? RateAmount { get; set; }
     public decimal SubTotal { get; set; }
     public decimal TaxAmount { get; set; }
     public decimal DiscountAmount { get; set; }

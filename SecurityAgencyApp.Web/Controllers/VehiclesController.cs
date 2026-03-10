@@ -119,6 +119,18 @@ public class VehiclesController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _apiClient.DeleteAsync($"api/v1/Vehicles/{id}");
+        if (result.Success)
+            TempData["SuccessMessage"] = "Vehicle log deleted successfully.";
+        else
+            TempData["Error"] = result.Message;
+        return RedirectToAction(nameof(Index));
+    }
+
     private async Task LoadDropdowns()
     {
         var siteResult = await _apiClient.GetAsync<SiteListResponse>("api/v1/Sites", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });

@@ -26,6 +26,8 @@ public class GetWageWithDetailsQueryHandler : IRequestHandler<GetWageWithDetails
             return ApiResponse<WageWithDetailsDto>.ErrorResponse("Wage not found");
 
         var details = await _unitOfWork.Repository<WageDetail>().FindAsync(d => d.WageId == request.WageId, cancellationToken);
+        if (request.SiteId.HasValue)
+            details = details.Where(d => d.SiteId == request.SiteId.Value).ToList();
         var guardIds = details.Select(d => d.GuardId).Distinct().ToList();
         var guards = guardIds.Any()
             ? (await _unitOfWork.Repository<SecurityGuard>().FindAsync(g => guardIds.Contains(g.Id), cancellationToken)).ToDictionary(g => g.Id)
@@ -62,7 +64,13 @@ public class GetWageWithDetailsQueryHandler : IRequestHandler<GetWageWithDetails
             WageSheetNumber = wage.WageSheetNumber,
             WagePeriodStart = wage.WagePeriodStart,
             WagePeriodEnd = wage.WagePeriodEnd,
+            PaymentDate = wage.PaymentDate,
+            Status = wage.Status ?? "Draft",
+            TotalWages = wage.TotalWages,
+            TotalAllowances = wage.TotalAllowances,
+            TotalDeductions = wage.TotalDeductions,
             NetAmount = wage.NetAmount,
+            Notes = wage.Notes,
             Details = detailDtos
         };
         return ApiResponse<WageWithDetailsDto>.SuccessResponse(dto, "Wage with details retrieved");

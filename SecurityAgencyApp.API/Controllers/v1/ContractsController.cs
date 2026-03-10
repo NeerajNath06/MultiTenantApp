@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Contracts.Commands.CreateContract;
 using SecurityAgencyApp.Application.Features.Contracts.Commands.UpdateContract;
+using SecurityAgencyApp.Application.Features.Contracts.Commands.DeleteContract;
 using SecurityAgencyApp.Application.Features.Contracts.Queries.GetContractById;
 using SecurityAgencyApp.Application.Features.Contracts.Queries.GetContractList;
 
@@ -68,6 +69,15 @@ public class ContractsController : ControllerBase
         command.Id = id;
         var result = await _mediator.Send(command);
         if (result.Success) return Ok(result);
+        return BadRequest(result);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteContract(Guid id)
+    {
+        var result = await _mediator.Send(new DeleteContractCommand { Id = id });
+        if (result.Success) return Ok(result);
+        if (result.Message?.Contains("not found") == true) return NotFound(result);
         return BadRequest(result);
     }
 }

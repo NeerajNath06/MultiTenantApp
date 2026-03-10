@@ -1,0 +1,127 @@
+@model SecurityAgencyApp.Web.Models.Api.WageDetailDto
+@{
+    ViewData["Title"] = "Wage Sheet Details";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Wage Sheet Details</h1>
+            <p class="page-subtitle mb-0">@Model.WageSheetNumber</p>
+        </div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Wage Information</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Wage Sheet Number</label>
+                        <p class="mb-0"><strong>@Model.WageSheetNumber</strong></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Period</label>
+                        <p class="mb-0">@Model.WagePeriodStart.ToString("dd MMM yyyy") - @Model.WagePeriodEnd.ToString("dd MMM yyyy")</p>
+                    </div>
+                    @if (Model.PaymentDate.HasValue)
+                    {
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Payment Date</label>
+                            <p class="mb-0">@Model.PaymentDate.Value.ToString("dd MMM yyyy")</p>
+                        </div>
+                    }
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Status</label>
+                        <p class="mb-0">
+                            <span class="badge bg-@(Model.Status == "Paid" ? "success" : Model.Status == "Approved" ? "info" : "secondary")">
+                                @Model.Status
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.Details != null && Model.Details.Any())
+        {
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Wage Details</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Guard</th>
+                                    <th class="text-end">Days</th>
+                                    <th class="text-end">Basic Rate</th>
+                                    <th class="text-end">Basic</th>
+                                    <th class="text-end">Overtime</th>
+                                    <th class="text-end">Allowances</th>
+                                    <th class="text-end">Deductions</th>
+                                    <th class="text-end">Net</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Details)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@item.GuardName</strong>
+                                            @if (!string.IsNullOrEmpty(item.Designation))
+                                            {
+                                                <br /><small class="text-muted">@item.Designation</small>
+                                            }
+                                        </td>
+                                        <td class="text-end">@item.DaysWorked</td>
+                                        <td class="text-end">₹@item.BasicRate.ToString("N2")</td>
+                                        <td class="text-end">₹@item.BasicAmount.ToString("N2")</td>
+                                        <td class="text-end">₹@item.OvertimeAmount.ToString("N2")</td>
+                                        <td class="text-end">₹@item.Allowances.ToString("N2")</td>
+                                        <td class="text-end">₹@item.Deductions.ToString("N2")</td>
+                                        <td class="text-end"><strong>₹@item.NetAmount.ToString("N2")</strong></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Summary</h5>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Total Wages</label>
+                    <p class="mb-0">₹@Model.TotalWages.ToString("N2")</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Total Allowances</label>
+                    <p class="mb-0">₹@Model.TotalAllowances.ToString("N2")</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Total Deductions</label>
+                    <p class="mb-0">₹@Model.TotalDeductions.ToString("N2")</p>
+                </div>
+                <div class="mb-3 border-top pt-3">
+                    <label class="form-label fw-semibold text-muted">Net Amount</label>
+                    <p class="mb-0"><strong class="text-success fs-5">₹@Model.NetAmount.ToString("N2")</strong></p>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-muted">Notes</label>
+                        <p class="mb-0">@Model.Notes</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

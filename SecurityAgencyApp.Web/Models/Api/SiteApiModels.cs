@@ -17,6 +17,7 @@ public class SiteDto
     public Guid Id { get; set; }
     public string SiteCode { get; set; } = string.Empty;
     public string SiteName { get; set; } = string.Empty;
+    public Guid? ClientId { get; set; }
     public string ClientName { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public string City { get; set; } = string.Empty;
@@ -55,4 +56,5 @@ public class CreateSiteRequest
 public class UpdateSiteRequest : CreateSiteRequest
 {
     public Guid Id { get; set; }
+    public Guid? ClientId { get; set; }
 }

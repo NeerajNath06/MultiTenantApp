@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Payments.Commands.CreatePayment;
 using SecurityAgencyApp.Application.Features.Payments.Commands.UpdatePayment;
+using SecurityAgencyApp.Application.Features.Payments.Commands.DeletePayment;
 using SecurityAgencyApp.Application.Features.Payments.Queries.GetPaymentById;
 using SecurityAgencyApp.Application.Features.Payments.Queries.GetPaymentList;
 
@@ -74,6 +75,15 @@ public class PaymentsController : ControllerBase
         command.Id = id;
         var result = await _mediator.Send(command);
         if (result.Success) return Ok(result);
+        return BadRequest(result);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeletePayment(Guid id)
+    {
+        var result = await _mediator.Send(new DeletePaymentCommand { Id = id });
+        if (result.Success) return Ok(result);
+        if (result.Message?.Contains("not found") == true) return NotFound(result);
         return BadRequest(result);
     }
 }

@@ -87,4 +87,12 @@ public class WagesController : Controller
         var shiftResult = await _apiClient.GetAsync<ShiftListResponse>("api/v1/Shifts", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
         ViewBag.Shifts = shiftResult.Data?.Items ?? new List<ShiftItemDto>();
     }
+
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var result = await _apiClient.GetAsync<WageDetailDto>($"api/v1/Wages/{id}");
+        if (!result.Success || result.Data == null)
+            return NotFound();
+        return View(result.Data);
+    }
 }

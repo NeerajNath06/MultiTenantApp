@@ -184,9 +184,26 @@ public class ApiClient : IApiClient
             SetAuthHeaders(request);
             var response = await _http.SendAsync(request, cancellationToken);
             if (!response.IsSuccessStatusCode)
-                return new ApiResult<DownloadedFile?> { Success = false, Message = response.ReasonPhrase ?? "Download failed" };
+            {
+                var message = response.ReasonPhrase ?? "Download failed";
+                var contentType = response.Content.Headers.ContentType?.MediaType ?? "";
+                if (contentType.Contains("json", StringComparison.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        var json = await response.Content.ReadAsStringAsync(cancellationToken);
+                        using var doc = System.Text.Json.JsonDocument.Parse(json);
+                        if (doc.RootElement.TryGetProperty("message", out var m))
+                            message = m.GetString() ?? message;
+                    }
+                    catch { /* use ReasonPhrase */ }
+                }
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound && message.Contains("Not Found", StringComparison.OrdinalIgnoreCase) && !message.Trim().Contains(" "))
+                    message = "Report endpoint not found. Deploy the updated API (with Report controller) to enable report generation.";
+                return new ApiResult<DownloadedFile?> { Success = false, Message = message };
+            }
             var bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-            var contentType = response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream";
+            var contentTypeFile = response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream";
             var fileName = "document";
             if (response.Content.Headers.ContentDisposition?.FileNameStar != null)
                 fileName = response.Content.Headers.ContentDisposition.FileNameStar.Trim('"');
@@ -195,13 +212,13 @@ public class ApiClient : IApiClient
             return new ApiResult<DownloadedFile?>
             {
                 Success = true,
-                Data = new DownloadedFile { Content = bytes, ContentType = contentType, FileName = fileName }
+                Data = new DownloadedFile { Content = bytes, ContentType = contentTypeFile, FileName = fileName }
             };
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "API GET file {Uri} failed", requestUri);
-            return new ApiResult<DownloadedFile?> { Success = false, Message = "Download failed." };
+            return new ApiResult<DownloadedFile?> { Success = false, Message = "Download failed. " + ex.Message };
         }
     }
 

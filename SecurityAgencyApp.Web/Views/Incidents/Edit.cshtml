@@ -1,0 +1,46 @@
+@model SecurityAgencyApp.Web.Models.Api.UpdateIncidentRequest
+@{
+    ViewData["Title"] = "Edit Incident";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Edit Incident</h1>
+            <p class="page-subtitle mb-0">Update status and action taken</p>
+        </div>
+        <div>
+            <a href="@Url.Action("Details", new { id = Model.Id })" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Details
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select asp-for="Status" class="form-select" required>
+                    <option value="Open">Open</option>
+                    <option value="InProgress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Closed">Closed</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Action Taken</label>
+                <textarea asp-for="ActionTaken" class="form-control" rows="4" placeholder="Describe actions taken to resolve or address the incident"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save
+                </button>
+                <a href="@Url.Action("Details", new { id = Model.Id })" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

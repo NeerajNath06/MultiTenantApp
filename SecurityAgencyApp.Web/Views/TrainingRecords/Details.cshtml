@@ -1,0 +1,96 @@
+@model SecurityAgencyApp.Web.Models.Api.TrainingRecordDetailDto
+@{
+    ViewData["Title"] = "Training Record Details";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Training Record Details</h1>
+            <p class="page-subtitle mb-0">@Model.TrainingName - @Model.GuardName</p>
+        </div>
+        <div>
+            <form asp-action="Delete" method="post" class="d-inline" data-confirm-message="Are you sure you want to delete this training record?">
+                <input type="hidden" name="id" value="@Model.Id" />
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="fas fa-trash me-2"></i>Delete
+                </button>
+            </form>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title mb-4">Training Information</h5>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Guard</label>
+                <p class="mb-0"><strong>@Model.GuardName</strong> (@Model.GuardCode)</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Status</label>
+                <p class="mb-0">
+                    <span class="badge bg-@(Model.Status == "Completed" ? "success" : Model.Status == "Expired" ? "danger" : "warning")">
+                        @Model.Status
+                    </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Training Type</label>
+                <p class="mb-0">@Model.TrainingType</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Training Name</label>
+                <p class="mb-0">@Model.TrainingName</p>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.TrainingProvider))
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted">Training Provider</label>
+                    <p class="mb-0">@Model.TrainingProvider</p>
+                </div>
+            }
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Training Date</label>
+                <p class="mb-0">@Model.TrainingDate.ToString("dd MMM yyyy")</p>
+            </div>
+            @if (Model.ExpiryDate.HasValue)
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted">Expiry Date</label>
+                    <p class="mb-0">@Model.ExpiryDate.Value.ToString("dd MMM yyyy")</p>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.CertificateNumber))
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted">Certificate Number</label>
+                    <p class="mb-0">@Model.CertificateNumber</p>
+                </div>
+            }
+            @if (Model.Score.HasValue)
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted">Score</label>
+                    <p class="mb-0">@Model.Score.Value.ToString("N2")</p>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.Remarks))
+            {
+                <div class="col-12">
+                    <label class="form-label fw-semibold text-muted">Remarks</label>
+                    <p class="mb-0">@Model.Remarks</p>
+                </div>
+            }
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Created Date</label>
+                <p class="mb-0">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</p>
+            </div>
+        </div>
+    </div>
+</div>

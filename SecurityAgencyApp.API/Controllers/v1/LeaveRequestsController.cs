@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.LeaveRequests.Commands.ApproveLeaveRequest;
 using SecurityAgencyApp.Application.Features.LeaveRequests.Commands.CreateLeaveRequest;
+using SecurityAgencyApp.Application.Features.LeaveRequests.Commands.DeleteLeaveRequest;
 using SecurityAgencyApp.Application.Features.LeaveRequests.Queries.GetLeaveRequestList;
+using SecurityAgencyApp.Application.Features.LeaveRequests.Queries.GetLeaveRequestById;
 
 namespace SecurityAgencyApp.API.Controllers.v1;
 
@@ -64,5 +66,21 @@ public class LeaveRequestsController : ControllerBase
         var result = await _mediator.Send(command);
         if (result.Success) return Ok(result);
         return BadRequest(result);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ApiResponse<LeaveRequestDetailDto>>> GetLeaveRequestById(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetLeaveRequestByIdQuery { Id = id }, cancellationToken);
+        if (!result.Success) return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteLeaveRequest(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new DeleteLeaveRequestCommand { Id = id }, cancellationToken);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
     }
 }

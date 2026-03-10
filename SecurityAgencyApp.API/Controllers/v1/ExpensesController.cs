@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Expenses.Commands.CreateExpense;
+using SecurityAgencyApp.Application.Features.Expenses.Queries.GetExpenseById;
+using SecurityAgencyApp.Application.Features.Expenses.Commands.DeleteExpense;
 using SecurityAgencyApp.Application.Features.Expenses.Queries.GetExpenseList;
 
 namespace SecurityAgencyApp.API.Controllers.v1;
@@ -49,6 +51,23 @@ public class ExpensesController : ControllerBase
         };
         var result = await _mediator.Send(query);
         return Ok(result);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ApiResponse<ExpenseDetailDto>>> GetExpenseById(Guid id)
+    {
+        var result = await _mediator.Send(new GetExpenseByIdQuery { Id = id });
+        if (!result.Success) return NotFound(result);
+        return Ok(result);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteExpense(Guid id)
+    {
+        var result = await _mediator.Send(new DeleteExpenseCommand { Id = id });
+        if (result.Success) return Ok(result);
+        if (result.Message?.Contains("not found") == true) return NotFound(result);
+        return BadRequest(result);
     }
 
     [HttpPost]

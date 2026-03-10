@@ -84,6 +84,87 @@ public class VisitorsController : Controller
         return View(request);
     }
 
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var result = await _apiClient.GetAsync<VisitorDetailDto>($"api/v1/Visitors/{id}");
+        if (!result.Success || result.Data == null)
+            return NotFound();
+        return View(result.Data);
+    }
+
+    public async Task<IActionResult> Edit(Guid id)
+    {
+        var result = await _apiClient.GetAsync<VisitorDetailDto>($"api/v1/Visitors/{id}");
+        if (!result.Success || result.Data == null)
+            return NotFound();
+        await LoadDropdowns();
+        var req = new UpdateVisitorRequest
+        {
+            Id = result.Data.Id,
+            VisitorName = result.Data.VisitorName,
+            VisitorType = result.Data.VisitorType,
+            CompanyName = result.Data.CompanyName,
+            PhoneNumber = result.Data.PhoneNumber,
+            Email = result.Data.Email,
+            Purpose = result.Data.Purpose,
+            HostName = result.Data.HostName,
+            HostDepartment = result.Data.HostDepartment,
+            SiteId = result.Data.SiteId,
+            GuardId = result.Data.GuardId,
+            IdProofType = result.Data.IdProofType,
+            IdProofNumber = result.Data.IdProofNumber
+        };
+        return View(req);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(UpdateVisitorRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            await LoadDropdowns();
+            return View(request);
+        }
+        var body = new
+        {
+            id = request.Id,
+            visitorName = request.VisitorName,
+            visitorType = request.VisitorType,
+            companyName = request.CompanyName,
+            phoneNumber = request.PhoneNumber,
+            email = request.Email,
+            purpose = request.Purpose,
+            hostName = request.HostName,
+            hostDepartment = request.HostDepartment,
+            siteId = request.SiteId,
+            guardId = request.GuardId,
+            idProofType = request.IdProofType,
+            idProofNumber = request.IdProofNumber
+        };
+        var result = await _apiClient.PutAsync<object>($"api/v1/Visitors/{request.Id}", body);
+        if (result.Success)
+        {
+            TempData["SuccessMessage"] = "Visitor updated successfully";
+            return RedirectToAction(nameof(Details), new { id = request.Id });
+        }
+        ModelState.AddModelError("", result.Message ?? "Update failed");
+        await LoadDropdowns();
+        return View(request);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _apiClient.DeleteAsync($"api/v1/Visitors/{id}");
+        if (result.Success)
+            TempData["SuccessMessage"] = "Visitor deleted successfully";
+        else
+            TempData["Error"] = result.Message;
+        return RedirectToAction(nameof(Index));
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> MarkExit(Guid id)
