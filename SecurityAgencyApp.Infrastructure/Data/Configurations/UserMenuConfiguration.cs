@@ -14,12 +14,12 @@ public class UserMenuConfiguration : IEntityTypeConfiguration<UserMenu>
 
         // Relationships - Use NoAction to avoid cascade cycles
         builder.HasOne(um => um.User)
-            .WithMany()
+            .WithMany(u => u.UserMenus)
             .HasForeignKey(um => um.UserId)
             .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasOne(um => um.Menu)
-            .WithMany()
+            .WithMany(m => m.UserMenus)
             .HasForeignKey(um => um.MenuId)
             .OnDelete(DeleteBehavior.NoAction);
 

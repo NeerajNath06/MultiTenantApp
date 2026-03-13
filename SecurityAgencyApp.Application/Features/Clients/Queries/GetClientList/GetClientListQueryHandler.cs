@@ -43,6 +43,13 @@ public class GetClientListQueryHandler : IRequestHandler<GetClientListQuery, Api
             query = query.Where(c => c.Status == request.Status);
         }
 
+        // When SiteId is provided, only clients that have this site in one of their contract's ContractSites
+        if (request.SiteId.HasValue)
+        {
+            query = query.Where(c => c.Contracts.Any(co =>
+                co.ContractSites.Any(cs => cs.SiteId == request.SiteId!.Value && cs.IsActive)));
+        }
+
         query = request.SortBy?.ToLower() switch
         {
             "companyname" => request.SortDirection == "asc"
@@ -66,6 +73,8 @@ public class GetClientListQueryHandler : IRequestHandler<GetClientListQuery, Api
             ContactPerson = c.ContactPerson,
             Email = c.Email,
             PhoneNumber = c.PhoneNumber,
+            AccountManagerName = c.AccountManagerName,
+            BillingContactName = c.BillingContactName,
             City = c.City,
             State = c.State,
             Status = c.Status,

@@ -215,14 +215,16 @@ public class RegisterAgencyCommandHandler : IRequestHandler<RegisterAgencyComman
         {
             new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "SecurityGuards", DisplayName = "Security Guards", Icon = "fas fa-user-shield", Route = "SecurityGuards", DisplayOrder = 1, IsActive = true },
             new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Sites", DisplayName = "Sites", Icon = "fas fa-building", Route = "Sites", DisplayOrder = 2, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "GuardAssignments", DisplayName = "Assignments", Icon = "fas fa-user-check", Route = "GuardAssignments", DisplayOrder = 3, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Attendance", DisplayName = "Attendance", Icon = "fas fa-calendar-check", Route = "Attendance", DisplayOrder = 4, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Incidents", DisplayName = "Incidents", Icon = "fas fa-exclamation-triangle", Route = "Incidents", DisplayOrder = 5, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Shifts", DisplayName = "Shifts", Icon = "fas fa-clock", Route = "Shifts", DisplayOrder = 6, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Visitors", DisplayName = "Visitors", Icon = "fas fa-user-friends", Route = "Visitors", DisplayOrder = 7, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "PatrolScans", DisplayName = "Patrol Scans", Icon = "fas fa-qrcode", Route = "PatrolScans", DisplayOrder = 8, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "FormBuilder", DisplayName = "Form Builder", Icon = "fas fa-file-alt", Route = "FormBuilder", DisplayOrder = 9, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Roster", DisplayName = "Roster", Icon = "fas fa-calendar-alt", Route = "Roster", DisplayOrder = 10, IsActive = true }
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Branches", DisplayName = "Branches", Icon = "fas fa-code-branch", Route = "Branches", DisplayOrder = 3, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "SitePosts", DisplayName = "Site Posts", Icon = "fas fa-users-cog", Route = "SitePosts", DisplayOrder = 4, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "GuardAssignments", DisplayName = "Assignments", Icon = "fas fa-user-check", Route = "GuardAssignments", DisplayOrder = 5, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Attendance", DisplayName = "Attendance", Icon = "fas fa-calendar-check", Route = "Attendance", DisplayOrder = 6, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Incidents", DisplayName = "Incidents", Icon = "fas fa-exclamation-triangle", Route = "Incidents", DisplayOrder = 7, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Shifts", DisplayName = "Shifts", Icon = "fas fa-clock", Route = "Shifts", DisplayOrder = 8, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Visitors", DisplayName = "Visitors", Icon = "fas fa-user-friends", Route = "Visitors", DisplayOrder = 9, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "PatrolScans", DisplayName = "Patrol Scans", Icon = "fas fa-qrcode", Route = "PatrolScans", DisplayOrder = 10, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "FormBuilder", DisplayName = "Form Builder", Icon = "fas fa-file-alt", Route = "FormBuilder", DisplayOrder = 11, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Roster", DisplayName = "Roster", Icon = "fas fa-calendar-alt", Route = "Roster", DisplayOrder = 12, IsActive = true }
         };
         var subFinance = new List<SubMenu>
         {
@@ -268,7 +270,7 @@ public class RegisterAgencyCommandHandler : IRequestHandler<RegisterAgencyComman
         await _unitOfWork.Repository<RoleMenu>().AddAsync(new RoleMenu { RoleId = guardRole.Id, MenuId = menuDashboard.Id }, cancellationToken);
         await _unitOfWork.Repository<RoleMenu>().AddAsync(new RoleMenu { RoleId = guardRole.Id, MenuId = menuOps.Id }, cancellationToken);
         await _unitOfWork.Repository<RoleMenu>().AddAsync(new RoleMenu { RoleId = guardRole.Id, MenuId = menuMore.Id }, cancellationToken);
-        foreach (var sub in subOps)
+        foreach (var sub in subOps.Where(sub => sub.Name != "Branches" && sub.Name != "SitePosts"))
             await _unitOfWork.Repository<RoleSubMenu>().AddAsync(new RoleSubMenu { RoleId = guardRole.Id, SubMenuId = sub.Id }, cancellationToken);
         await _unitOfWork.Repository<RoleSubMenu>().AddAsync(new RoleSubMenu { RoleId = guardRole.Id, SubMenuId = subMore[0].Id }, cancellationToken);
 

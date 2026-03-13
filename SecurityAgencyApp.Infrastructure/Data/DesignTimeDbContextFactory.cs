@@ -21,6 +21,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Applicatio
             .SetBasePath(basePath)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
             .Build();
 
         // Get connection string
@@ -33,6 +34,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Applicatio
             var infraConfig = new ConfigurationBuilder()
                 .SetBasePath(infraPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables()
                 .Build();
             
             connectionString = infraConfig.GetConnectionString("DefaultConnection");

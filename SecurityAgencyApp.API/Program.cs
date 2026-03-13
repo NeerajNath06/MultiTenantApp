@@ -148,6 +148,7 @@ using (var scope = app.Services.CreateScope())
 
         var passwordHasher = services.GetRequiredService<IPasswordHasher>();
         var seeded = await SecurityAgencyApp.Infrastructure.Data.DbInitializer.SeedAsync(context, passwordHasher);
+        await SecurityAgencyApp.Infrastructure.Data.DbInitializer.EnsureNewMenusAsync(context);
 
         if (seeded)
             logger.LogInformation("Database seed completed. Data written to: {Database}.", dbName ?? "(unknown)");

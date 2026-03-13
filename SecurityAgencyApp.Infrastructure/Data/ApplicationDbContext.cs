@@ -1,21 +1,27 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using SecurityAgencyApp.Domain.Entities;
 using SecurityAgencyApp.Domain.Common;
 using SecurityAgencyApp.Application.Interfaces;
+using System.Text.Json;
 
 namespace SecurityAgencyApp.Infrastructure.Data;
 
 public class ApplicationDbContext : DbContext
 {
     private readonly ITenantContext? _tenantContext;
+    private readonly ICurrentUserService? _currentUserService;
+    private readonly IHttpContextAccessor? _httpContextAccessor;
 
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-    {
-    }
-
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantContext tenantContext) : base(options)
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        ITenantContext? tenantContext = null,
+        ICurrentUserService? currentUserService = null,
+        IHttpContextAccessor? httpContextAccessor = null) : base(options)
     {
         _tenantContext = tenantContext;
+        _currentUserService = currentUserService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     // Core Entities
@@ -44,8 +50,12 @@ public class ApplicationDbContext : DbContext
     public DbSet<GuardDocument> GuardDocuments { get; set; }
     public DbSet<TenantDocument> TenantDocuments { get; set; }
     public DbSet<GuardAssignment> GuardAssignments { get; set; }
+    public DbSet<Branch> Branches { get; set; }
     public DbSet<Site> Sites { get; set; }
+    public DbSet<SitePost> SitePosts { get; set; }
+    public DbSet<SiteDeploymentPlan> SiteDeploymentPlans { get; set; }
     public DbSet<SiteSupervisor> SiteSupervisors { get; set; }
+    public DbSet<SiteRatePlan> SiteRatePlans { get; set; }
     public DbSet<Shift> Shifts { get; set; }
 
     // Form Builder Entities
@@ -64,6 +74,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<BillItem> BillItems { get; set; }
     public DbSet<Wage> Wages { get; set; }
     public DbSet<WageDetail> WageDetails { get; set; }
+    public DbSet<SalaryStructure> SalaryStructures { get; set; }
+    public DbSet<PayrollRun> PayrollRuns { get; set; }
 
     // Client & Contract Entities
     public DbSet<Client> Clients { get; set; }
@@ -145,7 +157,10 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Role>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<Menu>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<SubMenu>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
+        modelBuilder.Entity<Branch>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<Site>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
+        modelBuilder.Entity<SitePost>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
+        modelBuilder.Entity<SiteDeploymentPlan>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<SiteSupervisor>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<Shift>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<SecurityGuard>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
@@ -157,6 +172,9 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Payment>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<Bill>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<Wage>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
+        modelBuilder.Entity<SalaryStructure>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
+        modelBuilder.Entity<PayrollRun>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
+        modelBuilder.Entity<SiteRatePlan>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<LeaveRequest>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<Expense>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<TrainingRecord>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
@@ -167,5 +185,104 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Notification>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<PatrolScan>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
         modelBuilder.Entity<FormSubmission>().HasQueryFilter(e => e.TenantId == _tenantContext!.TenantId);
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var utcNow = DateTime.UtcNow;
+        var auditLogs = new List<AuditLog>();
+
+        foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+        {
+            if (entry.Entity is AuditLog || entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
+                continue;
+
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedDate = utcNow;
+                entry.Entity.CreatedBy ??= _currentUserService?.UserId;
+            }
+            else
+            {
+                entry.Entity.ModifiedDate = utcNow;
+                entry.Entity.ModifiedBy = _currentUserService?.UserId;
+            }
+
+            var auditLog = CreateAuditLog(entry, utcNow);
+            if (auditLog != null)
+                auditLogs.Add(auditLog);
+        }
+
+        if (auditLogs.Count > 0)
+            AuditLogs.AddRange(auditLogs);
+
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private AuditLog? CreateAuditLog(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<BaseEntity> entry, DateTime utcNow)
+    {
+        if (entry.Entity is AuditLog)
+            return null;
+
+        var action = entry.State switch
+        {
+            EntityState.Added => "Create",
+            EntityState.Modified => "Update",
+            EntityState.Deleted => "Delete",
+            _ => null
+        };
+
+        if (action == null)
+            return null;
+
+        var oldValues = new Dictionary<string, object?>();
+        var newValues = new Dictionary<string, object?>();
+
+        foreach (var property in entry.Properties)
+        {
+            if (property.Metadata.IsPrimaryKey())
+                continue;
+
+            if (entry.State == EntityState.Added)
+            {
+                newValues[property.Metadata.Name] = property.CurrentValue;
+                continue;
+            }
+
+            if (entry.State == EntityState.Deleted)
+            {
+                oldValues[property.Metadata.Name] = property.OriginalValue;
+                continue;
+            }
+
+            if (!property.IsModified)
+                continue;
+
+            oldValues[property.Metadata.Name] = property.OriginalValue;
+            newValues[property.Metadata.Name] = property.CurrentValue;
+        }
+
+        if (entry.State == EntityState.Modified && oldValues.Count == 0 && newValues.Count == 0)
+            return null;
+
+        var httpContext = _httpContextAccessor?.HttpContext;
+        var tenantId = entry.Entity is TenantEntity tenantEntity
+            ? tenantEntity.TenantId
+            : _tenantContext?.TenantId;
+
+        return new AuditLog
+        {
+            TenantId = tenantId,
+            UserId = _currentUserService?.UserId,
+            Action = action,
+            EntityType = entry.Metadata.ClrType.Name,
+            EntityId = entry.Entity.Id.ToString(),
+            OldValues = oldValues.Count > 0 ? JsonSerializer.Serialize(oldValues) : null,
+            NewValues = newValues.Count > 0 ? JsonSerializer.Serialize(newValues) : null,
+            IpAddress = httpContext?.Connection?.RemoteIpAddress?.ToString(),
+            UserAgent = httpContext?.Request?.Headers.UserAgent.ToString(),
+            CreatedDate = utcNow,
+            CreatedBy = _currentUserService?.UserId
+        };
     }
 }

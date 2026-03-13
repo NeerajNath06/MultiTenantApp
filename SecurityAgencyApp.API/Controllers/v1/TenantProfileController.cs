@@ -50,13 +50,42 @@ public class TenantProfileController : ControllerBase
             RegistrationNumber = request.RegistrationNumber ?? "",
             Email = request.Email ?? "",
             Phone = request.Phone ?? "",
+            LegalName = request.LegalName,
+            TradeName = request.TradeName,
+            CompanyCode = request.CompanyCode,
+            CinNumber = request.CinNumber,
+            GstNumber = request.GstNumber,
+            PanNumber = request.PanNumber,
+            PfNumber = request.PfNumber,
+            EsicNumber = request.EsicNumber,
+            LabourLicenseNumber = request.LabourLicenseNumber,
+            OwnerName = request.OwnerName,
+            ComplianceOfficerName = request.ComplianceOfficerName,
+            BillingContactName = request.BillingContactName,
+            BillingContactPhone = request.BillingContactPhone,
+            BillingEmail = request.BillingEmail,
+            EscalationContactName = request.EscalationContactName,
+            EscalationContactPhone = request.EscalationContactPhone,
+            SupportEmail = request.SupportEmail,
             Address = request.Address,
             City = request.City,
             State = request.State,
             Country = request.Country,
             PinCode = request.PinCode,
             Website = request.Website,
-            TaxId = request.TaxId
+            TaxId = request.TaxId,
+            TimeZone = request.TimeZone,
+            Currency = request.Currency,
+            InvoicePrefix = request.InvoicePrefix,
+            PayrollPrefix = request.PayrollPrefix,
+            SubscriptionPlan = request.SubscriptionPlan,
+            SeatLimit = request.SeatLimit,
+            BranchLimit = request.BranchLimit,
+            StorageLimitGb = request.StorageLimitGb,
+            OnboardingStatus = request.OnboardingStatus,
+            ActivationStatus = request.ActivationStatus,
+            IsKycVerified = request.IsKycVerified,
+            OnboardingChecklistCompleted = request.OnboardingChecklistCompleted
         };
         var result = await _mediator.Send(command);
         if (!result.Success)
@@ -71,6 +100,23 @@ public class UpdateTenantProfileRequest
     public string RegistrationNumber { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
+    public string? LegalName { get; set; }
+    public string? TradeName { get; set; }
+    public string? CompanyCode { get; set; }
+    public string? CinNumber { get; set; }
+    public string? GstNumber { get; set; }
+    public string? PanNumber { get; set; }
+    public string? PfNumber { get; set; }
+    public string? EsicNumber { get; set; }
+    public string? LabourLicenseNumber { get; set; }
+    public string? OwnerName { get; set; }
+    public string? ComplianceOfficerName { get; set; }
+    public string? BillingContactName { get; set; }
+    public string? BillingContactPhone { get; set; }
+    public string? BillingEmail { get; set; }
+    public string? EscalationContactName { get; set; }
+    public string? EscalationContactPhone { get; set; }
+    public string? SupportEmail { get; set; }
     public string? Address { get; set; }
     public string? City { get; set; }
     public string? State { get; set; }
@@ -78,4 +124,16 @@ public class UpdateTenantProfileRequest
     public string? PinCode { get; set; }
     public string? Website { get; set; }
     public string? TaxId { get; set; }
+    public string? TimeZone { get; set; }
+    public string? Currency { get; set; }
+    public string? InvoicePrefix { get; set; }
+    public string? PayrollPrefix { get; set; }
+    public string? SubscriptionPlan { get; set; }
+    public int? SeatLimit { get; set; }
+    public int? BranchLimit { get; set; }
+    public decimal? StorageLimitGb { get; set; }
+    public string? OnboardingStatus { get; set; }
+    public string? ActivationStatus { get; set; }
+    public bool IsKycVerified { get; set; }
+    public bool OnboardingChecklistCompleted { get; set; }
 }

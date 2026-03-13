@@ -53,6 +53,24 @@ public class SiteConfiguration : IEntityTypeConfiguration<Site>
         builder.Property(s => s.ContactEmail)
             .HasMaxLength(100);
 
+        builder.Property(s => s.EmergencyContactName)
+            .HasMaxLength(100);
+
+        builder.Property(s => s.EmergencyContactPhone)
+            .HasMaxLength(20);
+
+        builder.Property(s => s.MusterPoint)
+            .HasMaxLength(200);
+
+        builder.Property(s => s.AccessZoneNotes)
+            .HasMaxLength(1000);
+
+        builder.Property(s => s.SiteInstructionBook)
+            .HasMaxLength(2000);
+
+        builder.Property(s => s.GeofenceExceptionNotes)
+            .HasMaxLength(1000);
+
         builder.Property(s => s.IsActive)
             .IsRequired()
             .HasDefaultValue(true);
@@ -72,6 +90,12 @@ public class SiteConfiguration : IEntityTypeConfiguration<Site>
             .HasForeignKey(s => s.ClientId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        builder.HasOne(s => s.Branch)
+            .WithMany()
+            .HasForeignKey(s => s.BranchId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         builder.HasIndex(s => s.ClientId);
+        builder.HasIndex(s => s.BranchId);
     }
 }

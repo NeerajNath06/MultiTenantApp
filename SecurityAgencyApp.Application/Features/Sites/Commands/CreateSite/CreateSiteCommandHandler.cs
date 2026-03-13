@@ -33,6 +33,13 @@ public class CreateSiteCommandHandler : IRequestHandler<CreateSiteCommand, ApiRe
             return ApiResponse<Guid>.ErrorResponse("Site code already exists");
         }
 
+        if (request.BranchId.HasValue)
+        {
+            var branch = await _unitOfWork.Repository<Branch>().GetByIdAsync(request.BranchId.Value, cancellationToken);
+            if (branch == null || branch.TenantId != _tenantContext.TenantId.Value)
+                return ApiResponse<Guid>.ErrorResponse("Invalid branch");
+        }
+
         var site = new Site
         {
             TenantId = _tenantContext.TenantId.Value,
@@ -49,11 +56,20 @@ public class CreateSiteCommandHandler : IRequestHandler<CreateSiteCommand, ApiRe
             IsActive = request.IsActive,
             Latitude = request.Latitude,
             Longitude = request.Longitude,
-            GeofenceRadiusMeters = request.GeofenceRadiusMeters
+            GeofenceRadiusMeters = request.GeofenceRadiusMeters,
+            BranchId = request.BranchId,
+            EmergencyContactName = request.EmergencyContactName,
+            EmergencyContactPhone = request.EmergencyContactPhone,
+            MusterPoint = request.MusterPoint,
+            AccessZoneNotes = request.AccessZoneNotes,
+            SiteInstructionBook = request.SiteInstructionBook,
+            GeofenceExceptionNotes = request.GeofenceExceptionNotes
         };
 
         await siteRepo.AddAsync(site, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await SyncSitePlanningAsync(site.Id, request.BranchId, request.Posts, request.DeploymentPlan, cancellationToken);
 
         if (request.SupervisorIds != null && request.SupervisorIds.Count > 0)
         {
@@ -76,5 +92,57 @@ public class CreateSiteCommandHandler : IRequestHandler<CreateSiteCommand, ApiRe
         }
 
         return ApiResponse<Guid>.SuccessResponse(site.Id, "Site created successfully");
+    }
+
+    private async Task SyncSitePlanningAsync(
+        Guid siteId,
+        Guid? branchId,
+        List<SitePostInputDto>? posts,
+        SiteDeploymentPlanInputDto? deploymentPlan,
+        CancellationToken cancellationToken)
+    {
+        var postRepo = _unitOfWork.Repository<SitePost>();
+        foreach (var post in posts ?? new List<SitePostInputDto>())
+        {
+            if (string.IsNullOrWhiteSpace(post.PostCode) || string.IsNullOrWhiteSpace(post.PostName))
+                continue;
+
+            await postRepo.AddAsync(new SitePost
+            {
+                TenantId = _tenantContext.TenantId!.Value,
+                SiteId = siteId,
+                BranchId = branchId,
+                PostCode = post.PostCode.Trim(),
+                PostName = post.PostName.Trim(),
+                ShiftName = string.IsNullOrWhiteSpace(post.ShiftName) ? null : post.ShiftName.Trim(),
+                SanctionedStrength = post.SanctionedStrength,
+                GenderRequirement = string.IsNullOrWhiteSpace(post.GenderRequirement) ? null : post.GenderRequirement.Trim(),
+                SkillRequirement = string.IsNullOrWhiteSpace(post.SkillRequirement) ? null : post.SkillRequirement.Trim(),
+                RequiresWeapon = post.RequiresWeapon,
+                RelieverRequired = post.RelieverRequired,
+                WeeklyOffPattern = string.IsNullOrWhiteSpace(post.WeeklyOffPattern) ? null : post.WeeklyOffPattern.Trim(),
+                IsActive = post.IsActive
+            }, cancellationToken);
+        }
+
+        if (deploymentPlan != null && deploymentPlan.EffectiveFrom != default)
+        {
+            await _unitOfWork.Repository<SiteDeploymentPlan>().AddAsync(new SiteDeploymentPlan
+            {
+                TenantId = _tenantContext.TenantId!.Value,
+                SiteId = siteId,
+                BranchId = branchId,
+                EffectiveFrom = deploymentPlan.EffectiveFrom,
+                EffectiveTo = deploymentPlan.EffectiveTo,
+                ReservePoolMapping = string.IsNullOrWhiteSpace(deploymentPlan.ReservePoolMapping) ? null : deploymentPlan.ReservePoolMapping.Trim(),
+                AccessZones = string.IsNullOrWhiteSpace(deploymentPlan.AccessZones) ? null : deploymentPlan.AccessZones.Trim(),
+                EmergencyContactSet = string.IsNullOrWhiteSpace(deploymentPlan.EmergencyContactSet) ? null : deploymentPlan.EmergencyContactSet.Trim(),
+                InstructionSummary = string.IsNullOrWhiteSpace(deploymentPlan.InstructionSummary) ? null : deploymentPlan.InstructionSummary.Trim(),
+                Notes = string.IsNullOrWhiteSpace(deploymentPlan.Notes) ? null : deploymentPlan.Notes.Trim(),
+                IsActive = deploymentPlan.IsActive
+            }, cancellationToken);
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

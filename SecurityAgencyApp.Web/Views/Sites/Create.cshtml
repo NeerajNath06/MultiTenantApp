@@ -138,6 +138,38 @@
                 </div>
             </div>
 
+            <div class="form-section">
+                <h5 class="section-title"><i class="fas fa-shield-alt"></i>Operations & Emergency</h5>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label asp-for="EmergencyContactName" class="form-label fw-semibold">Emergency Contact Name</label>
+                        <input asp-for="EmergencyContactName" class="form-control" />
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label asp-for="EmergencyContactPhone" class="form-label fw-semibold">Emergency Contact Phone</label>
+                        <input asp-for="EmergencyContactPhone" class="form-control" />
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label asp-for="MusterPoint" class="form-label fw-semibold">Muster Point</label>
+                        <input asp-for="MusterPoint" class="form-control" />
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <label asp-for="AccessZoneNotes" class="form-label fw-semibold">Access Zones</label>
+                        <input asp-for="AccessZoneNotes" class="form-control" />
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="SiteInstructionBook" class="form-label fw-semibold">Site Instruction Book</label>
+                        <textarea asp-for="SiteInstructionBook" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="GeofenceExceptionNotes" class="form-label fw-semibold">Geofence Exception Notes</label>
+                        <textarea asp-for="GeofenceExceptionNotes" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <partial name="_SitePlanningEditor" model="Model" />
+
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Create Site</button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary"><i class="fas fa-times me-2"></i>Cancel</a>

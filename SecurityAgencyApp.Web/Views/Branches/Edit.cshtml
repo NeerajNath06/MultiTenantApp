@@ -1,0 +1,32 @@
+@model SecurityAgencyApp.Web.Models.Api.UpdateBranchRequest
+@{
+    ViewData["Title"] = "Edit Branch";
+    ViewData["Breadcrumbs"] = new[] { ("Branches", Url.Action("Index")), ("Edit Branch", (string?)null) };
+}
+
+<div class="page-header">
+    <h1 class="page-title">Edit Branch</h1>
+    <p class="page-subtitle mb-0">Update branch information used across sites and operations.</p>
+</div>
+
+<div class="card border-0 shadow-sm enterprise-form-card">
+    <div class="card-body">
+        <form asp-action="Edit" method="post" class="form">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <partial name="_BranchFormFields" model="Model" />
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Update Branch
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

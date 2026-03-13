@@ -12,6 +12,8 @@ public class GetClientListQuery : IRequest<ApiResponse<ClientListResponseDto>>
     public bool IncludeInactive { get; set; } = false;
     public string? SortBy { get; set; }
     public string? SortDirection { get; set; } = "asc";
+    /// <summary>When set, return only clients that have this site in one of their contract's sites (ContractSites).</summary>
+    public Guid? SiteId { get; set; }
 }
 
 public class ClientListResponseDto
@@ -31,6 +33,8 @@ public class ClientDto
     public string? ContactPerson { get; set; }
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }
+    public string? AccountManagerName { get; set; }
+    public string? BillingContactName { get; set; }
     public string City { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;

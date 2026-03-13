@@ -77,6 +77,62 @@
                 <label class="form-label fw-semibold text-muted small">Tax / GST Number</label>
                 <p class="mb-0">@(profile?.TaxId ?? "—")</p>
             </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted small">Legal Name</label>
+                <p class="mb-0">@(profile?.LegalName ?? "—")</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted small">Trade Name</label>
+                <p class="mb-0">@(profile?.TradeName ?? "—")</p>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold text-muted small">Company Code</label>
+                <p class="mb-0">@(profile?.CompanyCode ?? "—")</p>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold text-muted small">CIN</label>
+                <p class="mb-0">@(profile?.CinNumber ?? "—")</p>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold text-muted small">PAN</label>
+                <p class="mb-0">@(profile?.PanNumber ?? "—")</p>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold text-muted small">GST Number</label>
+                <p class="mb-0">@(profile?.GstNumber ?? "—")</p>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold text-muted small">PF / ESIC</label>
+                <p class="mb-0">@(string.IsNullOrWhiteSpace(profile?.PfNumber) && string.IsNullOrWhiteSpace(profile?.EsicNumber) ? "—" : $"{profile?.PfNumber ?? "-"} / {profile?.EsicNumber ?? "-"}")</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted small">Billing Contact</label>
+                <p class="mb-0">@(profile?.BillingContactName ?? "—")</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted small">Billing Reach</label>
+                <p class="mb-0">@(string.IsNullOrWhiteSpace(profile?.BillingContactPhone) && string.IsNullOrWhiteSpace(profile?.BillingEmail) ? "—" : $"{profile?.BillingContactPhone ?? "-"} / {profile?.BillingEmail ?? "-"}")</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted small">Support / Escalation</label>
+                <p class="mb-0">@(string.IsNullOrWhiteSpace(profile?.SupportEmail) && string.IsNullOrWhiteSpace(profile?.EscalationContactName) ? "—" : $"{profile?.SupportEmail ?? "-"} / {profile?.EscalationContactName ?? "-"}")</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted small">Time Zone / Currency</label>
+                <p class="mb-0">@(string.IsNullOrWhiteSpace(profile?.TimeZone) && string.IsNullOrWhiteSpace(profile?.Currency) ? "—" : $"{profile?.TimeZone ?? "-"} / {profile?.Currency ?? "-"}")</p>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold text-muted small">Plan</label>
+                <p class="mb-0">@(profile?.SubscriptionPlan ?? "—")</p>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold text-muted small">Seat / Branch Limit</label>
+                <p class="mb-0">@(profile?.SeatLimit?.ToString() ?? "-") / @(profile?.BranchLimit?.ToString() ?? "-")</p>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold text-muted small">Onboarding</label>
+                <p class="mb-0">@(profile?.OnboardingStatus ?? "—")</p>
+            </div>
         </div>
 
         <div class="collapse mt-4" id="editProfileForm">
@@ -125,6 +181,128 @@
                 <div class="col-md-6">
                     <label class="form-label fw-semibold">Tax / GST Number</label>
                     <input type="text" name="TaxId" class="form-control" value="@profile?.TaxId" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Legal Name</label>
+                    <input type="text" name="LegalName" class="form-control" value="@profile?.LegalName" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Trade Name</label>
+                    <input type="text" name="TradeName" class="form-control" value="@profile?.TradeName" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Company Code</label>
+                    <input type="text" name="CompanyCode" class="form-control" value="@profile?.CompanyCode" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">CIN</label>
+                    <input type="text" name="CinNumber" class="form-control" value="@profile?.CinNumber" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">PAN</label>
+                    <input type="text" name="PanNumber" class="form-control" value="@profile?.PanNumber" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">GST Number</label>
+                    <input type="text" name="GstNumber" class="form-control" value="@profile?.GstNumber" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">PF Number</label>
+                    <input type="text" name="PfNumber" class="form-control" value="@profile?.PfNumber" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">ESIC Number</label>
+                    <input type="text" name="EsicNumber" class="form-control" value="@profile?.EsicNumber" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Labour License</label>
+                    <input type="text" name="LabourLicenseNumber" class="form-control" value="@profile?.LabourLicenseNumber" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Owner</label>
+                    <input type="text" name="OwnerName" class="form-control" value="@profile?.OwnerName" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Compliance Officer</label>
+                    <input type="text" name="ComplianceOfficerName" class="form-control" value="@profile?.ComplianceOfficerName" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Billing Contact</label>
+                    <input type="text" name="BillingContactName" class="form-control" value="@profile?.BillingContactName" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Billing Phone</label>
+                    <input type="text" name="BillingContactPhone" class="form-control" value="@profile?.BillingContactPhone" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Billing Email</label>
+                    <input type="email" name="BillingEmail" class="form-control" value="@profile?.BillingEmail" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Escalation Contact</label>
+                    <input type="text" name="EscalationContactName" class="form-control" value="@profile?.EscalationContactName" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Escalation Phone</label>
+                    <input type="text" name="EscalationContactPhone" class="form-control" value="@profile?.EscalationContactPhone" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Support Email</label>
+                    <input type="email" name="SupportEmail" class="form-control" value="@profile?.SupportEmail" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Time Zone</label>
+                    <input type="text" name="TimeZone" class="form-control" value="@profile?.TimeZone" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Currency</label>
+                    <input type="text" name="Currency" class="form-control" value="@profile?.Currency" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Invoice Prefix</label>
+                    <input type="text" name="InvoicePrefix" class="form-control" value="@profile?.InvoicePrefix" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Payroll Prefix</label>
+                    <input type="text" name="PayrollPrefix" class="form-control" value="@profile?.PayrollPrefix" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Subscription Plan</label>
+                    <input type="text" name="SubscriptionPlan" class="form-control" value="@profile?.SubscriptionPlan" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Seat Limit</label>
+                    <input type="number" name="SeatLimit" class="form-control" value="@profile?.SeatLimit" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Branch Limit</label>
+                    <input type="number" name="BranchLimit" class="form-control" value="@profile?.BranchLimit" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Storage Limit (GB)</label>
+                    <input type="number" step="0.01" name="StorageLimitGb" class="form-control" value="@profile?.StorageLimitGb" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Onboarding Status</label>
+                    <input type="text" name="OnboardingStatus" class="form-control" value="@profile?.OnboardingStatus" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Activation Status</label>
+                    <input type="text" name="ActivationStatus" class="form-control" value="@profile?.ActivationStatus" />
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check mt-4">
+                        <input type="hidden" name="IsKycVerified" value="false" />
+                        <input type="checkbox" name="IsKycVerified" class="form-check-input" value="true" @(profile?.IsKycVerified == true ? "checked" : "") />
+                        <label class="form-check-label fw-semibold">KYC Verified</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check mt-4">
+                        <input type="hidden" name="OnboardingChecklistCompleted" value="false" />
+                        <input type="checkbox" name="OnboardingChecklistCompleted" class="form-check-input" value="true" @(profile?.OnboardingChecklistCompleted == true ? "checked" : "") />
+                        <label class="form-check-label fw-semibold">Checklist Done</label>
+                    </div>
                 </div>
                 <div class="col-12">
                     @Html.AntiForgeryToken()

@@ -29,5 +29,18 @@ public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 
         RuleFor(x => x.PhoneNumber)
             .MaximumLength(20).WithMessage("Phone number must not exceed 20 characters");
+
+        RuleFor(x => x.AadharNumber)
+            .Matches("^[0-9]{12}$")
+            .When(x => !string.IsNullOrWhiteSpace(x.AadharNumber))
+            .WithMessage("Aadhar number must be exactly 12 digits");
+
+        RuleFor(x => x.PANNumber)
+            .Matches("^[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}$")
+            .When(x => !string.IsNullOrWhiteSpace(x.PANNumber))
+            .WithMessage("PAN number must be in format AAAAA9999A");
+
+        RuleFor(x => x.UAN)
+            .MaximumLength(50).WithMessage("UAN must not exceed 50 characters");
     }
 }

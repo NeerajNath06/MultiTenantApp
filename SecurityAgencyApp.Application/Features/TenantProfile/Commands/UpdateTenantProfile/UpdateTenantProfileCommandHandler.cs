@@ -36,6 +36,23 @@ public class UpdateTenantProfileCommandHandler : IRequestHandler<UpdateTenantPro
         tenant.RegistrationNumber = request.RegistrationNumber.Trim();
         tenant.Email = request.Email.Trim();
         tenant.Phone = request.Phone.Trim();
+        tenant.LegalName = Normalize(request.LegalName);
+        tenant.TradeName = Normalize(request.TradeName);
+        tenant.CompanyCode = Normalize(request.CompanyCode);
+        tenant.CinNumber = Normalize(request.CinNumber);
+        tenant.GstNumber = Normalize(request.GstNumber);
+        tenant.PanNumber = Normalize(request.PanNumber);
+        tenant.PfNumber = Normalize(request.PfNumber);
+        tenant.EsicNumber = Normalize(request.EsicNumber);
+        tenant.LabourLicenseNumber = Normalize(request.LabourLicenseNumber);
+        tenant.OwnerName = Normalize(request.OwnerName);
+        tenant.ComplianceOfficerName = Normalize(request.ComplianceOfficerName);
+        tenant.BillingContactName = Normalize(request.BillingContactName);
+        tenant.BillingContactPhone = Normalize(request.BillingContactPhone);
+        tenant.BillingEmail = Normalize(request.BillingEmail);
+        tenant.EscalationContactName = Normalize(request.EscalationContactName);
+        tenant.EscalationContactPhone = Normalize(request.EscalationContactPhone);
+        tenant.SupportEmail = Normalize(request.SupportEmail);
         tenant.Address = string.IsNullOrWhiteSpace(request.Address) ? null : request.Address.Trim();
         tenant.City = string.IsNullOrWhiteSpace(request.City) ? null : request.City.Trim();
         tenant.State = string.IsNullOrWhiteSpace(request.State) ? null : request.State.Trim();
@@ -43,9 +60,26 @@ public class UpdateTenantProfileCommandHandler : IRequestHandler<UpdateTenantPro
         tenant.PinCode = string.IsNullOrWhiteSpace(request.PinCode) ? null : request.PinCode.Trim();
         tenant.Website = string.IsNullOrWhiteSpace(request.Website) ? null : request.Website.Trim();
         tenant.TaxId = string.IsNullOrWhiteSpace(request.TaxId) ? null : request.TaxId.Trim();
+        tenant.TimeZone = string.IsNullOrWhiteSpace(request.TimeZone) ? tenant.TimeZone : request.TimeZone.Trim();
+        tenant.Currency = string.IsNullOrWhiteSpace(request.Currency) ? tenant.Currency : request.Currency.Trim().ToUpperInvariant();
+        tenant.InvoicePrefix = string.IsNullOrWhiteSpace(request.InvoicePrefix) ? tenant.InvoicePrefix : request.InvoicePrefix.Trim().ToUpperInvariant();
+        tenant.PayrollPrefix = string.IsNullOrWhiteSpace(request.PayrollPrefix) ? tenant.PayrollPrefix : request.PayrollPrefix.Trim().ToUpperInvariant();
+        tenant.SubscriptionPlan = string.IsNullOrWhiteSpace(request.SubscriptionPlan) ? tenant.SubscriptionPlan : request.SubscriptionPlan.Trim();
+        tenant.SeatLimit = request.SeatLimit;
+        tenant.BranchLimit = request.BranchLimit;
+        tenant.StorageLimitGb = request.StorageLimitGb;
+        tenant.OnboardingStatus = string.IsNullOrWhiteSpace(request.OnboardingStatus) ? tenant.OnboardingStatus : request.OnboardingStatus.Trim();
+        tenant.ActivationStatus = string.IsNullOrWhiteSpace(request.ActivationStatus) ? tenant.ActivationStatus : request.ActivationStatus.Trim();
+        tenant.IsKycVerified = request.IsKycVerified;
+        tenant.OnboardingChecklistCompleted = request.OnboardingChecklistCompleted;
         tenant.ModifiedDate = DateTime.UtcNow;
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return ApiResponse<bool>.SuccessResponse(true, "Profile updated successfully");
+    }
+
+    private static string? Normalize(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 }

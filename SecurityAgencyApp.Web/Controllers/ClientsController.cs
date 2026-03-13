@@ -56,9 +56,27 @@ public class ClientsController : Controller
             city = request.City,
             state = request.State,
             pinCode = request.PinCode,
+            billingAddress = request.BillingAddress,
+            billingCity = request.BillingCity,
+            billingState = request.BillingState,
+            billingPinCode = request.BillingPinCode,
             gstNumber = request.GSTNumber,
             panNumber = request.PANNumber,
             website = request.Website,
+            accountManagerName = request.AccountManagerName,
+            billingContactName = request.BillingContactName,
+            billingContactEmail = request.BillingContactEmail,
+            escalationContactName = request.EscalationContactName,
+            escalationContactEmail = request.EscalationContactEmail,
+            creditPeriodDays = request.CreditPeriodDays,
+            billingCycle = request.BillingCycle,
+            gstState = request.GstState,
+            paymentModePreference = request.PaymentModePreference,
+            taxTreatment = request.TaxTreatment,
+            invoicePrefix = request.InvoicePrefix,
+            slaTerms = request.SlaTerms,
+            escalationTatHours = request.EscalationTatHours,
+            penaltyTerms = request.PenaltyTerms,
             status = request.Status,
             notes = request.Notes
         };
@@ -91,9 +109,27 @@ public class ClientsController : Controller
             City = d.City ?? "",
             State = d.State ?? "",
             PinCode = d.PinCode ?? "",
+            BillingAddress = d.BillingAddress,
+            BillingCity = d.BillingCity,
+            BillingState = d.BillingState,
+            BillingPinCode = d.BillingPinCode,
             GSTNumber = d.GSTNumber,
             PANNumber = d.PANNumber,
             Website = d.Website,
+            AccountManagerName = d.AccountManagerName,
+            BillingContactName = d.BillingContactName,
+            BillingContactEmail = d.BillingContactEmail,
+            EscalationContactName = d.EscalationContactName,
+            EscalationContactEmail = d.EscalationContactEmail,
+            CreditPeriodDays = d.CreditPeriodDays,
+            BillingCycle = d.BillingCycle,
+            GstState = d.GstState,
+            PaymentModePreference = d.PaymentModePreference,
+            TaxTreatment = d.TaxTreatment,
+            InvoicePrefix = d.InvoicePrefix,
+            SlaTerms = d.SlaTerms,
+            EscalationTatHours = d.EscalationTatHours,
+            PenaltyTerms = d.PenaltyTerms,
             Status = d.Status ?? "Active",
             Notes = d.Notes
         });
@@ -118,9 +154,27 @@ public class ClientsController : Controller
             city = request.City,
             state = request.State,
             pinCode = request.PinCode,
+            billingAddress = request.BillingAddress,
+            billingCity = request.BillingCity,
+            billingState = request.BillingState,
+            billingPinCode = request.BillingPinCode,
             gstNumber = request.GSTNumber,
             panNumber = request.PANNumber,
             website = request.Website,
+            accountManagerName = request.AccountManagerName,
+            billingContactName = request.BillingContactName,
+            billingContactEmail = request.BillingContactEmail,
+            escalationContactName = request.EscalationContactName,
+            escalationContactEmail = request.EscalationContactEmail,
+            creditPeriodDays = request.CreditPeriodDays,
+            billingCycle = request.BillingCycle,
+            gstState = request.GstState,
+            paymentModePreference = request.PaymentModePreference,
+            taxTreatment = request.TaxTreatment,
+            invoicePrefix = request.InvoicePrefix,
+            slaTerms = request.SlaTerms,
+            escalationTatHours = request.EscalationTatHours,
+            penaltyTerms = request.PenaltyTerms,
             status = request.Status,
             notes = request.Notes
         };
@@ -140,5 +194,19 @@ public class ClientsController : Controller
         if (!result.Success || result.Data == null)
             return NotFound();
         return View(result.Data);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _apiClient.DeleteAsync($"api/v1/Clients/{id}");
+        if (result.Success)
+        {
+            TempData["SuccessMessage"] = "Client deleted successfully";
+            return RedirectToAction(nameof(Index));
+        }
+        TempData["Error"] = result.Message ?? "Delete failed.";
+        return RedirectToAction(nameof(Index));
     }
 }

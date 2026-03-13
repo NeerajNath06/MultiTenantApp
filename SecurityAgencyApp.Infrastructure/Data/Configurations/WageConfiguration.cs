@@ -50,6 +50,7 @@ public class WageConfiguration : IEntityTypeConfiguration<Wage>
         builder.HasIndex(w => w.WageSheetNumber);
         builder.HasIndex(w => w.WagePeriodStart);
         builder.HasIndex(w => w.WagePeriodEnd);
+        builder.HasIndex(w => new { w.TenantId, w.WagePeriodStart, w.WagePeriodEnd });
     }
 }
 
@@ -73,6 +74,9 @@ public class WageDetailConfiguration : IEntityTypeConfiguration<WageDetail>
         builder.Property(wd => wd.OvertimeRate)
             .HasColumnType("decimal(18,2)");
 
+        builder.Property(wd => wd.OvertimeHours)
+            .HasColumnType("decimal(18,2)");
+
         builder.Property(wd => wd.OvertimeAmount)
             .HasColumnType("decimal(18,2)");
 
@@ -94,7 +98,7 @@ public class WageDetailConfiguration : IEntityTypeConfiguration<WageDetail>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(wd => wd.Guard)
-            .WithMany()
+            .WithMany(g => g.WageDetails)
             .HasForeignKey(wd => wd.GuardId)
             .OnDelete(DeleteBehavior.Restrict);
 

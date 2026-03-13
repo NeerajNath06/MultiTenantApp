@@ -14,9 +14,27 @@ public class Client : TenantEntity
     public string City { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
     public string PinCode { get; set; } = string.Empty;
+    public string? BillingAddress { get; set; }
+    public string? BillingCity { get; set; }
+    public string? BillingState { get; set; }
+    public string? BillingPinCode { get; set; }
     public string? GSTNumber { get; set; }
     public string? PANNumber { get; set; }
     public string? Website { get; set; }
+    public string? AccountManagerName { get; set; }
+    public string? BillingContactName { get; set; }
+    public string? BillingContactEmail { get; set; }
+    public string? EscalationContactName { get; set; }
+    public string? EscalationContactEmail { get; set; }
+    public int? CreditPeriodDays { get; set; }
+    public string? BillingCycle { get; set; }
+    public string? GstState { get; set; }
+    public string? PaymentModePreference { get; set; }
+    public string? TaxTreatment { get; set; }
+    public string? InvoicePrefix { get; set; }
+    public string? SlaTerms { get; set; }
+    public int? EscalationTatHours { get; set; }
+    public string? PenaltyTerms { get; set; }
     public string Status { get; set; } = "Active"; // Active, Inactive, Suspended
     public bool IsActive { get; set; } = true;
     public string? Notes { get; set; }

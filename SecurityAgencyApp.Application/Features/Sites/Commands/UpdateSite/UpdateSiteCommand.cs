@@ -1,5 +1,6 @@
 using MediatR;
 using SecurityAgencyApp.Application.Common.Models;
+using SecurityAgencyApp.Application.Features.Sites;
 
 namespace SecurityAgencyApp.Application.Features.Sites.Commands.UpdateSite;
 
@@ -8,6 +9,7 @@ public class UpdateSiteCommand : IRequest<ApiResponse<bool>>
     public Guid Id { get; set; }
     public string SiteCode { get; set; } = string.Empty;
     public string SiteName { get; set; } = string.Empty;
+    public Guid? ClientId { get; set; }
     public string ClientName { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public string City { get; set; } = string.Empty;
@@ -20,6 +22,15 @@ public class UpdateSiteCommand : IRequest<ApiResponse<bool>>
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
     public int? GeofenceRadiusMeters { get; set; }
+    public Guid? BranchId { get; set; }
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactPhone { get; set; }
+    public string? MusterPoint { get; set; }
+    public string? AccessZoneNotes { get; set; }
+    public string? SiteInstructionBook { get; set; }
+    public string? GeofenceExceptionNotes { get; set; }
+    public List<SitePostInputDto>? Posts { get; set; }
+    public SiteDeploymentPlanInputDto? DeploymentPlan { get; set; }
     /// <summary>User IDs (supervisors) assigned to this site. When they login, they see only this site and guards on it.</summary>
     public List<Guid>? SupervisorIds { get; set; }
 }

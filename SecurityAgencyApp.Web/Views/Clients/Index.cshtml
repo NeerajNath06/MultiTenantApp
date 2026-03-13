@@ -58,8 +58,9 @@
                             <th>Client Code</th>
                             <th>Company Name</th>
                             <th>Contact Person</th>
+                            <th>Commercial Owner</th>
                             <th>Email</th>
-                            <th>Phone</th>
+                            <th>Phone / Billing</th>
                             <th>City</th>
                             <th>Status</th>
                             <th class="text-end">Actions</th>
@@ -72,8 +73,15 @@
                                 <td><strong>@client.ClientCode</strong></td>
                                 <td>@client.CompanyName</td>
                                 <td>@(client.ContactPerson ?? "–")</td>
+                                <td>
+                                    <div>@(client.AccountManagerName ?? "–")</div>
+                                    <small class="text-muted">@(client.BillingContactName ?? "–")</small>
+                                </td>
                                 <td>@(client.Email ?? "–")</td>
-                                <td>@(client.PhoneNumber ?? "–")</td>
+                                <td>
+                                    <div>@(client.PhoneNumber ?? "–")</div>
+                                    <small class="text-muted">Billing: @(client.BillingContactName ?? "–")</small>
+                                </td>
                                 <td>@(client.City ?? "–")</td>
                                 <td>
                                     <span class="badge bg-@(client.Status == "Active" ? "success" : client.Status == "Suspended" ? "warning" : "secondary")">

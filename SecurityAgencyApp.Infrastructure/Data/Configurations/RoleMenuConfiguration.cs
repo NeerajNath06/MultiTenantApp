@@ -14,12 +14,12 @@ public class RoleMenuConfiguration : IEntityTypeConfiguration<RoleMenu>
 
         // Relationships - Use NoAction to avoid cascade cycles
         builder.HasOne(rm => rm.Role)
-            .WithMany()
+            .WithMany(r => r.RoleMenus)
             .HasForeignKey(rm => rm.RoleId)
             .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasOne(rm => rm.Menu)
-            .WithMany()
+            .WithMany(m => m.RoleMenus)
             .HasForeignKey(rm => rm.MenuId)
             .OnDelete(DeleteBehavior.NoAction);
 

@@ -61,11 +61,14 @@ public static class DatabaseExtensions
         this DbContextOptionsBuilder<ApplicationDbContext> optionsBuilder,
         IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-        var provider = configuration["Database:Provider"]?.Trim() ?? DatabaseProvider.SqlServer;
+        var provider = configuration["Database:Provider"]?.Trim()
+            ?? Environment.GetEnvironmentVariable("Database__Provider")
+            ?? DatabaseProvider.SqlServer;
 
         switch (provider)
         {
