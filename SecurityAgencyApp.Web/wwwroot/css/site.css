@@ -1459,3 +1459,125 @@ form .row .col-12,
     border-color: var(--border-default);
     color: var(--text-secondary);
 }
+
+/* ---------- ERP form layout reset ----------
+ * Restore Bootstrap's responsive grid inside enterprise cards.
+ * Earlier broad overrides made desktop forms feel cramped and inconsistent across modules.
+ */
+.page-content > .page-header,
+.page-content > .card.enterprise-form-card,
+.page-content > .card.enterprise-details-card {
+    max-width: 1280px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.page-content > .card.enterprise-form-card .card-body,
+.page-content > .card.enterprise-details-card .card-body {
+    padding: clamp(1.125rem, 1rem + 1vw, 1.75rem);
+}
+
+.page-content .card.enterprise-form-card .row,
+.page-content .card.enterprise-details-card .row {
+    --bs-gutter-x: 1.25rem;
+    --bs-gutter-y: 1rem;
+    width: auto;
+    gap: 0;
+    margin-left: calc(var(--bs-gutter-x) * -0.5);
+    margin-right: calc(var(--bs-gutter-x) * -0.5);
+}
+
+.page-content .card.enterprise-form-card .row > [class*="col-"],
+.page-content .card.enterprise-details-card .row > [class*="col-"] {
+    padding-left: calc(var(--bs-gutter-x) * 0.5) !important;
+    padding-right: calc(var(--bs-gutter-x) * 0.5) !important;
+}
+
+.page-content .card.enterprise-form-card .form-control,
+.page-content .card.enterprise-form-card .form-select,
+.page-content .card.enterprise-details-card .form-control,
+.page-content .card.enterprise-details-card .form-select {
+    min-height: 44px;
+}
+
+.page-content .card.enterprise-form-card textarea.form-control,
+.page-content .card.enterprise-details-card textarea.form-control {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.page-content .card.enterprise-form-card .form-actions,
+.page-content .card.enterprise-details-card .form-actions {
+    justify-content: flex-end;
+    align-items: center;
+}
+
+@media (max-width: 767.98px) {
+    .page-content .card.enterprise-form-card .row > [class*="col-md-"],
+    .page-content .card.enterprise-details-card .row > [class*="col-md-"] {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .page-content .card.enterprise-form-card .form-actions,
+    .page-content .card.enterprise-details-card .form-actions {
+        align-items: stretch;
+    }
+
+    .page-content .card.enterprise-form-card .form-actions .btn,
+    .page-content .card.enterprise-details-card .form-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (min-width: 768px) {
+    .page-content .card.enterprise-form-card .row > .col-md-2,
+    .page-content .card.enterprise-details-card .row > .col-md-2 {
+        flex: 0 0 auto !important;
+        width: 16.66666667% !important;
+        max-width: 16.66666667% !important;
+    }
+
+    .page-content .card.enterprise-form-card .row > .col-md-3,
+    .page-content .card.enterprise-details-card .row > .col-md-3 {
+        flex: 0 0 auto !important;
+        width: 25% !important;
+        max-width: 25% !important;
+    }
+
+    .page-content .card.enterprise-form-card .row > .col-md-4,
+    .page-content .card.enterprise-details-card .row > .col-md-4 {
+        flex: 0 0 auto !important;
+        width: 33.33333333% !important;
+        max-width: 33.33333333% !important;
+    }
+
+    .page-content .card.enterprise-form-card .row > .col-md-6,
+    .page-content .card.enterprise-details-card .row > .col-md-6 {
+        flex: 0 0 auto !important;
+        width: 50% !important;
+        max-width: 50% !important;
+    }
+
+    .page-content .card.enterprise-form-card .row > .col-md-10,
+    .page-content .card.enterprise-details-card .row > .col-md-10 {
+        flex: 0 0 auto !important;
+        width: 83.33333333% !important;
+        max-width: 83.33333333% !important;
+    }
+
+    .page-content .card.enterprise-form-card .row > .col-md-12,
+    .page-content .card.enterprise-details-card .row > .col-md-12 {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .page-content .card.enterprise-form-card .form-actions .btn,
+    .page-content .card.enterprise-details-card .form-actions .btn {
+        width: auto;
+        min-width: 148px;
+    }
+}
