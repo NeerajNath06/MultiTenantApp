@@ -9,8 +9,11 @@ public class CreateUserCommand : IRequest<ApiResponse<Guid>>
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
+    public string? LastName { get; set; }
     public string? PhoneNumber { get; set; }
+    public string? AadharNumber { get; set; }
+    public string? PANNumber { get; set; }
+    public string? UAN { get; set; }
     public Guid? DepartmentId { get; set; }
     public Guid? DesignationId { get; set; }
     public List<Guid>? RoleIds { get; set; }

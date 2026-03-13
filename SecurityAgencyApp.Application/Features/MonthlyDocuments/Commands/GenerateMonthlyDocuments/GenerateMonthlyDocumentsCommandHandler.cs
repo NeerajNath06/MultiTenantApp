@@ -43,6 +43,10 @@ public class GenerateMonthlyDocumentsCommandHandler : IRequestHandler<GenerateMo
                 (r.EffectiveTo == null || r.EffectiveTo.Value.Date >= periodStart.Date), cancellationToken);
             var plan = plans.OrderByDescending(p => p.EffectiveFrom).FirstOrDefault();
             decimal rate = plan?.RateAmount ?? 0m;
+            decimal allowancePercent = plan?.AllowancePercent ?? 0m;
+            decimal epfPercent = plan?.EpfPercent ?? 0m;
+            decimal esicPercent = plan?.EsicPercent ?? 0m;
+            decimal? epfWageCap = plan?.EpfWageCap;
 
             // Assignments overlapping period for this site
             var assignments = await _unitOfWork.Repository<GuardAssignment>().FindAsync(a =>
@@ -85,6 +89,7 @@ public class GenerateMonthlyDocumentsCommandHandler : IRequestHandler<GenerateMo
                 BillMonth = request.Month,
                 RateAmount = rate,
                 Status = "Draft",
+                Notes = $"Period: {request.Year}-{request.Month:D2}; Rate: {rate:N2}/day",
                 IsActive = true
             };
 
@@ -129,16 +134,31 @@ public class GenerateMonthlyDocumentsCommandHandler : IRequestHandler<GenerateMo
                 WageMonth = request.Month,
                 RateAmount = rate,
                 Status = "Draft",
+                Notes = $"Auto-generated for site {site.SiteName}; Rate: {rate:N2}/day",
                 IsActive = true
             };
 
             decimal totalWages = 0m;
+            decimal totalAllowances = 0m;
+            decimal totalDeductions = 0m;
             foreach (var kv in presentByGuard.OrderBy(k => k.Key))
             {
                 var guard = guards.GetValueOrDefault(kv.Key);
                 var qty = kv.Value;
-                var amount = rate * qty;
-                totalWages += amount;
+                var basicAmount = rate * qty;
+                var allowanceAmount = RoundCurrency(basicAmount * allowancePercent / 100m);
+                var epfBase = epfWageCap.HasValue && epfWageCap.Value > 0m
+                    ? Math.Min(basicAmount, epfWageCap.Value)
+                    : basicAmount;
+                var epfAmount = RoundCurrency(epfBase * epfPercent / 100m);
+                var grossAmount = basicAmount + allowanceAmount;
+                var esicAmount = RoundCurrency(grossAmount * esicPercent / 100m);
+                var deductionAmount = epfAmount + esicAmount;
+                var netAmount = grossAmount - deductionAmount;
+
+                totalWages += basicAmount;
+                totalAllowances += allowanceAmount;
+                totalDeductions += deductionAmount;
 
                 wage.WageDetails.Add(new WageDetail
                 {
@@ -147,23 +167,43 @@ public class GenerateMonthlyDocumentsCommandHandler : IRequestHandler<GenerateMo
                     DaysWorked = qty,
                     HoursWorked = 0,
                     BasicRate = rate,
-                    BasicAmount = amount,
+                    BasicAmount = basicAmount,
                     OvertimeHours = 0,
                     OvertimeRate = 0,
                     OvertimeAmount = 0,
-                    Allowances = 0,
-                    Deductions = 0,
-                    GrossAmount = amount,
-                    NetAmount = amount,
-                    Remarks = guard != null ? $"{guard.FirstName} {guard.LastName}".Trim() : null
+                    Allowances = allowanceAmount,
+                    Deductions = deductionAmount,
+                    GrossAmount = grossAmount,
+                    NetAmount = netAmount,
+                    Remarks = BuildWageRemarks(guard, qty, allowancePercent, epfPercent, esicPercent, allowanceAmount, epfAmount, esicAmount)
                 });
             }
             wage.TotalWages = totalWages;
-            wage.TotalAllowances = 0;
-            wage.TotalDeductions = 0;
-            wage.NetAmount = totalWages;
+            wage.TotalAllowances = totalAllowances;
+            wage.TotalDeductions = totalDeductions;
+            wage.NetAmount = totalWages + totalAllowances - totalDeductions;
 
             await _unitOfWork.Repository<Wage>().AddAsync(wage, cancellationToken);
+
+            var payrollRun = new PayrollRun
+            {
+                TenantId = _tenantContext.TenantId.Value,
+                BranchId = site.BranchId,
+                SiteId = site.Id,
+                WageId = wage.Id,
+                PeriodStart = periodStart,
+                PeriodEnd = periodEnd,
+                PayrollYear = request.Year,
+                PayrollMonth = request.Month,
+                Status = "Draft",
+                TotalGuards = presentByGuard.Count,
+                GrossAmount = totalWages + totalAllowances,
+                TotalDeductions = totalDeductions,
+                NetAmount = wage.NetAmount,
+                Notes = $"Auto-created from monthly document generation for {site.SiteName}"
+            };
+
+            await _unitOfWork.Repository<PayrollRun>().AddAsync(payrollRun, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitTransactionAsync(cancellationToken);
@@ -181,6 +221,32 @@ public class GenerateMonthlyDocumentsCommandHandler : IRequestHandler<GenerateMo
             await _unitOfWork.RollbackTransactionAsync(cancellationToken);
             return ApiResponse<GenerateMonthlyDocumentsResultDto>.ErrorResponse("Monthly generation failed: " + ex.Message);
         }
+    }
+
+    private static decimal RoundCurrency(decimal amount)
+    {
+        return Math.Round(amount, 2, MidpointRounding.AwayFromZero);
+    }
+
+    private static string? BuildWageRemarks(
+        SecurityGuard? guard,
+        int daysWorked,
+        decimal allowancePercent,
+        decimal epfPercent,
+        decimal esicPercent,
+        decimal allowanceAmount,
+        decimal epfAmount,
+        decimal esicAmount)
+    {
+        var guardName = guard != null ? $"{guard.FirstName} {guard.LastName}".Trim() : null;
+        var summary = $"Present days: {daysWorked}";
+
+        if (allowancePercent > 0m || epfPercent > 0m || esicPercent > 0m)
+        {
+            summary += $"; Allowance {allowancePercent:N2}%={allowanceAmount:N2}; EPF {epfPercent:N2}%={epfAmount:N2}; ESIC {esicPercent:N2}%={esicAmount:N2}";
+        }
+
+        return string.IsNullOrWhiteSpace(guardName) ? summary : $"{guardName} | {summary}";
     }
 }
 

@@ -1,0 +1,114 @@
+@model SecurityAgencyApp.Web.Models.Api.BranchDto
+@{
+    ViewData["Title"] = "Branch Details";
+    ViewData["Breadcrumbs"] = new[] { ("Branches", Url.Action("Index")), ("Branch Details", (string?)null) };
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h1 class="page-title">Branch Details</h1>
+            <p class="page-subtitle mb-0">@Model.BranchName - @Model.BranchCode</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Edit
+            </a>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Branches
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm enterprise-details-card">
+            <div class="card-body">
+                <div class="form-section">
+                    <h5 class="section-title"><i class="fas fa-code-branch"></i>Branch Profile</h5>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-muted">Branch Code</label>
+                            <p class="mb-0">@Model.BranchCode</p>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-muted">Branch Name</label>
+                            <p class="mb-0">@Model.BranchName</p>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-muted">Number Prefix</label>
+                            <p class="mb-0">@(Model.NumberPrefix ?? "-")</p>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-muted">Head Office</label>
+                            <p class="mb-0">@(Model.IsHeadOffice ? "Yes" : "No")</p>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-muted">Address</label>
+                            <p class="mb-0">@Model.Address</p>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-semibold text-muted">City</label>
+                            <p class="mb-0">@Model.City</p>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-semibold text-muted">State</label>
+                            <p class="mb-0">@Model.State</p>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-semibold text-muted">Pin Code</label>
+                            <p class="mb-0">@Model.PinCode</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm enterprise-details-card">
+            <div class="card-body">
+                <h5 class="section-title"><i class="fas fa-address-book"></i>Contact & Compliance</h5>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Contact Person</label>
+                    <p class="mb-0">@(Model.ContactPerson ?? "-")</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Contact Phone</label>
+                    <p class="mb-0">@(Model.ContactPhone ?? "-")</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Contact Email</label>
+                    <p class="mb-0">@(Model.ContactEmail ?? "-")</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">GST Number</label>
+                    <p class="mb-0">@(Model.GstNumber ?? "-")</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Labour License</label>
+                    <p class="mb-0">@(Model.LabourLicenseNumber ?? "-")</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Status</label>
+                    <p class="mb-0">
+                        <span class="badge bg-@(Model.IsActive ? "success" : "secondary")">
+                            @(Model.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Created</label>
+                    <p class="mb-0">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</p>
+                </div>
+                @if (Model.ModifiedDate.HasValue)
+                {
+                    <div class="mb-0">
+                        <label class="form-label fw-semibold text-muted">Last Modified</label>
+                        <p class="mb-0">@Model.ModifiedDate.Value.ToString("dd MMM yyyy HH:mm")</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

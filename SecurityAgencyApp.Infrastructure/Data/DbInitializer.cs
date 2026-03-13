@@ -219,14 +219,16 @@ public static class DbInitializer
         {
             new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "SecurityGuards", DisplayName = "Security Guards", Icon = "fas fa-user-shield", Route = "SecurityGuards", DisplayOrder = 1, IsActive = true },
             new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Sites", DisplayName = "Sites", Icon = "fas fa-building", Route = "Sites", DisplayOrder = 2, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "GuardAssignments", DisplayName = "Assignments", Icon = "fas fa-user-check", Route = "GuardAssignments", DisplayOrder = 3, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Attendance", DisplayName = "Attendance", Icon = "fas fa-calendar-check", Route = "Attendance", DisplayOrder = 4, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Incidents", DisplayName = "Incidents", Icon = "fas fa-exclamation-triangle", Route = "Incidents", DisplayOrder = 5, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Shifts", DisplayName = "Shifts", Icon = "fas fa-clock", Route = "Shifts", DisplayOrder = 6, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Visitors", DisplayName = "Visitors", Icon = "fas fa-user-friends", Route = "Visitors", DisplayOrder = 7, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "PatrolScans", DisplayName = "Patrol Scans", Icon = "fas fa-qrcode", Route = "PatrolScans", DisplayOrder = 8, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "FormBuilder", DisplayName = "Form Builder", Icon = "fas fa-file-alt", Route = "FormBuilder", DisplayOrder = 9, IsActive = true },
-            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Roster", DisplayName = "Roster", Icon = "fas fa-calendar-alt", Route = "Roster", DisplayOrder = 10, IsActive = true }
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Branches", DisplayName = "Branches", Icon = "fas fa-code-branch", Route = "Branches", DisplayOrder = 3, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "SitePosts", DisplayName = "Site Posts", Icon = "fas fa-users-cog", Route = "SitePosts", DisplayOrder = 4, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "GuardAssignments", DisplayName = "Assignments", Icon = "fas fa-user-check", Route = "GuardAssignments", DisplayOrder = 5, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Attendance", DisplayName = "Attendance", Icon = "fas fa-calendar-check", Route = "Attendance", DisplayOrder = 6, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Incidents", DisplayName = "Incidents", Icon = "fas fa-exclamation-triangle", Route = "Incidents", DisplayOrder = 7, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Shifts", DisplayName = "Shifts", Icon = "fas fa-clock", Route = "Shifts", DisplayOrder = 8, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Visitors", DisplayName = "Visitors", Icon = "fas fa-user-friends", Route = "Visitors", DisplayOrder = 9, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "PatrolScans", DisplayName = "Patrol Scans", Icon = "fas fa-qrcode", Route = "PatrolScans", DisplayOrder = 10, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "FormBuilder", DisplayName = "Form Builder", Icon = "fas fa-file-alt", Route = "FormBuilder", DisplayOrder = 11, IsActive = true },
+            new SubMenu { TenantId = tenant.Id, MenuId = menuOps.Id, Name = "Roster", DisplayName = "Roster", Icon = "fas fa-calendar-alt", Route = "Roster", DisplayOrder = 12, IsActive = true }
         };
         var subFinance = new List<SubMenu>
         {
@@ -278,7 +280,7 @@ public static class DbInitializer
         context.RoleMenus.Add(new RoleMenu { RoleId = guardRole.Id, MenuId = menuDashboard.Id });
         context.RoleMenus.Add(new RoleMenu { RoleId = guardRole.Id, MenuId = menuOps.Id });
         context.RoleMenus.Add(new RoleMenu { RoleId = guardRole.Id, MenuId = menuMore.Id });
-        foreach (var sub in subOps)
+        foreach (var sub in subOps.Where(sub => sub.Name != "Branches" && sub.Name != "SitePosts"))
             context.RoleSubMenus.Add(new RoleSubMenu { RoleId = guardRole.Id, SubMenuId = sub.Id });
         context.RoleSubMenus.Add(new RoleSubMenu { RoleId = guardRole.Id, SubMenuId = subMore[0].Id }); // Company Profile
         await context.SaveChangesAsync();
@@ -300,8 +302,101 @@ public static class DbInitializer
     /// For existing databases: ensure new menu structure exists. If tenant has no "Administration" main menu, they use old flat structure; no auto-migration here.
     /// Full menu hierarchy (Main + SubMenus) is created only in SeedAsync on fresh DB. Reset DB + run app to get new structure.
     /// </summary>
-    public static Task EnsureNewMenusAsync(ApplicationDbContext context)
+    public static async Task EnsureNewMenusAsync(ApplicationDbContext context)
     {
-        return Task.CompletedTask;
+        var tenants = await context.Tenants.ToListAsync();
+        foreach (var tenant in tenants)
+        {
+            var menuOps = await context.Menus.FirstOrDefaultAsync(m => m.TenantId == tenant.Id && m.Name == "Operations");
+            if (menuOps == null)
+            {
+                menuOps = new Menu
+                {
+                    TenantId = tenant.Id,
+                    Name = "Operations",
+                    DisplayName = "Operations",
+                    Icon = "fas fa-tasks",
+                    Route = "#",
+                    DisplayOrder = 3,
+                    IsActive = true
+                };
+                context.Menus.Add(menuOps);
+                await context.SaveChangesAsync();
+            }
+
+            var existingSubMenus = await context.SubMenus
+                .Where(sm => sm.TenantId == tenant.Id && sm.MenuId == menuOps.Id)
+                .ToListAsync();
+
+            var additions = new List<SubMenu>();
+
+            if (!existingSubMenus.Any(sm => sm.Name == "Branches"))
+            {
+                additions.Add(new SubMenu
+                {
+                    TenantId = tenant.Id,
+                    MenuId = menuOps.Id,
+                    Name = "Branches",
+                    DisplayName = "Branches",
+                    Icon = "fas fa-code-branch",
+                    Route = "Branches",
+                    DisplayOrder = 3,
+                    IsActive = true
+                });
+            }
+
+            if (!existingSubMenus.Any(sm => sm.Name == "SitePosts"))
+            {
+                additions.Add(new SubMenu
+                {
+                    TenantId = tenant.Id,
+                    MenuId = menuOps.Id,
+                    Name = "SitePosts",
+                    DisplayName = "Site Posts",
+                    Icon = "fas fa-users-cog",
+                    Route = "SitePosts",
+                    DisplayOrder = 4,
+                    IsActive = true
+                });
+            }
+
+            if (additions.Count == 0)
+                continue;
+
+            context.SubMenus.AddRange(additions);
+            await context.SaveChangesAsync();
+
+            var roles = await context.Roles
+                .Where(r => r.TenantId == tenant.Id && (r.Code == "ADMIN" || r.Code == "SUPERVISOR"))
+                .ToListAsync();
+
+            foreach (var role in roles)
+            {
+                var roleHasMenu = await context.RoleMenus.AnyAsync(rm => rm.RoleId == role.Id && rm.MenuId == menuOps.Id);
+                if (!roleHasMenu)
+                {
+                    context.RoleMenus.Add(new RoleMenu
+                    {
+                        RoleId = role.Id,
+                        MenuId = menuOps.Id
+                    });
+                }
+
+                foreach (var subMenu in additions)
+                {
+                    var alreadyMapped = await context.RoleSubMenus.AnyAsync(rsm => rsm.RoleId == role.Id && rsm.SubMenuId == subMenu.Id);
+                    if (!alreadyMapped)
+                    {
+                        context.RoleSubMenus.Add(new RoleSubMenu
+                        {
+                            RoleId = role.Id,
+                            SubMenuId = subMenu.Id
+                        });
+                    }
+                }
+            }
+
+            await context.SaveChangesAsync();
+        }
     }
 }

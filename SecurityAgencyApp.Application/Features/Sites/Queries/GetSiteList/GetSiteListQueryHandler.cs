@@ -76,6 +76,25 @@ public class GetSiteListQueryHandler : IRequestHandler<GetSiteListQuery, ApiResp
         var totalCount = query.Count();
         var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
         var sites = await siteRepo.GetPagedAsync(query, request.PageNumber, request.PageSize, cancellationToken);
+        var siteIds = sites.Select(s => s.Id).ToList();
+        var branchIds = sites.Where(s => s.BranchId.HasValue).Select(s => s.BranchId!.Value).Distinct().ToList();
+
+        var branchLookup = branchIds.Count == 0
+            ? new Dictionary<Guid, string>()
+            : (await _unitOfWork.Repository<Branch>().FindAsync(b => branchIds.Contains(b.Id), cancellationToken))
+                .ToDictionary(b => b.Id, b => b.BranchName);
+
+        var postsBySite = siteIds.Count == 0
+            ? new Dictionary<Guid, int>()
+            : (await _unitOfWork.Repository<SitePost>().FindAsync(p => siteIds.Contains(p.SiteId), cancellationToken))
+                .GroupBy(p => p.SiteId)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+        var activePlanSiteIds = siteIds.Count == 0
+            ? new HashSet<Guid>()
+            : (await _unitOfWork.Repository<SiteDeploymentPlan>().FindAsync(p => siteIds.Contains(p.SiteId) && p.IsActive, cancellationToken))
+                .Select(p => p.SiteId)
+                .ToHashSet();
 
         var siteDtos = new List<SiteDto>();
         foreach (var site in sites)
@@ -89,6 +108,8 @@ public class GetSiteListQueryHandler : IRequestHandler<GetSiteListQuery, ApiResp
                 Id = site.Id,
                 SiteCode = site.SiteCode,
                 SiteName = site.SiteName,
+                BranchId = site.BranchId,
+                BranchName = site.BranchId.HasValue && branchLookup.TryGetValue(site.BranchId.Value, out var branchName) ? branchName : null,
                 ClientName = site.ClientName,
                 Address = site.Address,
                 City = site.City,
@@ -97,8 +118,13 @@ public class GetSiteListQueryHandler : IRequestHandler<GetSiteListQuery, ApiResp
                 ContactPerson = site.ContactPerson,
                 ContactPhone = site.ContactPhone,
                 ContactEmail = site.ContactEmail,
+                EmergencyContactName = site.EmergencyContactName,
+                EmergencyContactPhone = site.EmergencyContactPhone,
+                MusterPoint = site.MusterPoint,
                 IsActive = site.IsActive,
                 GuardCount = guardCount,
+                PostsCount = postsBySite.TryGetValue(site.Id, out var postsCount) ? postsCount : 0,
+                HasActiveDeploymentPlan = activePlanSiteIds.Contains(site.Id),
                 Latitude = site.Latitude,
                 Longitude = site.Longitude
             });

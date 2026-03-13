@@ -14,7 +14,7 @@ public class MenuPermissionConfiguration : IEntityTypeConfiguration<MenuPermissi
 
         // Relationships - Use NoAction to avoid cascade cycles
         builder.HasOne(mp => mp.Menu)
-            .WithMany()
+            .WithMany(m => m.MenuPermissions)
             .HasForeignKey(mp => mp.MenuId)
             .OnDelete(DeleteBehavior.NoAction);
 

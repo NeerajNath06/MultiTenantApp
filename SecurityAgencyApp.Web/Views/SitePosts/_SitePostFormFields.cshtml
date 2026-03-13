@@ -1,0 +1,85 @@
+@model SecurityAgencyApp.Web.Models.Api.CreateSitePostRequest
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    var sites = ViewBag.Sites as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>());
+    var branches = ViewBag.Branches as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>());
+}
+
+<div class="form-section">
+    <h5 class="section-title"><i class="fas fa-users-cog"></i>Post Identity</h5>
+    <div class="row g-3">
+        <div class="col-12 col-md-6">
+            <label asp-for="SiteId" class="form-label fw-semibold"></label>
+            <select asp-for="SiteId" class="form-select" asp-items="sites">
+                <option value="">-- Select Site --</option>
+            </select>
+            <span asp-validation-for="SiteId" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-6">
+            <label asp-for="BranchId" class="form-label fw-semibold"></label>
+            <select asp-for="BranchId" class="form-select" asp-items="branches">
+                <option value="">-- Select Branch --</option>
+            </select>
+            <span asp-validation-for="BranchId" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-6">
+            <label asp-for="PostCode" class="form-label fw-semibold"></label>
+            <input asp-for="PostCode" class="form-control" />
+            <span asp-validation-for="PostCode" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-6">
+            <label asp-for="PostName" class="form-label fw-semibold"></label>
+            <input asp-for="PostName" class="form-control" />
+            <span asp-validation-for="PostName" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="ShiftName" class="form-label fw-semibold"></label>
+            <input asp-for="ShiftName" class="form-control" />
+            <span asp-validation-for="ShiftName" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="SanctionedStrength" class="form-label fw-semibold"></label>
+            <input asp-for="SanctionedStrength" class="form-control" />
+            <span asp-validation-for="SanctionedStrength" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="form-check mt-4">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label fw-semibold"></label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="form-section">
+    <h5 class="section-title"><i class="fas fa-shield-alt"></i>Operational Requirements</h5>
+    <div class="row g-3">
+        <div class="col-12 col-md-4">
+            <label asp-for="GenderRequirement" class="form-label fw-semibold"></label>
+            <input asp-for="GenderRequirement" class="form-control" />
+            <span asp-validation-for="GenderRequirement" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="SkillRequirement" class="form-label fw-semibold"></label>
+            <input asp-for="SkillRequirement" class="form-control" />
+            <span asp-validation-for="SkillRequirement" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="WeeklyOffPattern" class="form-label fw-semibold"></label>
+            <input asp-for="WeeklyOffPattern" class="form-control" />
+            <span asp-validation-for="WeeklyOffPattern" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="form-check mt-2">
+                <input asp-for="RequiresWeapon" class="form-check-input" />
+                <label asp-for="RequiresWeapon" class="form-check-label fw-semibold"></label>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="form-check mt-2">
+                <input asp-for="RelieverRequired" class="form-check-input" />
+                <label asp-for="RelieverRequired" class="form-check-label fw-semibold"></label>
+            </div>
+        </div>
+    </div>
+</div>

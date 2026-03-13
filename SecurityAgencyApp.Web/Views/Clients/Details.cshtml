@@ -67,6 +67,10 @@
                             <label class="form-label fw-semibold text-muted">Phone Number</label>
                             <p class="mb-0">@(Model.PhoneNumber ?? "-")</p>
                         </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-muted">Alternate Phone</label>
+                            <p class="mb-0">@(Model.AlternatePhone ?? "-")</p>
+                        </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold text-muted">Address</label>
                             <p class="mb-0">@Model.Address</p>
@@ -91,6 +95,23 @@
                             <label class="form-label fw-semibold text-muted">PAN Number</label>
                             <p class="mb-0">@(Model.PANNumber ?? "-")</p>
                         </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-muted">Website</label>
+                            <p class="mb-0">
+                                @if (!string.IsNullOrWhiteSpace(Model.Website))
+                                {
+                                    <a href="@Model.Website" target="_blank" rel="noopener noreferrer">@Model.Website</a>
+                                }
+                                else
+                                {
+                                    @:-
+                                }
+                            </p>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-muted">Account Manager</label>
+                            <p class="mb-0">@(Model.AccountManagerName ?? "-")</p>
+                        </div>
                         @if (!string.IsNullOrEmpty(Model.Notes))
                         {
                             <div class="col-12">
@@ -108,6 +129,74 @@
             <div class="card-body">
                 <h5 class="section-title"><i class="fas fa-info-circle"></i>Additional Information</h5>
                 <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold text-muted">Billing Address</label>
+                        <p class="mb-0">@(Model.BillingAddress ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-semibold text-muted">Billing City</label>
+                        <p class="mb-0">@(Model.BillingCity ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-semibold text-muted">Billing State</label>
+                        <p class="mb-0">@(Model.BillingState ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label fw-semibold text-muted">Billing Pin Code</label>
+                        <p class="mb-0">@(Model.BillingPinCode ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-muted">Billing Contact</label>
+                        <p class="mb-0">@(Model.BillingContactName ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-muted">Billing Email</label>
+                        <p class="mb-0">@(Model.BillingContactEmail ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-muted">Escalation Contact</label>
+                        <p class="mb-0">@(Model.EscalationContactName ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-muted">Escalation Email</label>
+                        <p class="mb-0">@(Model.EscalationContactEmail ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-muted">Escalation TAT</label>
+                        <p class="mb-0">@(Model.EscalationTatHours?.ToString() ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-muted">Credit Period</label>
+                        <p class="mb-0">@(Model.CreditPeriodDays?.ToString() ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-muted">Billing Cycle</label>
+                        <p class="mb-0">@(Model.BillingCycle ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-muted">GST State</label>
+                        <p class="mb-0">@(Model.GstState ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-muted">Payment Mode</label>
+                        <p class="mb-0">@(Model.PaymentModePreference ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-muted">Invoice Prefix</label>
+                        <p class="mb-0">@(Model.InvoicePrefix ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-muted">SLA Terms</label>
+                        <p class="mb-0">@(Model.SlaTerms ?? "-")</p>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold text-muted">Tax Treatment</label>
+                        <p class="mb-0">@(Model.TaxTreatment ?? "-")</p>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold text-muted">Penalty Terms</label>
+                        <p class="mb-0">@(Model.PenaltyTerms ?? "-")</p>
+                    </div>
                     <div class="col-12">
                         <label class="form-label fw-semibold text-muted">Created Date</label>
                         <p class="mb-0">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</p>

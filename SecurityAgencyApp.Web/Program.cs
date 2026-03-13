@@ -9,7 +9,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 
 // API client – Web calls API instead of MediatR/DbContext (lightweight)
-var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:5014";
+var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5286";
 builder.Services.AddHttpClient<SecurityAgencyApp.Web.Services.IApiClient, SecurityAgencyApp.Web.Services.ApiClient>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl.TrimEnd('/'));

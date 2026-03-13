@@ -15,6 +15,18 @@ public class SiteRatePlanConfiguration : IEntityTypeConfiguration<SiteRatePlan>
         builder.Property(x => x.RateAmount)
             .HasColumnType("decimal(18,2)");
 
+        builder.Property(x => x.AllowancePercent)
+            .HasColumnType("decimal(18,2)");
+
+        builder.Property(x => x.EpfPercent)
+            .HasColumnType("decimal(18,2)");
+
+        builder.Property(x => x.EsicPercent)
+            .HasColumnType("decimal(18,2)");
+
+        builder.Property(x => x.EpfWageCap)
+            .HasColumnType("decimal(18,2)");
+
         builder.Property(x => x.EffectiveFrom)
             .IsRequired();
 

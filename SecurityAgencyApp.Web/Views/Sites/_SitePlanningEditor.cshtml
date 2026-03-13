@@ -1,0 +1,266 @@
+@model SecurityAgencyApp.Web.Models.Api.CreateSiteRequest
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using SecurityAgencyApp.Web.Models.Api
+@{
+    var branches = ViewBag.Branches as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>());
+    var posts = Model.Posts?.Any() == true
+        ? Model.Posts
+        : new List<SitePostDto>();
+    var plan = Model.ActiveDeploymentPlan ?? new SiteDeploymentPlanDto
+    {
+        EffectiveFrom = DateTime.Today,
+        IsActive = true
+    };
+}
+
+<div class="form-section">
+    <h5 class="section-title"><i class="fas fa-code-branch"></i>Branch & Planning</h5>
+    <div class="row g-3">
+        <div class="col-12 col-md-6">
+            <label asp-for="BranchId" class="form-label fw-semibold">Branch</label>
+            <select asp-for="BranchId" class="form-select" asp-items="branches">
+                <option value="">-- Select Branch --</option>
+            </select>
+            <span class="small text-muted">Optional branch mapping for operational ownership and numbering.</span>
+        </div>
+    </div>
+</div>
+
+<div class="form-section">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div>
+            <h5 class="section-title mb-0"><i class="fas fa-users-cog"></i>Site Posts</h5>
+            <p class="small text-muted mb-0">Define sanctioned posts that drive deployment planning and staffing visibility.</p>
+        </div>
+        <button type="button" class="btn btn-outline-primary btn-sm" id="addSitePostBtn">
+            <i class="fas fa-plus me-1"></i>Add Post
+        </button>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle" id="sitePostsTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Post</th>
+                    <th>Shift</th>
+                    <th>Strength</th>
+                    <th>Requirements</th>
+                    <th>Flags</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (posts.Count == 0)
+                {
+                    <tr class="site-post-empty-row">
+                        <td colspan="6" class="text-center text-muted py-4">No posts added yet. Use <b>Add Post</b> to define staffing positions.</td>
+                    </tr>
+                }
+                @for (var i = 0; i < posts.Count; i++)
+                {
+                    var post = posts[i];
+                    <tr class="site-post-row">
+                        <td>
+                            <input type="hidden" data-post-field="Id" value="@post.Id" />
+                            <input type="text" class="form-control form-control-sm mb-2" data-post-field="PostCode" value="@post.PostCode" placeholder="Code" />
+                            <input type="text" class="form-control form-control-sm" data-post-field="PostName" value="@post.PostName" placeholder="Post name" />
+                        </td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm mb-2" data-post-field="ShiftName" value="@post.ShiftName" placeholder="Shift" />
+                            <input type="text" class="form-control form-control-sm" data-post-field="WeeklyOffPattern" value="@post.WeeklyOffPattern" placeholder="Weekly off pattern" />
+                        </td>
+                        <td>
+                            <input type="number" min="0" class="form-control form-control-sm mb-2" data-post-field="SanctionedStrength" value="@post.SanctionedStrength" />
+                            <select class="form-select form-select-sm" data-post-field="IsActive">
+                                @if (post.IsActive)
+                                {
+                                    <option value="true" selected>Active</option>
+                                    <option value="false">Inactive</option>
+                                }
+                                else
+                                {
+                                    <option value="true">Active</option>
+                                    <option value="false" selected>Inactive</option>
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm mb-2" data-post-field="GenderRequirement" value="@post.GenderRequirement" placeholder="Gender requirement" />
+                            <input type="text" class="form-control form-control-sm" data-post-field="SkillRequirement" value="@post.SkillRequirement" placeholder="Skill requirement" />
+                        </td>
+                        <td>
+                            <select class="form-select form-select-sm mb-2" data-post-field="RequiresWeapon">
+                                @if (post.RequiresWeapon)
+                                {
+                                    <option value="false">Weapon: No</option>
+                                    <option value="true" selected>Weapon: Yes</option>
+                                }
+                                else
+                                {
+                                    <option value="false" selected>Weapon: No</option>
+                                    <option value="true">Weapon: Yes</option>
+                                }
+                            </select>
+                            <select class="form-select form-select-sm" data-post-field="RelieverRequired">
+                                @if (post.RelieverRequired)
+                                {
+                                    <option value="false">Reliever: No</option>
+                                    <option value="true" selected>Reliever: Yes</option>
+                                }
+                                else
+                                {
+                                    <option value="false" selected>Reliever: No</option>
+                                    <option value="true">Reliever: Yes</option>
+                                }
+                            </select>
+                        </td>
+                        <td class="text-end">
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-site-post-btn">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="form-section">
+    <h5 class="section-title"><i class="fas fa-sitemap"></i>Deployment Plan</h5>
+    <div class="row g-3">
+        <input type="hidden" name="ActiveDeploymentPlan.Id" value="@plan.Id" />
+        <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold">Effective From</label>
+            <input type="date" name="ActiveDeploymentPlan.EffectiveFrom" class="form-control" value="@plan.EffectiveFrom.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold">Effective To</label>
+            <input type="date" name="ActiveDeploymentPlan.EffectiveTo" class="form-control" value="@(plan.EffectiveTo?.ToString("yyyy-MM-dd") ?? string.Empty)" />
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold">Emergency Contact Set</label>
+            <input type="text" name="ActiveDeploymentPlan.EmergencyContactSet" class="form-control" value="@plan.EmergencyContactSet" />
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold">Status</label>
+            <select name="ActiveDeploymentPlan.IsActive" class="form-select">
+                @if (plan.IsActive)
+                {
+                    <option value="true" selected>Active</option>
+                    <option value="false">Inactive</option>
+                }
+                else
+                {
+                    <option value="true">Active</option>
+                    <option value="false" selected>Inactive</option>
+                }
+            </select>
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold">Reserve Pool Mapping</label>
+            <input type="text" name="ActiveDeploymentPlan.ReservePoolMapping" class="form-control" value="@plan.ReservePoolMapping" />
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold">Access Zones</label>
+            <input type="text" name="ActiveDeploymentPlan.AccessZones" class="form-control" value="@plan.AccessZones" />
+        </div>
+        <div class="col-12">
+            <label class="form-label fw-semibold">Instruction Summary</label>
+            <input type="text" name="ActiveDeploymentPlan.InstructionSummary" class="form-control" value="@plan.InstructionSummary" />
+        </div>
+        <div class="col-12">
+            <label class="form-label fw-semibold">Notes</label>
+            <textarea name="ActiveDeploymentPlan.Notes" class="form-control" rows="2">@plan.Notes</textarea>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var table = document.getElementById('sitePostsTable');
+        var addBtn = document.getElementById('addSitePostBtn');
+        if (!table || !addBtn || table.dataset.sitePlanningInitialized === '1') {
+            return;
+        }
+
+        table.dataset.sitePlanningInitialized = '1';
+
+        function createRow() {
+            var row = document.createElement('tr');
+            row.className = 'site-post-row';
+            row.innerHTML =
+                '<td>' +
+                    '<input type="hidden" data-post-field="Id" value="00000000-0000-0000-0000-000000000000" />' +
+                    '<input type="text" class="form-control form-control-sm mb-2" data-post-field="PostCode" placeholder="Code" />' +
+                    '<input type="text" class="form-control form-control-sm" data-post-field="PostName" placeholder="Post name" />' +
+                '</td>' +
+                '<td>' +
+                    '<input type="text" class="form-control form-control-sm mb-2" data-post-field="ShiftName" placeholder="Shift" />' +
+                    '<input type="text" class="form-control form-control-sm" data-post-field="WeeklyOffPattern" placeholder="Weekly off pattern" />' +
+                '</td>' +
+                '<td>' +
+                    '<input type="number" min="0" class="form-control form-control-sm mb-2" data-post-field="SanctionedStrength" value="1" />' +
+                    '<select class="form-select form-select-sm" data-post-field="IsActive">' +
+                        '<option value="true" selected>Active</option>' +
+                        '<option value="false">Inactive</option>' +
+                    '</select>' +
+                '</td>' +
+                '<td>' +
+                    '<input type="text" class="form-control form-control-sm mb-2" data-post-field="GenderRequirement" placeholder="Gender requirement" />' +
+                    '<input type="text" class="form-control form-control-sm" data-post-field="SkillRequirement" placeholder="Skill requirement" />' +
+                '</td>' +
+                '<td>' +
+                    '<select class="form-select form-select-sm mb-2" data-post-field="RequiresWeapon">' +
+                        '<option value="false" selected>Weapon: No</option>' +
+                        '<option value="true">Weapon: Yes</option>' +
+                    '</select>' +
+                    '<select class="form-select form-select-sm" data-post-field="RelieverRequired">' +
+                        '<option value="false" selected>Reliever: No</option>' +
+                        '<option value="true">Reliever: Yes</option>' +
+                    '</select>' +
+                '</td>' +
+                '<td class="text-end">' +
+                    '<button type="button" class="btn btn-sm btn-outline-danger remove-site-post-btn"><i class="fas fa-trash"></i></button>' +
+                '</td>';
+            return row;
+        }
+
+        function reindexRows() {
+            var rows = table.querySelectorAll('tbody .site-post-row');
+            rows.forEach(function (row, index) {
+                row.querySelectorAll('[data-post-field]').forEach(function (field) {
+                    field.name = 'Posts[' + index + '].' + field.getAttribute('data-post-field');
+                });
+            });
+        }
+
+        addBtn.addEventListener('click', function () {
+            var emptyRow = table.querySelector('.site-post-empty-row');
+            if (emptyRow) {
+                emptyRow.remove();
+            }
+            table.querySelector('tbody').appendChild(createRow());
+            reindexRows();
+        });
+
+        table.addEventListener('click', function (event) {
+            var removeBtn = event.target.closest('.remove-site-post-btn');
+            if (!removeBtn) {
+                return;
+            }
+
+            var rows = table.querySelectorAll('tbody .site-post-row');
+            if (rows.length === 1) {
+                rows[0].remove();
+                table.querySelector('tbody').innerHTML = '<tr class="site-post-empty-row"><td colspan="6" class="text-center text-muted py-4">No posts added yet. Use <b>Add Post</b> to define staffing positions.</td></tr>';
+                reindexRows();
+                return;
+            }
+
+            removeBtn.closest('.site-post-row').remove();
+            reindexRows();
+        });
+
+        reindexRows();
+    })();
+</script>

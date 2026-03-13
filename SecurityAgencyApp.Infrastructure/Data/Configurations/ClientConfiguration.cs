@@ -33,6 +33,18 @@ public class ClientConfiguration : IEntityTypeConfiguration<Client>
             .IsRequired()
             .HasMaxLength(500);
 
+        builder.Property(c => c.BillingAddress)
+            .HasMaxLength(500);
+
+        builder.Property(c => c.BillingCity)
+            .HasMaxLength(100);
+
+        builder.Property(c => c.BillingState)
+            .HasMaxLength(100);
+
+        builder.Property(c => c.BillingPinCode)
+            .HasMaxLength(10);
+
         builder.Property(c => c.Status)
             .IsRequired()
             .HasMaxLength(50)
@@ -43,6 +55,42 @@ public class ClientConfiguration : IEntityTypeConfiguration<Client>
 
         builder.Property(c => c.PANNumber)
             .HasMaxLength(50);
+
+        builder.Property(c => c.AccountManagerName)
+            .HasMaxLength(100);
+
+        builder.Property(c => c.BillingContactName)
+            .HasMaxLength(100);
+
+        builder.Property(c => c.BillingContactEmail)
+            .HasMaxLength(100);
+
+        builder.Property(c => c.EscalationContactName)
+            .HasMaxLength(100);
+
+        builder.Property(c => c.EscalationContactEmail)
+            .HasMaxLength(100);
+
+        builder.Property(c => c.BillingCycle)
+            .HasMaxLength(50);
+
+        builder.Property(c => c.GstState)
+            .HasMaxLength(100);
+
+        builder.Property(c => c.PaymentModePreference)
+            .HasMaxLength(50);
+
+        builder.Property(c => c.TaxTreatment)
+            .HasMaxLength(100);
+
+        builder.Property(c => c.InvoicePrefix)
+            .HasMaxLength(20);
+
+        builder.Property(c => c.SlaTerms)
+            .HasMaxLength(500);
+
+        builder.Property(c => c.PenaltyTerms)
+            .HasMaxLength(500);
 
         builder.HasOne(c => c.Tenant)
             .WithMany()

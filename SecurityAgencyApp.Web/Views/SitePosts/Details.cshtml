@@ -1,0 +1,106 @@
+@model SecurityAgencyApp.Web.Models.Api.SitePostItemDto
+@{
+    ViewData["Title"] = "Site Post Details";
+    ViewData["Breadcrumbs"] = new[] { ("Site Posts", Url.Action("Index")), ("Site Post Details", (string?)null) };
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h1 class="page-title">Site Post Details</h1>
+            <p class="page-subtitle mb-0">@Model.PostName - @Model.PostCode</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Edit
+            </a>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Site Posts
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm enterprise-details-card">
+            <div class="card-body">
+                <div class="form-section">
+                    <h5 class="section-title"><i class="fas fa-users-cog"></i>Post Overview</h5>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-muted">Site</label>
+                            <p class="mb-0">@Model.SiteName</p>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-muted">Branch</label>
+                            <p class="mb-0">@(Model.BranchName ?? "-")</p>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-muted">Post Code</label>
+                            <p class="mb-0">@Model.PostCode</p>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold text-muted">Post Name</label>
+                            <p class="mb-0">@Model.PostName</p>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-semibold text-muted">Shift</label>
+                            <p class="mb-0">@(Model.ShiftName ?? "-")</p>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-semibold text-muted">Sanctioned Strength</label>
+                            <p class="mb-0">@Model.SanctionedStrength</p>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-semibold text-muted">Weekly Off Pattern</label>
+                            <p class="mb-0">@(Model.WeeklyOffPattern ?? "-")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm enterprise-details-card">
+            <div class="card-body">
+                <h5 class="section-title"><i class="fas fa-shield-alt"></i>Operational Flags</h5>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Gender Requirement</label>
+                    <p class="mb-0">@(Model.GenderRequirement ?? "-")</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Skill Requirement</label>
+                    <p class="mb-0">@(Model.SkillRequirement ?? "-")</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Requires Weapon</label>
+                    <p class="mb-0">@(Model.RequiresWeapon ? "Yes" : "No")</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Reliever Required</label>
+                    <p class="mb-0">@(Model.RelieverRequired ? "Yes" : "No")</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Status</label>
+                    <p class="mb-0">
+                        <span class="badge bg-@(Model.IsActive ? "success" : "secondary")">
+                            @(Model.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Created</label>
+                    <p class="mb-0">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</p>
+                </div>
+                @if (Model.ModifiedDate.HasValue)
+                {
+                    <div class="mb-0">
+                        <label class="form-label fw-semibold text-muted">Last Modified</label>
+                        <p class="mb-0">@Model.ModifiedDate.Value.ToString("dd MMM yyyy HH:mm")</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

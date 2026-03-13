@@ -1,0 +1,32 @@
+@model SecurityAgencyApp.Web.Models.Api.UpdateSitePostRequest
+@{
+    ViewData["Title"] = "Edit Site Post";
+    ViewData["Breadcrumbs"] = new[] { ("Site Posts", Url.Action("Index")), ("Edit Site Post", (string?)null) };
+}
+
+<div class="page-header">
+    <h1 class="page-title">Edit Site Post</h1>
+    <p class="page-subtitle mb-0">Update staffing and operational settings for this post.</p>
+</div>
+
+<div class="card border-0 shadow-sm enterprise-form-card">
+    <div class="card-body">
+        <form asp-action="Edit" method="post" class="form">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <partial name="_SitePostFormFields" model="Model" />
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Update Site Post
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

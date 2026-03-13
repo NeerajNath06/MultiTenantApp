@@ -129,7 +129,9 @@
                                     }
                                 </a>
                             </th>
+                            <th>Branch</th>
                             <th>Contact</th>
+                            <th>Planning</th>
                             <th>Guards</th>
                             <th>Status</th>
                             <th class="text-end">Actions</th>
@@ -147,8 +149,32 @@
                                     <small class="text-muted">@site.PinCode</small>
                                 </td>
                                 <td>
+                                    <div>@(site.BranchName ?? "-")</div>
+                                    <small class="text-muted">@(site.BranchId.HasValue ? "Mapped" : "Unassigned")</small>
+                                </td>
+                                <td>
                                     <small>@site.ContactPerson</small><br />
                                     <small class="text-muted">@site.ContactPhone</small>
+                                    @if (!string.IsNullOrWhiteSpace(site.EmergencyContactName))
+                                    {
+                                        <br />
+                                        <small class="text-muted">Emergency: @site.EmergencyContactName</small>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary me-1">@site.PostsCount post(s)</span>
+                                    @if (site.HasActiveDeploymentPlan)
+                                    {
+                                        <span class="badge bg-primary">Plan Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-dark border">No Plan</span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(site.MusterPoint))
+                                    {
+                                        <div class="small text-muted mt-1">Muster: @site.MusterPoint</div>
+                                    }
                                 </td>
                                 <td>
                                     <span class="badge bg-info">
@@ -167,11 +193,8 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm btn-outline-info" title="Generate Report" data-site-id="@site.Id" data-bs-toggle="modal" data-bs-target="#generateReportModal">
-                                            <i class="fas fa-file-alt"></i>
-                                        </button>
-                                        <a class="btn btn-sm btn-outline-primary" title="Rate Management" href="@Url.Action("Index", "SiteRates", new { siteId = site.Id })">
-                                            <i class="fas fa-rupee-sign"></i>
+                                        <a href="@Url.Action("Details", new { id = site.Id })" class="btn btn-sm btn-outline-primary" title="View">
+                                            <i class="fas fa-eye"></i>
                                         </a>
                                         <a href="@Url.Action("Edit", new { id = site.Id })" class="btn btn-sm btn-outline-warning" title="Edit">
                                             <i class="fas fa-edit"></i>

@@ -20,10 +20,12 @@ public class MonthlyDocumentsController : ControllerBase
 
     /// <summary>Generate Bill + Wage for a site/month (Present-only). Returns IDs for tracking. Duplicates allowed.</summary>
     [HttpPost("generate-all")]
-    public async Task<ActionResult<ApiResponse<GenerateMonthlyDocumentsResultDto>>> GenerateAll([FromBody] GenerateMonthlyDocumentsCommand command, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<GenerateMonthlyDocumentsResultDto>>> GenerateAll([FromBody] GenerateMonthlyDocumentsCommand command)
     {
-        var result = await _mediator.Send(command, cancellationToken);
-        if (!result.Success) return BadRequest(result);
+        var result = await _mediator.Send(command);
+        if (!result.Success)
+            return BadRequest(result);
+
         return Ok(result);
     }
 }

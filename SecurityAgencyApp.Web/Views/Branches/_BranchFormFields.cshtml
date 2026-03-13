@@ -1,0 +1,85 @@
+@model SecurityAgencyApp.Web.Models.Api.CreateBranchRequest
+
+<div class="form-section">
+    <h5 class="section-title"><i class="fas fa-code-branch"></i>Branch Identity</h5>
+    <div class="row g-3">
+        <div class="col-12 col-md-6">
+            <label asp-for="BranchCode" class="form-label fw-semibold"></label>
+            <input asp-for="BranchCode" class="form-control" />
+            <span asp-validation-for="BranchCode" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-6">
+            <label asp-for="BranchName" class="form-label fw-semibold"></label>
+            <input asp-for="BranchName" class="form-control" />
+            <span asp-validation-for="BranchName" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="NumberPrefix" class="form-label fw-semibold"></label>
+            <input asp-for="NumberPrefix" class="form-control" />
+            <span asp-validation-for="NumberPrefix" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="GstNumber" class="form-label fw-semibold"></label>
+            <input asp-for="GstNumber" class="form-control" />
+            <span asp-validation-for="GstNumber" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="LabourLicenseNumber" class="form-label fw-semibold"></label>
+            <input asp-for="LabourLicenseNumber" class="form-control" />
+            <span asp-validation-for="LabourLicenseNumber" class="text-danger small"></span>
+        </div>
+    </div>
+</div>
+
+<div class="form-section">
+    <h5 class="section-title"><i class="fas fa-map-marker-alt"></i>Address & Contact</h5>
+    <div class="row g-3">
+        <div class="col-12">
+            <label asp-for="Address" class="form-label fw-semibold"></label>
+            <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+            <span asp-validation-for="Address" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="City" class="form-label fw-semibold"></label>
+            <input asp-for="City" class="form-control" />
+            <span asp-validation-for="City" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="State" class="form-label fw-semibold"></label>
+            <input asp-for="State" class="form-control" />
+            <span asp-validation-for="State" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="PinCode" class="form-label fw-semibold"></label>
+            <input asp-for="PinCode" class="form-control" />
+            <span asp-validation-for="PinCode" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="ContactPerson" class="form-label fw-semibold"></label>
+            <input asp-for="ContactPerson" class="form-control" />
+            <span asp-validation-for="ContactPerson" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="ContactPhone" class="form-label fw-semibold"></label>
+            <input asp-for="ContactPhone" class="form-control" />
+            <span asp-validation-for="ContactPhone" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="ContactEmail" class="form-label fw-semibold"></label>
+            <input asp-for="ContactEmail" class="form-control" />
+            <span asp-validation-for="ContactEmail" class="text-danger small"></span>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="form-check mt-4">
+                <input asp-for="IsHeadOffice" class="form-check-input" />
+                <label asp-for="IsHeadOffice" class="form-check-label fw-semibold"></label>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="form-check mt-4">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label fw-semibold"></label>
+            </div>
+        </div>
+    </div>
+</div>

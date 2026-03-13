@@ -51,7 +51,21 @@ public class UsersController : Controller
             await LoadDropdownsAsync();
             return View(request);
         }
-        var result = await _apiClient.PostAsync<Guid>("api/v1/Users", new { userName = request.UserName, email = request.Email, password = request.Password, firstName = request.FirstName, lastName = request.LastName, phoneNumber = request.PhoneNumber, departmentId = request.DepartmentId, designationId = request.DesignationId, roleIds = request.RoleIds });
+        var result = await _apiClient.PostAsync<Guid>("api/v1/Users", new
+        {
+            userName = request.UserName,
+            email = request.Email,
+            password = request.Password,
+            firstName = request.FirstName,
+            lastName = request.LastName,
+            phoneNumber = request.PhoneNumber,
+            aadharNumber = request.AadharNumber,
+            panNumber = request.PANNumber,
+            uan = request.UAN,
+            departmentId = request.DepartmentId,
+            designationId = request.DesignationId,
+            roleIds = request.RoleIds
+        });
         if (result.Success)
         {
             TempData["SuccessMessage"] = "User created successfully";

@@ -32,6 +32,8 @@ public class SiteDto
     public Guid Id { get; set; }
     public string SiteCode { get; set; } = string.Empty;
     public string SiteName { get; set; } = string.Empty;
+    public Guid? BranchId { get; set; }
+    public string? BranchName { get; set; }
     public string ClientName { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public string City { get; set; } = string.Empty;
@@ -40,8 +42,13 @@ public class SiteDto
     public string ContactPerson { get; set; } = string.Empty;
     public string ContactPhone { get; set; } = string.Empty;
     public string? ContactEmail { get; set; }
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactPhone { get; set; }
+    public string? MusterPoint { get; set; }
     public bool IsActive { get; set; }
     public int GuardCount { get; set; }
+    public int PostsCount { get; set; }
+    public bool HasActiveDeploymentPlan { get; set; }
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
 }

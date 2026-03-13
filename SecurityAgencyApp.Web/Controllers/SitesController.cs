@@ -45,6 +45,7 @@ public class SitesController : Controller
     public async Task<IActionResult> Create()
     {
         await LoadSupervisorsIntoViewBag(null);
+        await LoadBranchesIntoViewBag(null);
         return View(new CreateSiteRequest { IsActive = true });
     }
 
@@ -53,7 +54,11 @@ public class SitesController : Controller
     public async Task<IActionResult> Create(CreateSiteRequest request)
     {
         if (!ModelState.IsValid)
+        {
+            await LoadSupervisorsIntoViewBag(request.SupervisorIds);
+            await LoadBranchesIntoViewBag(request.BranchId);
             return View(request);
+        }
 
         var result = await _apiClient.PostAsync<Guid>("api/v1/Sites", new
         {
@@ -67,10 +72,19 @@ public class SitesController : Controller
             contactPerson = request.ContactPerson ?? "",
             contactPhone = request.ContactPhone ?? "",
             contactEmail = request.ContactEmail,
+            branchId = request.BranchId,
+            emergencyContactName = request.EmergencyContactName,
+            emergencyContactPhone = request.EmergencyContactPhone,
+            musterPoint = request.MusterPoint,
+            accessZoneNotes = request.AccessZoneNotes,
+            siteInstructionBook = request.SiteInstructionBook,
+            geofenceExceptionNotes = request.GeofenceExceptionNotes,
             isActive = request.IsActive,
             latitude = request.Latitude,
             longitude = request.Longitude,
             geofenceRadiusMeters = request.GeofenceRadiusMeters,
+            posts = request.Posts ?? new List<SitePostDto>(),
+            deploymentPlan = request.ActiveDeploymentPlan,
             supervisorIds = request.SupervisorIds ?? new List<Guid>()
         });
 
@@ -80,6 +94,8 @@ public class SitesController : Controller
             return RedirectToAction(nameof(Index));
         }
         ModelState.AddModelError("", result.Message);
+        await LoadSupervisorsIntoViewBag(request.SupervisorIds);
+        await LoadBranchesIntoViewBag(request.BranchId);
         return View(request);
     }
 
@@ -91,22 +107,15 @@ public class SitesController : Controller
 
         var d = result.Data;
         await LoadSupervisorsIntoViewBag(d.SupervisorIds);
-        // Load clients for linking this site to a client (used for rate plans)
-        var clientResult = await _apiClient.GetAsync<ClientListResponse>("api/v1/Clients", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
-        ViewBag.Clients = clientResult.Data?.Items ?? new List<ClientItemDto>();
-
-        // Load current rate plan (best-effort)
-        var rateRes = await _apiClient.GetAsync<SiteRateDto>($"api/v1/SiteRates/{id}", new Dictionary<string, string?> { ["asOfDate"] = DateTime.UtcNow.ToString("yyyy-MM-dd") });
-        ViewBag.SiteRate = rateRes.Success ? rateRes.Data : null;
-        // Load rate plan history for Edit/Delete
-        var histRes = await _apiClient.GetAsync<List<SiteRateHistoryDto>>($"api/v1/SiteRates/{id}/history", new Dictionary<string, string?> { ["includeInactive"] = "true" });
-        ViewBag.SiteRatePlans = histRes.Success && histRes.Data != null ? histRes.Data : new List<SiteRateHistoryDto>();
+        await LoadBranchesIntoViewBag(d.BranchId);
+        await LoadEditDependenciesAsync(id);
         return View(new UpdateSiteRequest
         {
             Id = d.Id,
             SiteCode = d.SiteCode,
             SiteName = d.SiteName,
             ClientId = d.ClientId,
+            BranchId = d.BranchId,
             ClientName = d.ClientName,
             Address = d.Address,
             City = d.City,
@@ -115,12 +124,29 @@ public class SitesController : Controller
             ContactPerson = d.ContactPerson,
             ContactPhone = d.ContactPhone,
             ContactEmail = d.ContactEmail,
+            EmergencyContactName = d.EmergencyContactName,
+            EmergencyContactPhone = d.EmergencyContactPhone,
+            MusterPoint = d.MusterPoint,
+            AccessZoneNotes = d.AccessZoneNotes,
+            SiteInstructionBook = d.SiteInstructionBook,
+            GeofenceExceptionNotes = d.GeofenceExceptionNotes,
             IsActive = d.IsActive,
             Latitude = d.Latitude,
             Longitude = d.Longitude,
             GeofenceRadiusMeters = d.GeofenceRadiusMeters,
+            Posts = d.Posts ?? new List<SitePostDto>(),
+            ActiveDeploymentPlan = d.ActiveDeploymentPlan,
             SupervisorIds = d.SupervisorIds ?? new List<Guid>()
         });
+    }
+
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var result = await _apiClient.GetAsync<SiteDto>($"api/v1/Sites/{id}");
+        if (!result.Success || result.Data == null)
+            return NotFound();
+
+        return View(result.Data);
     }
 
     [HttpPost]
@@ -166,12 +192,8 @@ public class SitesController : Controller
         if (!ModelState.IsValid)
         {
             await LoadSupervisorsIntoViewBag(request.SupervisorIds);
-            var clientResult = await _apiClient.GetAsync<ClientListResponse>("api/v1/Clients", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
-            ViewBag.Clients = clientResult.Data?.Items ?? new List<ClientItemDto>();
-            var rateRes = await _apiClient.GetAsync<SiteRateDto>($"api/v1/SiteRates/{request.Id}", new Dictionary<string, string?> { ["asOfDate"] = DateTime.UtcNow.ToString("yyyy-MM-dd") });
-            ViewBag.SiteRate = rateRes.Success ? rateRes.Data : null;
-            var histRes = await _apiClient.GetAsync<List<SiteRateHistoryDto>>($"api/v1/SiteRates/{request.Id}/history", new Dictionary<string, string?> { ["includeInactive"] = "true" });
-            ViewBag.SiteRatePlans = histRes.Success && histRes.Data != null ? histRes.Data : new List<SiteRateHistoryDto>();
+            await LoadBranchesIntoViewBag(request.BranchId);
+            await LoadEditDependenciesAsync(request.Id);
             return View(request);
         }
 
@@ -189,10 +211,19 @@ public class SitesController : Controller
             contactPerson = request.ContactPerson ?? "",
             contactPhone = request.ContactPhone ?? "",
             contactEmail = request.ContactEmail,
+            branchId = request.BranchId,
+            emergencyContactName = request.EmergencyContactName,
+            emergencyContactPhone = request.EmergencyContactPhone,
+            musterPoint = request.MusterPoint,
+            accessZoneNotes = request.AccessZoneNotes,
+            siteInstructionBook = request.SiteInstructionBook,
+            geofenceExceptionNotes = request.GeofenceExceptionNotes,
             isActive = request.IsActive,
             latitude = request.Latitude,
             longitude = request.Longitude,
             geofenceRadiusMeters = request.GeofenceRadiusMeters,
+            posts = request.Posts ?? new List<SitePostDto>(),
+            deploymentPlan = request.ActiveDeploymentPlan,
             supervisorIds = request.SupervisorIds ?? new List<Guid>()
         });
 
@@ -203,12 +234,8 @@ public class SitesController : Controller
         }
         ModelState.AddModelError("", result.Message);
         await LoadSupervisorsIntoViewBag(request.SupervisorIds);
-        var clientResultErr = await _apiClient.GetAsync<ClientListResponse>("api/v1/Clients", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
-        ViewBag.Clients = clientResultErr.Data?.Items ?? new List<ClientItemDto>();
-        var rateResErr = await _apiClient.GetAsync<SiteRateDto>($"api/v1/SiteRates/{request.Id}", new Dictionary<string, string?> { ["asOfDate"] = DateTime.UtcNow.ToString("yyyy-MM-dd") });
-        ViewBag.SiteRate = rateResErr.Success ? rateResErr.Data : null;
-        var histResErr = await _apiClient.GetAsync<List<SiteRateHistoryDto>>($"api/v1/SiteRates/{request.Id}/history", new Dictionary<string, string?> { ["includeInactive"] = "true" });
-        ViewBag.SiteRatePlans = histResErr.Success && histResErr.Data != null ? histResErr.Data : new List<SiteRateHistoryDto>();
+        await LoadBranchesIntoViewBag(request.BranchId);
+        await LoadEditDependenciesAsync(request.Id);
         return View(request);
     }
 
@@ -292,5 +319,33 @@ public class SitesController : Controller
             Text = string.IsNullOrWhiteSpace($"{s.FirstName} {s.LastName}".Trim()) ? s.UserName : $"{s.FirstName} {s.LastName}".Trim()
         }).ToList();
         ViewBag.Supervisors = items;
+    }
+
+    private async Task LoadBranchesIntoViewBag(Guid? selectedBranchId)
+    {
+        var res = await _apiClient.GetAsync<BranchListResponse>("api/v1/Branches", new Dictionary<string, string?>
+        {
+            ["includeInactive"] = "false"
+        });
+
+        var branches = res.Success && res.Data?.Items != null
+            ? res.Data.Items.OrderBy(b => b.BranchName).ToList()
+            : new List<BranchDto>();
+
+        ViewBag.Branches = new SelectList(branches, nameof(BranchDto.Id), nameof(BranchDto.BranchName), selectedBranchId);
+    }
+
+    private async Task LoadEditDependenciesAsync(Guid siteId)
+    {
+        var clientResult = await _apiClient.GetAsync<ClientListResponse>("api/v1/Clients", new Dictionary<string, string?>
+        {
+            ["includeInactive"] = "false",
+            ["pageSize"] = "1000",
+            ["siteId"] = siteId.ToString()
+        });
+        ViewBag.Clients = clientResult.Data?.Items ?? new List<ClientItemDto>();
+
+        var rateRes = await _apiClient.GetAsync<SiteRateDto>($"api/v1/SiteRates/{siteId}", new Dictionary<string, string?> { ["asOfDate"] = DateTime.UtcNow.ToString("yyyy-MM-dd") });
+        ViewBag.SiteRate = rateRes.Success ? rateRes.Data : null;
     }
 }

@@ -33,6 +33,57 @@ public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
             .IsRequired()
             .HasMaxLength(20);
 
+        builder.Property(t => t.LegalName)
+            .HasMaxLength(200);
+
+        builder.Property(t => t.TradeName)
+            .HasMaxLength(200);
+
+        builder.Property(t => t.CompanyCode)
+            .HasMaxLength(50);
+
+        builder.Property(t => t.CinNumber)
+            .HasMaxLength(50);
+
+        builder.Property(t => t.GstNumber)
+            .HasMaxLength(50);
+
+        builder.Property(t => t.PanNumber)
+            .HasMaxLength(50);
+
+        builder.Property(t => t.PfNumber)
+            .HasMaxLength(50);
+
+        builder.Property(t => t.EsicNumber)
+            .HasMaxLength(50);
+
+        builder.Property(t => t.LabourLicenseNumber)
+            .HasMaxLength(50);
+
+        builder.Property(t => t.OwnerName)
+            .HasMaxLength(100);
+
+        builder.Property(t => t.ComplianceOfficerName)
+            .HasMaxLength(100);
+
+        builder.Property(t => t.BillingContactName)
+            .HasMaxLength(100);
+
+        builder.Property(t => t.BillingContactPhone)
+            .HasMaxLength(20);
+
+        builder.Property(t => t.BillingEmail)
+            .HasMaxLength(100);
+
+        builder.Property(t => t.EscalationContactName)
+            .HasMaxLength(100);
+
+        builder.Property(t => t.EscalationContactPhone)
+            .HasMaxLength(20);
+
+        builder.Property(t => t.SupportEmail)
+            .HasMaxLength(100);
+
         builder.Property(t => t.Address)
             .HasMaxLength(500);
 
@@ -53,6 +104,44 @@ public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
 
         builder.Property(t => t.TaxId)
             .HasMaxLength(50);
+
+        builder.Property(t => t.TimeZone)
+            .IsRequired()
+            .HasMaxLength(100)
+            .HasDefaultValue("Asia/Kolkata");
+
+        builder.Property(t => t.Currency)
+            .IsRequired()
+            .HasMaxLength(10)
+            .HasDefaultValue("INR");
+
+        builder.Property(t => t.InvoicePrefix)
+            .IsRequired()
+            .HasMaxLength(20)
+            .HasDefaultValue("INV");
+
+        builder.Property(t => t.PayrollPrefix)
+            .IsRequired()
+            .HasMaxLength(20)
+            .HasDefaultValue("PAY");
+
+        builder.Property(t => t.SubscriptionPlan)
+            .IsRequired()
+            .HasMaxLength(50)
+            .HasDefaultValue("Standard");
+
+        builder.Property(t => t.StorageLimitGb)
+            .HasColumnType("decimal(18,2)");
+
+        builder.Property(t => t.OnboardingStatus)
+            .IsRequired()
+            .HasMaxLength(50)
+            .HasDefaultValue("Pending");
+
+        builder.Property(t => t.ActivationStatus)
+            .IsRequired()
+            .HasMaxLength(50)
+            .HasDefaultValue("Draft");
 
         builder.Property(t => t.LogoPath)
             .HasMaxLength(500);

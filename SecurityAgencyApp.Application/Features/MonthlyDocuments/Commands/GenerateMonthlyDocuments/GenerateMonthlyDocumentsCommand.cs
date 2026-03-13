@@ -7,7 +7,7 @@ public class GenerateMonthlyDocumentsCommand : IRequest<ApiResponse<GenerateMont
 {
     public Guid SiteId { get; set; }
     public int Year { get; set; }
-    public int Month { get; set; } // 1-12
+    public int Month { get; set; }
 }
 
 public class GenerateMonthlyDocumentsResultDto

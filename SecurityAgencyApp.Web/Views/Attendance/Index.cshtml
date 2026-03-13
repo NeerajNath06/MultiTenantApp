@@ -148,6 +148,10 @@
                                 <td>
                                     <div class="fw-semibold">@attendance.GuardName</div>
                                     <small class="text-muted">@attendance.GuardCode</small>
+                                    @if (!string.IsNullOrWhiteSpace(attendance.GuardPhone))
+                                    {
+                                        <small class="text-muted d-block">@attendance.GuardPhone</small>
+                                    }
                                 </td>
                                 <td>@attendance.SiteName</td>
                                 <td>@(attendance.CheckInTime?.ToString("HH:mm") ?? "-")</td>

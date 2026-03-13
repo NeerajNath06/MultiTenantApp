@@ -14,7 +14,7 @@ public class UserSubMenuConfiguration : IEntityTypeConfiguration<UserSubMenu>
 
         // Relationships - Use NoAction to avoid cascade cycles
         builder.HasOne(usm => usm.User)
-            .WithMany()
+            .WithMany(u => u.UserSubMenus)
             .HasForeignKey(usm => usm.UserId)
             .OnDelete(DeleteBehavior.NoAction);
 

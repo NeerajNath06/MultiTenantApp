@@ -24,15 +24,25 @@ public class Site : TenantEntity
     public int? GeofenceRadiusMeters { get; set; }
 
     public Guid? ClientId { get; set; }
+    public Guid? BranchId { get; set; }
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactPhone { get; set; }
+    public string? MusterPoint { get; set; }
+    public string? AccessZoneNotes { get; set; }
+    public string? SiteInstructionBook { get; set; }
+    public string? GeofenceExceptionNotes { get; set; }
 
     // Navigation properties
     public virtual Tenant Tenant { get; set; } = null!;
     public virtual Client? Client { get; set; }
+    public virtual Branch? Branch { get; set; }
     public virtual ICollection<GuardAssignment> GuardAssignments { get; set; } = new List<GuardAssignment>();
     public virtual ICollection<IncidentReport> IncidentReports { get; set; } = new List<IncidentReport>();
     public virtual ICollection<ContractSite> ContractSites { get; set; } = new List<ContractSite>();
     public virtual ICollection<Expense> Expenses { get; set; } = new List<Expense>();
     public virtual ICollection<Equipment> AssignedEquipment { get; set; } = new List<Equipment>();
+    public virtual ICollection<SitePost> SitePosts { get; set; } = new List<SitePost>();
+    public virtual ICollection<SiteDeploymentPlan> DeploymentPlans { get; set; } = new List<SiteDeploymentPlan>();
     /// <summary>Supervisors assigned to this site (see only this site and its guards when logged in).</summary>
     public virtual ICollection<SiteSupervisor> SiteSupervisors { get; set; } = new List<SiteSupervisor>();
 }
