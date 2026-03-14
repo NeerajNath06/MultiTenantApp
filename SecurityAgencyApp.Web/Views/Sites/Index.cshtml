@@ -233,6 +233,14 @@
                                         <a href="@Url.Action("Details", new { id = site.Id })" class="btn btn-sm btn-outline-primary" title="View">
                                             <i class="fas fa-eye"></i>
                                         </a>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-success"
+                                                title="Generate Report"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#generateReportModal"
+                                                data-site-id="@site.Id">
+                                            <i class="fas fa-file-alt"></i>
+                                        </button>
                                         <a href="@Url.Action("Edit", new { id = site.Id })" class="btn btn-sm btn-outline-warning" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
