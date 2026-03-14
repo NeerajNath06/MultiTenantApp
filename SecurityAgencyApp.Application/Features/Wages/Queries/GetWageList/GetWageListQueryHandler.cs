@@ -41,6 +41,11 @@ public class GetWageListQueryHandler : IRequestHandler<GetWageListQuery, ApiResp
             query = query.Where(w => w.Status == request.Status);
         }
 
+        if (request.SiteId.HasValue)
+        {
+            query = query.Where(w => w.SiteId == request.SiteId.Value);
+        }
+
         if (request.PeriodStart.HasValue)
         {
             query = query.Where(w => w.WagePeriodStart >= request.PeriodStart.Value);

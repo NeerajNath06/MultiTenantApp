@@ -87,14 +87,14 @@
         <button type="submit" class="btn btn-primary btn-sm">
             <i class="fas fa-filter me-1"></i>Apply
         </button>
-        @if (!string.IsNullOrWhiteSpace(search) || Model.SiteId.HasValue || Model.BranchId.HasValue)
+        @if (!string.IsNullOrWhiteSpace(search) || Model?.SiteId.HasValue == true || Model?.BranchId.HasValue == true)
         {
             <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-sm">Clear</a>
         }
     </form>
 
     <div class="card-body p-0">
-        @if (Model.Items.Any())
+        @if (Model?.Items != null && Model.Items.Any())
         {
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">

@@ -9,6 +9,7 @@ public class GetWageListQuery : IRequest<ApiResponse<WageListResponseDto>>
     public int PageSize { get; set; } = 10;
     public string? Search { get; set; }
     public string? Status { get; set; }
+    public Guid? SiteId { get; set; }
     public DateTime? PeriodStart { get; set; }
     public DateTime? PeriodEnd { get; set; }
     public bool IncludeInactive { get; set; } = false;

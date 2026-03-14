@@ -45,6 +45,7 @@ public class ReportsController : ControllerBase
         // Attendance: day-wise P/A grid
         var attQuery = new GetAttendanceListQuery
         {
+            SiteId = siteId,
             StartDate = startDate,
             EndDate = endDate,
             PageNumber = 1,
@@ -75,6 +76,7 @@ public class ReportsController : ControllerBase
         {
             var wageListResult = await _mediator.Send(new GetWageListQuery
             {
+                SiteId = siteId,
                 PeriodStart = startDate,
                 PeriodEnd = endDate,
                 PageNumber = 1,
@@ -151,6 +153,7 @@ public class ReportsController : ControllerBase
         {
             var billListResult = await _mediator.Send(new GetBillListQuery
             {
+                SiteId = siteId,
                 StartDate = startDate,
                 EndDate = endDate,
                 PageNumber = 1,

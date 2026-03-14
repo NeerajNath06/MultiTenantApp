@@ -105,7 +105,7 @@ public class MonthlyReportService
                     if (items.Count == 0)
                     {
                         var rateRes = await _mediator.Send(new GetCurrentSiteRateQuery { SiteId = siteId, AsOfDate = startDate }, cancellationToken);
-                        if (rateRes.Success)
+                        if (rateRes.Success && rateRes.Data != null)
                         {
                             items.Add(new AgencyMonthlyExcelService.BillLineItem
                             {
@@ -181,6 +181,7 @@ public class MonthlyReportService
 
             var wageListResult = await _mediator.Send(new GetWageListQuery
             {
+                SiteId = siteId,
                 PeriodStart = startDate,
                 PeriodEnd = endDate,
                 SortBy = "paymentdate",
