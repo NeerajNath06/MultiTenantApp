@@ -6,6 +6,9 @@
     var sites = ViewBag.Sites as List<SecurityAgencyApp.Web.Models.Api.SiteDto> ?? new List<SecurityAgencyApp.Web.Models.Api.SiteDto>();
     var guardIds = deployments.Select(d => d.GuardId).Distinct().ToList();
     var guardNames = deployments.GroupBy(d => d.GuardId).ToDictionary(g => g.Key, g => g.First().GuardName ?? "—");
+    var totalDeployments = deployments.Count;
+    var activeGuards = guardIds.Count;
+    var selectedSites = deployments.Select(d => d.SiteName).Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().Count();
 }
 
 <div class="page-header">
@@ -20,7 +23,37 @@
     </div>
 </div>
 
-<div class="card border-0 shadow-sm mb-3">
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Deployments</div>
+                <div class="stat-value">@totalDeployments</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Guards Scheduled</div>
+                <div class="stat-value">@activeGuards</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Sites Covered</div>
+                <div class="stat-value">@selectedSites</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-body-tertiary py-3">
+        <h5 class="mb-0"><i class="fas fa-filter me-2 text-primary"></i>Roster Filters</h5>
+    </div>
     <div class="card-body">
         <form method="get" class="row g-3 align-items-end">
             <div class="col-auto">
@@ -50,7 +83,11 @@
     </div>
 </div>
 
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm overflow-hidden">
+    <div class="card-header bg-body-tertiary py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="mb-0"><i class="fas fa-calendar-alt me-2 text-primary"></i>Weekly Roster</h5>
+        <span class="text-muted small">@weekDays.Count day schedule</span>
+    </div>
     <div class="card-body p-0">
         @if (weekDays.Any() && guardIds.Any())
         {

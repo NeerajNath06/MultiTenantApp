@@ -620,29 +620,32 @@ form .row .col-12,
 
 /* ---------- Enterprise form system (Stripe / Linear / Notion style) ----------
  * Use on Create/Edit/Details: .card.enterprise-form-card or .card.enterprise-details-card
- * Structure: .card-body > form > .form-section > .section-title + .row.g-3 > .col-12.col-md-6|col-md-4
- * Full-width fields: .col-12; two-column: .col-12.col-md-6; three-column: .col-12.col-md-4
- * End form with .form-actions (buttons). Responsive: single column on mobile, grid on md+.
+ * Structure: .card-body > form > .form-section > .section-title + .row.g-3 > .col-12.col-md-6|col-md-4|col-lg-3
+ * Full-width fields: .col-12; standard fields collapse to 1/2/4 columns on sm/md/lg.
+ * End form with .form-actions (buttons). Responsive: single column on mobile, 2-up on md, 4-up on lg.
  * ---------- Enterprise form sections (use on Create/Edit/Details views) ---------- */
 .form-section {
-    margin-bottom: var(--form-section-spacing);
-    padding-bottom: var(--space-6);
-    border-bottom: 1px solid var(--form-section-border);
+    margin-bottom: 1.5rem;
+    padding: 0 1.25rem 1.25rem;
+    border: 1px solid var(--border-default);
+    border-radius: 1rem;
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
 }
 
 .form-section:last-of-type {
-    border-bottom: none;
     margin-bottom: 0;
-    padding-bottom: 0;
 }
 
 .section-title {
-    font-size: var(--text-sm);
+    font-size: 1rem;
     font-weight: var(--font-semibold);
     color: var(--form-label-color);
-    margin: 0 0 var(--space-4) 0;
-    padding-bottom: var(--space-3);
+    margin: 0 -1.25rem 1rem;
+    padding: 1rem 1.25rem;
     border-bottom: 1px solid var(--form-section-border);
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), #ffffff);
     display: flex;
     align-items: center;
     gap: var(--space-2);
@@ -651,6 +654,17 @@ form .row .col-12,
 .section-title i {
     color: var(--primary);
     font-size: 0.95rem;
+}
+
+[data-theme="dark"] .form-section {
+    background: var(--bg-elevated);
+    border-color: var(--border-default);
+}
+
+[data-theme="dark"] .section-title {
+    color: var(--text-primary);
+    border-bottom-color: var(--border-default);
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
 }
 
 .form-actions {
@@ -741,22 +755,21 @@ form .row .col-12,
 .content-wrapper .card.enterprise-form-card .form-section,
 .content-wrapper .card.enterprise-details-card .form-section,
 .content-wrapper .card:only-child .form-section {
-    margin-bottom: 32px;
-    padding-bottom: 28px;
+    margin-bottom: 1.5rem;
+    padding: 0 1.25rem 1.25rem;
 }
 
 .content-wrapper .card.enterprise-form-card .form-section:last-of-type,
 .content-wrapper .card.enterprise-details-card .form-section:last-of-type,
 .content-wrapper .card:only-child .form-section:last-of-type {
     margin-bottom: 0;
-    padding-bottom: 0;
 }
 
 .content-wrapper .card.enterprise-form-card .section-title,
 .content-wrapper .card.enterprise-details-card .section-title,
 .content-wrapper .card:only-child .section-title {
-    margin-bottom: 20px;
-    padding-bottom: 12px;
+    margin: 0 -1.25rem 1rem;
+    padding: 1rem 1.25rem;
 }
 
 /* Form row gap: consistent horizontal and vertical spacing in enterprise forms */
@@ -1467,10 +1480,10 @@ form .row .col-12,
 .page-content > .page-header,
 .page-content > .card.enterprise-form-card,
 .page-content > .card.enterprise-details-card {
-    max-width: 1280px;
+    max-width: 100%;
     width: 100%;
-    margin-left: auto;
-    margin-right: auto;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .page-content > .card.enterprise-form-card .card-body,
@@ -1532,7 +1545,28 @@ form .row .col-12,
     }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .page-content .card.enterprise-form-card .row > .col-md-3,
+    .page-content .card.enterprise-form-card .row > .col-md-4,
+    .page-content .card.enterprise-form-card .row > .col-md-6,
+    .page-content .card.enterprise-form-card .row > .col-lg-3,
+    .page-content .card.enterprise-details-card .row > .col-md-3,
+    .page-content .card.enterprise-details-card .row > .col-md-4,
+    .page-content .card.enterprise-details-card .row > .col-md-6,
+    .page-content .card.enterprise-details-card .row > .col-lg-3 {
+        flex: 0 0 auto !important;
+        width: 50% !important;
+        max-width: 50% !important;
+    }
+
+    .page-content .card.enterprise-form-card .form-actions .btn,
+    .page-content .card.enterprise-details-card .form-actions .btn {
+        width: auto;
+        min-width: 148px;
+    }
+}
+
+@media (min-width: 992px) {
     .page-content .card.enterprise-form-card .row > .col-md-2,
     .page-content .card.enterprise-details-card .row > .col-md-2 {
         flex: 0 0 auto !important;
@@ -1541,24 +1575,16 @@ form .row .col-12,
     }
 
     .page-content .card.enterprise-form-card .row > .col-md-3,
-    .page-content .card.enterprise-details-card .row > .col-md-3 {
+    .page-content .card.enterprise-form-card .row > .col-md-4,
+    .page-content .card.enterprise-form-card .row > .col-md-6,
+    .page-content .card.enterprise-form-card .row > .col-lg-3,
+    .page-content .card.enterprise-details-card .row > .col-md-3,
+    .page-content .card.enterprise-details-card .row > .col-md-4,
+    .page-content .card.enterprise-details-card .row > .col-md-6,
+    .page-content .card.enterprise-details-card .row > .col-lg-3 {
         flex: 0 0 auto !important;
         width: 25% !important;
         max-width: 25% !important;
-    }
-
-    .page-content .card.enterprise-form-card .row > .col-md-4,
-    .page-content .card.enterprise-details-card .row > .col-md-4 {
-        flex: 0 0 auto !important;
-        width: 33.33333333% !important;
-        max-width: 33.33333333% !important;
-    }
-
-    .page-content .card.enterprise-form-card .row > .col-md-6,
-    .page-content .card.enterprise-details-card .row > .col-md-6 {
-        flex: 0 0 auto !important;
-        width: 50% !important;
-        max-width: 50% !important;
     }
 
     .page-content .card.enterprise-form-card .row > .col-md-10,

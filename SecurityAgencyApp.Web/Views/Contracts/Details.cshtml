@@ -29,9 +29,9 @@
 
 <div class="row g-4">
     <div class="col-md-8">
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm enterprise-details-card">
             <div class="card-body">
-                <h5 class="card-title mb-4">Contract Information</h5>
+                <h5 class="section-title"><i class="fas fa-file-contract"></i>Contract Information</h5>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-muted">Contract Number</label>
@@ -97,9 +97,9 @@
 
         @if (Model.Sites != null && Model.Sites.Any())
         {
-            <div class="card border-0 shadow-sm mt-4">
+            <div class="card border-0 shadow-sm enterprise-details-card mt-4">
                 <div class="card-body">
-                    <h5 class="card-title mb-4">Contract Sites</h5>
+                    <h5 class="section-title"><i class="fas fa-map-marked-alt"></i>Contract Sites</h5>
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
@@ -126,9 +126,9 @@
         }
     </div>
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm enterprise-details-card">
             <div class="card-body">
-                <h5 class="card-title mb-4">Additional Information</h5>
+                <h5 class="section-title"><i class="fas fa-info-circle"></i>Additional Information</h5>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Created Date</label>
                     <p class="mb-0">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</p>

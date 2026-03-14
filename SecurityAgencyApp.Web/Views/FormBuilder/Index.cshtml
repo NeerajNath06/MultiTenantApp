@@ -1,6 +1,9 @@
 @model SecurityAgencyApp.Web.Models.Api.FormTemplateListResponse
 @{
     ViewData["Title"] = "Form Builder";
+    var totalForms = Model?.Items?.Count ?? 0;
+    var systemTemplates = Model?.Items?.Count(t => t.IsSystemTemplate) ?? 0;
+    var totalSubmissions = Model?.Items?.Sum(t => t.SubmissionCount) ?? 0;
 }
 
 <div class="page-header">
@@ -23,7 +26,38 @@
     </div>
 }
 
-<div class="card border-0 shadow-sm">
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Total Forms</div>
+                <div class="stat-value">@totalForms</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">System Templates</div>
+                <div class="stat-value">@systemTemplates</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Submissions</div>
+                <div class="stat-value">@totalSubmissions</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm overflow-hidden">
+    <div class="card-header bg-body-tertiary py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="mb-0"><i class="fas fa-file-alt me-2 text-primary"></i>Form Library</h5>
+        <span class="text-muted small">@totalForms available templates</span>
+    </div>
     <div class="card-body">
         @if (Model?.Items != null && Model.Items.Any())
         {

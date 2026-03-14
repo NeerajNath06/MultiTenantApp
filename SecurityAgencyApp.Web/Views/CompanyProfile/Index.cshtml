@@ -28,7 +28,7 @@
 }
 
 <!-- Enterprise profile card (read-only summary) -->
-<div class="card border-0 shadow-sm mb-4">
+<div class="card border-0 shadow-sm enterprise-details-card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span><i class="fas fa-building me-2"></i>Organization</span>
         <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#editProfileForm">
@@ -136,21 +136,23 @@
         </div>
 
         <div class="collapse mt-4" id="editProfileForm">
-            <hr />
-            <form asp-action="Edit" method="post" class="row g-3">
-                <div class="col-md-6">
+            <form asp-action="Edit" method="post" class="form">
+                <div class="form-section mt-3">
+                <h5 class="section-title"><i class="fas fa-pen"></i>Edit Profile</h5>
+                <div class="row g-3">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Company Name <span class="text-danger">*</span></label>
                     <input type="text" name="CompanyName" class="form-control" value="@profile?.CompanyName" required />
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Registration Number <span class="text-danger">*</span></label>
                     <input type="text" name="RegistrationNumber" class="form-control" value="@profile?.RegistrationNumber" required />
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
                     <input type="email" name="Email" class="form-control" value="@profile?.Email" required />
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
                     <input type="text" name="Phone" class="form-control" value="@profile?.Phone" required />
                 </div>
@@ -158,146 +160,146 @@
                     <label class="form-label fw-semibold">Address</label>
                     <textarea name="Address" class="form-control" rows="2">@profile?.Address</textarea>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">City</label>
                     <input type="text" name="City" class="form-control" value="@profile?.City" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">State</label>
                     <input type="text" name="State" class="form-control" value="@profile?.State" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Pin Code</label>
                     <input type="text" name="PinCode" class="form-control" value="@profile?.PinCode" />
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Country</label>
                     <input type="text" name="Country" class="form-control" value="@profile?.Country" />
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Website</label>
                     <input type="url" name="Website" class="form-control" value="@profile?.Website" />
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Tax / GST Number</label>
                     <input type="text" name="TaxId" class="form-control" value="@profile?.TaxId" />
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Legal Name</label>
                     <input type="text" name="LegalName" class="form-control" value="@profile?.LegalName" />
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Trade Name</label>
                     <input type="text" name="TradeName" class="form-control" value="@profile?.TradeName" />
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Company Code</label>
                     <input type="text" name="CompanyCode" class="form-control" value="@profile?.CompanyCode" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">CIN</label>
                     <input type="text" name="CinNumber" class="form-control" value="@profile?.CinNumber" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">PAN</label>
                     <input type="text" name="PanNumber" class="form-control" value="@profile?.PanNumber" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">GST Number</label>
                     <input type="text" name="GstNumber" class="form-control" value="@profile?.GstNumber" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">PF Number</label>
                     <input type="text" name="PfNumber" class="form-control" value="@profile?.PfNumber" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">ESIC Number</label>
                     <input type="text" name="EsicNumber" class="form-control" value="@profile?.EsicNumber" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Labour License</label>
                     <input type="text" name="LabourLicenseNumber" class="form-control" value="@profile?.LabourLicenseNumber" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Owner</label>
                     <input type="text" name="OwnerName" class="form-control" value="@profile?.OwnerName" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Compliance Officer</label>
                     <input type="text" name="ComplianceOfficerName" class="form-control" value="@profile?.ComplianceOfficerName" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Billing Contact</label>
                     <input type="text" name="BillingContactName" class="form-control" value="@profile?.BillingContactName" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Billing Phone</label>
                     <input type="text" name="BillingContactPhone" class="form-control" value="@profile?.BillingContactPhone" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Billing Email</label>
                     <input type="email" name="BillingEmail" class="form-control" value="@profile?.BillingEmail" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Escalation Contact</label>
                     <input type="text" name="EscalationContactName" class="form-control" value="@profile?.EscalationContactName" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Escalation Phone</label>
                     <input type="text" name="EscalationContactPhone" class="form-control" value="@profile?.EscalationContactPhone" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Support Email</label>
                     <input type="email" name="SupportEmail" class="form-control" value="@profile?.SupportEmail" />
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Time Zone</label>
                     <input type="text" name="TimeZone" class="form-control" value="@profile?.TimeZone" />
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Currency</label>
                     <input type="text" name="Currency" class="form-control" value="@profile?.Currency" />
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Invoice Prefix</label>
                     <input type="text" name="InvoicePrefix" class="form-control" value="@profile?.InvoicePrefix" />
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Payroll Prefix</label>
                     <input type="text" name="PayrollPrefix" class="form-control" value="@profile?.PayrollPrefix" />
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Subscription Plan</label>
                     <input type="text" name="SubscriptionPlan" class="form-control" value="@profile?.SubscriptionPlan" />
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Seat Limit</label>
                     <input type="number" name="SeatLimit" class="form-control" value="@profile?.SeatLimit" />
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Branch Limit</label>
                     <input type="number" name="BranchLimit" class="form-control" value="@profile?.BranchLimit" />
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Storage Limit (GB)</label>
                     <input type="number" step="0.01" name="StorageLimitGb" class="form-control" value="@profile?.StorageLimitGb" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Onboarding Status</label>
                     <input type="text" name="OnboardingStatus" class="form-control" value="@profile?.OnboardingStatus" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-6 col-lg-3">
                     <label class="form-label fw-semibold">Activation Status</label>
                     <input type="text" name="ActivationStatus" class="form-control" value="@profile?.ActivationStatus" />
                 </div>
-                <div class="col-md-2">
+                <div class="col-12 col-md-6 col-lg-3">
                     <div class="form-check mt-4">
                         <input type="hidden" name="IsKycVerified" value="false" />
                         <input type="checkbox" name="IsKycVerified" class="form-check-input" value="true" @(profile?.IsKycVerified == true ? "checked" : "") />
                         <label class="form-check-label fw-semibold">KYC Verified</label>
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-12 col-md-6 col-lg-3">
                     <div class="form-check mt-4">
                         <input type="hidden" name="OnboardingChecklistCompleted" value="false" />
                         <input type="checkbox" name="OnboardingChecklistCompleted" class="form-check-input" value="true" @(profile?.OnboardingChecklistCompleted == true ? "checked" : "") />
@@ -308,19 +310,21 @@
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Save Profile</button>
                 </div>
+                </div>
+                </div>
             </form>
         </div>
     </div>
 </div>
 
 <!-- Company documents -->
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-header"><i class="fas fa-file-alt me-2"></i>Company Documents</div>
     <div class="card-body">
         <h6 class="fw-semibold mb-3">Upload document</h6>
         <form asp-action="UploadDocument" method="post" enctype="multipart/form-data" class="row g-3 align-items-end mb-4">
             @Html.AntiForgeryToken()
-            <div class="col-md-3">
+            <div class="col-12 col-md-6 col-lg-3">
                 <label class="form-label fw-semibold">Document type <span class="text-danger">*</span></label>
                 <select name="documentType" class="form-select" required>
                     <option value="">Select type</option>
@@ -332,19 +336,19 @@
                     <option value="Other">Other</option>
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-12 col-md-6 col-lg-3">
                 <label class="form-label fw-semibold">Document number</label>
                 <input type="text" name="documentNumber" class="form-control" placeholder="Optional" />
             </div>
-            <div class="col-md-2">
+            <div class="col-12 col-md-6 col-lg-3">
                 <label class="form-label fw-semibold">Expiry date</label>
                 <input type="date" name="expiryDate" class="form-control" />
             </div>
-            <div class="col-md-3">
+            <div class="col-12 col-md-6 col-lg-3">
                 <label class="form-label fw-semibold">File <span class="text-danger">*</span></label>
                 <input type="file" name="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required />
             </div>
-            <div class="col-md-2">
+            <div class="col-12 col-md-6 col-lg-3">
                 <button type="submit" class="btn btn-primary w-100"><i class="fas fa-upload me-1"></i>Upload</button>
             </div>
         </form>

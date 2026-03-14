@@ -3,6 +3,9 @@
     ViewData["Title"] = "Sites";
     var currentSort = Model?.SortBy ?? "";
     var currentDirection = Model?.SortDirection ?? "asc";
+    var totalSites = Model?.TotalCount ?? 0;
+    var activeSites = Model?.Items?.Count(s => s.IsActive) ?? 0;
+    var activePlans = Model?.Items?.Count(s => s.HasActiveDeploymentPlan) ?? 0;
 }
 
 <div class="page-header">
@@ -33,7 +36,37 @@
     </div>
 }
 
-<div class="card border-0 shadow-sm mb-3">
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Total Sites</div>
+                <div class="stat-value">@totalSites</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Active Sites</div>
+                <div class="stat-value">@activeSites</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Active Plans</div>
+                <div class="stat-value">@activePlans</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-body-tertiary py-3">
+        <h5 class="mb-0"><i class="fas fa-filter me-2 text-primary"></i>Search & Filters</h5>
+    </div>
     <div class="card-body">
         <form method="get" class="row g-3">
             <input type="hidden" name="pageNumber" value="1" />
@@ -55,7 +88,11 @@
     </div>
 </div>
 
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm overflow-hidden">
+    <div class="card-header bg-body-tertiary py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="mb-0"><i class="fas fa-building me-2 text-primary"></i>Site Directory</h5>
+        <span class="text-muted small">@totalSites total records</span>
+    </div>
     <div class="card-body">
         @if (Model?.Items != null && Model.Items.Any())
         {

@@ -26,11 +26,11 @@
     </div>
 </div>
 
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm enterprise-details-card">
     <div class="card-body">
-        <div class="row">
+        <div class="row g-4">
             <div class="col-md-6">
-                <h6 class="text-muted border-bottom pb-2 mb-3">Basic Info</h6>
+                <h5 class="section-title"><i class="fas fa-user-shield"></i>Basic Info</h5>
                 <dl class="row mb-0">
                     <dt class="col-sm-4">Guard Code</dt>
                     <dd class="col-sm-8"><span class="badge bg-secondary">@Model.GuardCode</span></dd>
@@ -60,7 +60,7 @@
                 </dl>
             </div>
             <div class="col-md-6">
-                <h6 class="text-muted border-bottom pb-2 mb-3">Address &amp; ID</h6>
+                <h5 class="section-title"><i class="fas fa-id-card"></i>Address &amp; ID</h5>
                 <dl class="row mb-0">
                     <dt class="col-sm-4">Address</dt>
                     <dd class="col-sm-8">@(Model.Address ?? "-")</dd>

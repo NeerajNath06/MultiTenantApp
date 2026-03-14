@@ -4,6 +4,9 @@
     var guards = ViewBag.Guards as SelectList;
     var currentSort = Model?.SortBy ?? "";
     var currentDirection = Model?.SortDirection ?? "desc";
+    var totalRecords = Model?.TotalCount ?? 0;
+    var presentRecords = Model?.Items?.Count(a => string.Equals(a.Status, "Present", StringComparison.OrdinalIgnoreCase)) ?? 0;
+    var lateRecords = Model?.Items?.Count(a => string.Equals(a.Status, "Late", StringComparison.OrdinalIgnoreCase)) ?? 0;
 }
 
 <div class="page-header">
@@ -39,7 +42,37 @@
     </div>
 }
 
-<div class="card border-0 shadow-sm mb-3">
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Total Records</div>
+                <div class="stat-value">@totalRecords</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Present</div>
+                <div class="stat-value">@presentRecords</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Late Entries</div>
+                <div class="stat-value">@lateRecords</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-body-tertiary py-3">
+        <h5 class="mb-0"><i class="fas fa-filter me-2 text-primary"></i>Search & Filters</h5>
+    </div>
     <div class="card-body">
         <form method="get" class="row g-3">
             <input type="hidden" name="pageNumber" value="1" />
@@ -74,7 +107,11 @@
     </div>
 </div>
 
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm overflow-hidden">
+    <div class="card-header bg-body-tertiary py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="mb-0"><i class="fas fa-calendar-check me-2 text-primary"></i>Attendance Directory</h5>
+        <span class="text-muted small">@totalRecords total records</span>
+    </div>
     <div class="card-body">
         @if (Model?.Items != null && Model.Items.Any())
         {

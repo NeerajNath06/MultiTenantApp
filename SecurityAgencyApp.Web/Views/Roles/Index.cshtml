@@ -3,6 +3,9 @@
     ViewData["Title"] = "Roles Management";
     var currentSort = Model?.SortBy ?? "";
     var currentDirection = Model?.SortDirection ?? "asc";
+    var totalRoles = Model?.TotalCount ?? 0;
+    var activeRoles = Model?.Items?.Count(r => r.IsActive) ?? 0;
+    var mappedUsers = Model?.Items?.Sum(r => r.UserCount) ?? 0;
 }
 
 <div class="page-header">
@@ -25,7 +28,37 @@
     </div>
 }
 
-<div class="card border-0 shadow-sm mb-3">
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Total Roles</div>
+                <div class="stat-value">@totalRoles</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Active Roles</div>
+                <div class="stat-value">@activeRoles</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Mapped Users</div>
+                <div class="stat-value">@mappedUsers</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-body-tertiary py-3">
+        <h5 class="mb-0"><i class="fas fa-filter me-2 text-primary"></i>Search & Filters</h5>
+    </div>
     <div class="card-body">
         <form method="get" class="row g-3">
             <input type="hidden" name="pageNumber" value="1" />
@@ -47,7 +80,11 @@
     </div>
 </div>
 
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm overflow-hidden">
+    <div class="card-header bg-body-tertiary py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="mb-0"><i class="fas fa-user-tag me-2 text-primary"></i>Role Directory</h5>
+        <span class="text-muted small">@totalRoles total records</span>
+    </div>
     <div class="card-body">
         @if (Model?.Items != null && Model.Items.Any())
         {

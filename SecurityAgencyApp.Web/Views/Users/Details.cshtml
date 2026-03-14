@@ -4,87 +4,95 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">User Details</h4>
-                    <div class="d-flex gap-2">
-                        <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-warning">
-                            <i class="fas fa-edit"></i> Edit
-                        </a>
-                        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline" data-confirm-message="Are you sure you want to delete this user?">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <dl class="row">
-                                <dt class="col-sm-4">Username:</dt>
-                                <dd class="col-sm-8">@Model.UserName</dd>
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h1 class="page-title">User Details</h1>
+            <p class="page-subtitle mb-0">@Model.FirstName @Model.LastName - @Model.UserName</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-warning">
+                <i class="fas fa-edit me-2"></i>Edit
+            </a>
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline" data-confirm-message="Are you sure you want to delete this user?">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-2"></i>Delete
+                </button>
+            </form>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
+    </div>
+</div>
 
-                                <dt class="col-sm-4">Email:</dt>
-                                <dd class="col-sm-8">@Model.Email</dd>
+<div class="card border-0 shadow-sm enterprise-details-card">
+    <div class="card-body">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <h5 class="section-title"><i class="fas fa-user"></i>Account Information</h5>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Username</dt>
+                    <dd class="col-sm-8">@Model.UserName</dd>
 
-                                <dt class="col-sm-4">Name:</dt>
-                                <dd class="col-sm-8">@Model.FirstName @Model.LastName</dd>
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8">@Model.Email</dd>
 
-                                <dt class="col-sm-4">Phone:</dt>
-                                <dd class="col-sm-8">@(Model.PhoneNumber ?? "-")</dd>
-                                <dt class="col-sm-4">Aadhar Number:</dt>
-                                <dd class="col-sm-8">@(Model.AadharNumber ?? "-")</dd>
-                                <dt class="col-sm-4">PAN Number:</dt>
-                                <dd class="col-sm-8">@(Model.PANNumber ?? "-")</dd>
-                                <dt class="col-sm-4">UAN (PF/EPF):</dt>
-                                <dd class="col-sm-8">@(Model.UAN ?? "-")</dd>
-                            </dl>
-                        </div>
-                        <div class="col-md-6">
-                            <dl class="row">
-                                <dt class="col-sm-4">Department:</dt>
-                                <dd class="col-sm-8">@(Model.DepartmentName ?? "-")</dd>
+                    <dt class="col-sm-4">Name</dt>
+                    <dd class="col-sm-8">@Model.FirstName @Model.LastName</dd>
 
-                                <dt class="col-sm-4">Designation:</dt>
-                                <dd class="col-sm-8">@(Model.DesignationName ?? "-")</dd>
+                    <dt class="col-sm-4">Phone</dt>
+                    <dd class="col-sm-8">@(Model.PhoneNumber ?? "-")</dd>
 
-                                <dt class="col-sm-4">Status:</dt>
-                                <dd class="col-sm-8">
-                                    @if (Model.IsActive)
-                                    {
-                                        <span class="badge bg-success">Active</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger">Inactive</span>
-                                    }
-                                </dd>
+                    <dt class="col-sm-4">Created Date</dt>
+                    <dd class="col-sm-8">@Model.CreatedDate.ToString("dd MMM yyyy")</dd>
+                </dl>
+            </div>
+            <div class="col-md-6">
+                <h5 class="section-title"><i class="fas fa-id-card"></i>Employment Information</h5>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Department</dt>
+                    <dd class="col-sm-8">@(Model.DepartmentName ?? "-")</dd>
 
-                                <dt class="col-sm-4">Created Date:</dt>
-                                <dd class="col-sm-8">@Model.CreatedDate.ToString("dd MMM yyyy")</dd>
-                            </dl>
-                        </div>
-                    </div>
+                    <dt class="col-sm-4">Designation</dt>
+                    <dd class="col-sm-8">@(Model.DesignationName ?? "-")</dd>
 
-                    @if (Model.Roles != null && Model.Roles.Any())
+                    <dt class="col-sm-4">Aadhar Number</dt>
+                    <dd class="col-sm-8">@(Model.AadharNumber ?? "-")</dd>
+
+                    <dt class="col-sm-4">PAN Number</dt>
+                    <dd class="col-sm-8">@(Model.PANNumber ?? "-")</dd>
+
+                    <dt class="col-sm-4">UAN (PF/EPF)</dt>
+                    <dd class="col-sm-8">@(Model.UAN ?? "-")</dd>
+
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Inactive</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        @if (Model.Roles != null && Model.Roles.Any())
+        {
+            <div class="form-section mt-4">
+                <h5 class="section-title"><i class="fas fa-user-tag"></i>Roles</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var role in Model.Roles)
                     {
-                        <div class="mt-4">
-                            <h5>Roles</h5>
-                            <div>
-                                @foreach (var role in Model.Roles)
-                                {
-                                    <span class="badge bg-primary me-2">@role</span>
-                                }
-                            </div>
-                        </div>
+                        <span class="badge bg-primary">@role</span>
                     }
                 </div>
             </div>
-        </div>
+        }
     </div>
 </div>

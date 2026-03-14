@@ -3,6 +3,9 @@
     ViewData["Title"] = "Patrol Scans";
     var guards = ViewBag.Guards as SelectList;
     var sites = ViewBag.Sites as SelectList;
+    var totalScans = Model?.TotalCount ?? 0;
+    var visibleScans = Model?.Items?.Count ?? 0;
+    var coveredSites = Model?.Items?.Select(s => s.SiteName).Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().Count() ?? 0;
 }
 
 <div class="page-header">
@@ -10,7 +13,37 @@
     <p class="page-subtitle mb-0">View patrol checkpoint scans by guard</p>
 </div>
 
-<div class="card border-0 shadow-sm mb-3">
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Total Scans</div>
+                <div class="stat-value">@totalScans</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Visible Rows</div>
+                <div class="stat-value">@visibleScans</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Sites Covered</div>
+                <div class="stat-value">@coveredSites</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-body-tertiary py-3">
+        <h5 class="mb-0"><i class="fas fa-filter me-2 text-primary"></i>Search & Filters</h5>
+    </div>
     <div class="card-body">
         <form method="get" class="row g-3">
             <input type="hidden" name="pageNumber" value="1" />
@@ -42,7 +75,11 @@
     </div>
 </div>
 
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm overflow-hidden">
+    <div class="card-header bg-body-tertiary py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="mb-0"><i class="fas fa-qrcode me-2 text-primary"></i>Patrol Scan Directory</h5>
+        <span class="text-muted small">@totalScans total scans</span>
+    </div>
     <div class="card-body">
         @if (Model?.Items != null && Model.Items.Any())
         {
