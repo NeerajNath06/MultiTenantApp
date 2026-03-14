@@ -366,8 +366,16 @@ public static class DbInitializer
             context.SubMenus.AddRange(additions);
             await context.SaveChangesAsync();
 
+            var roleIdsWithOperationsMenu = await context.RoleMenus
+                .Where(rm => rm.MenuId == menuOps.Id)
+                .Select(rm => rm.RoleId)
+                .Distinct()
+                .ToListAsync();
+
             var roles = await context.Roles
-                .Where(r => r.TenantId == tenant.Id && (r.Code == "ADMIN" || r.Code == "SUPERVISOR"))
+                .Where(r => r.TenantId == tenant.Id
+                    && r.Code != "GUARD"
+                    && (roleIdsWithOperationsMenu.Contains(r.Id) || r.Code == "ADMIN" || r.Code == "SUPERVISOR"))
                 .ToListAsync();
 
             foreach (var role in roles)
