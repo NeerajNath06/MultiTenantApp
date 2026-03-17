@@ -78,6 +78,6 @@ public class CreateEquipmentCommandHandler : IRequestHandler<CreateEquipmentComm
         await equipmentRepo.AddAsync(equipment, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(equipment.Id, "Equipment created successfully");
+        return ApiResponse<Guid>.SuccessResponse(equipment.Id);
     }
 }

@@ -62,6 +62,6 @@ public class CreateRoleCommandHandler : IRequestHandler<CreateRoleCommand, ApiRe
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(role.Id, "Role created successfully");
+        return ApiResponse<Guid>.SuccessResponse(role.Id);
     }
 }

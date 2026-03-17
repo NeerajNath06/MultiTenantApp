@@ -1,6 +1,6 @@
-@model SecurityAgencyApp.Web.Models.Api.CreateSiteRequest
+@model SecurityAgencyApp.Model.Api.CreateSiteRequest
 @using Microsoft.AspNetCore.Mvc.Rendering
-@using SecurityAgencyApp.Web.Models.Api
+@using SecurityAgencyApp.Model.Api
 @{
     var branches = ViewBag.Branches as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>());
     var posts = Model.Posts?.Any() == true

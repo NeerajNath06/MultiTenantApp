@@ -124,6 +124,6 @@ public class CreateGuardCommandHandler : IRequestHandler<CreateGuardCommand, Api
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        return ApiResponse<Guid>.SuccessResponse(guard.Id, "Security guard created successfully");
+        return ApiResponse<Guid>.SuccessResponse(guard.Id);
     }
 }

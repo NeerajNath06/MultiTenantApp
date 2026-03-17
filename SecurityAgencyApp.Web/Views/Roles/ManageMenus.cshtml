@@ -1,6 +1,6 @@
 @{
-    var role = ViewBag.Role as SecurityAgencyApp.Web.Models.Api.RoleDto;
-    var menus = ViewBag.Menus as List<SecurityAgencyApp.Web.Models.Api.MenuDto>;
+    var role = ViewBag.Role as SecurityAgencyApp.Model.Api.RoleDto;
+    var menus = ViewBag.Menus as List<SecurityAgencyApp.Model.Api.MenuDto>;
     ViewData["Title"] = $"Manage Menus - {role?.Name}";
 }
 

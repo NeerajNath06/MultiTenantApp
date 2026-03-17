@@ -98,6 +98,6 @@ public class GetMenuListQueryHandler : IRequestHandler<GetMenuListQuery, ApiResp
             Search = request.Search
         };
 
-        return ApiResponse<MenuListResponseDto>.SuccessResponse(response, "Menus retrieved successfully");
+        return ApiResponse<MenuListResponseDto>.SuccessResponse(response);
     }
 }

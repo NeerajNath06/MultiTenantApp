@@ -75,7 +75,7 @@ public class UpdateTenantProfileCommandHandler : IRequestHandler<UpdateTenantPro
         tenant.ModifiedDate = DateTime.UtcNow;
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Profile updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 
     private static string? Normalize(string? value)

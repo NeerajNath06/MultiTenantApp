@@ -109,6 +109,6 @@ public class CreateIncidentCommandHandler : IRequestHandler<CreateIncidentComman
             return ApiResponse<Guid>.ErrorResponse($"Could not save incident: {message}");
         }
 
-        return ApiResponse<Guid>.SuccessResponse(incident.Id, "Incident report created successfully");
+        return ApiResponse<Guid>.SuccessResponse(incident.Id);
     }
 }

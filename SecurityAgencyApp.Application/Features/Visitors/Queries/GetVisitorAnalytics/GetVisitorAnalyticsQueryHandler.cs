@@ -88,6 +88,6 @@ public class GetVisitorAnalyticsQueryHandler : IRequestHandler<GetVisitorAnalyti
             TopHosts = topHosts
         };
 
-        return ApiResponse<VisitorAnalyticsDto>.SuccessResponse(result, "Analytics retrieved");
+        return ApiResponse<VisitorAnalyticsDto>.SuccessResponse(result);
     }
 }

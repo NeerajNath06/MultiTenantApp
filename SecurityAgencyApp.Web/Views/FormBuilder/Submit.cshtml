@@ -1,4 +1,4 @@
-@model SecurityAgencyApp.Web.Models.Api.SubmitFormRequest
+@model SecurityAgencyApp.Model.Api.SubmitFormRequest
 @{
     var template = ViewBag.Template as SecurityAgencyApp.Application.Features.FormBuilder.Queries.GetFormTemplateById.FormTemplateDto;
     ViewData["Title"] = $"Submit Form - {template?.Name}";

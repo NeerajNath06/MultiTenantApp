@@ -96,6 +96,6 @@ public class GetContractListQueryHandler : IRequestHandler<GetContractListQuery,
             TotalPages = totalPages
         };
 
-        return ApiResponse<ContractListResponseDto>.SuccessResponse(response, "Contracts retrieved successfully");
+        return ApiResponse<ContractListResponseDto>.SuccessResponse(response);
     }
 }

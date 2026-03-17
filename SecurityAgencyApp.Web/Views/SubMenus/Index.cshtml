@@ -1,7 +1,7 @@
-@model SecurityAgencyApp.Web.Models.Api.SubMenuListResponse
+@model SecurityAgencyApp.Model.Api.SubMenuListResponse
 @{
     ViewData["Title"] = "SubMenus Management";
-    var menus = ViewBag.Menus as List<SecurityAgencyApp.Web.Models.Api.MenuDto>;
+    var menus = ViewBag.Menus as List<SecurityAgencyApp.Model.Api.MenuDto>;
     var selectedMenuId = ViewBag.SelectedMenuId as Guid?;
     var totalSubMenus = Model?.Items?.Count ?? 0;
     var activeSubMenus = Model?.Items?.Count(s => s.IsActive) ?? 0;

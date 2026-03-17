@@ -76,6 +76,6 @@ public class UpdateContractCommandHandler : IRequestHandler<UpdateContractComman
         await contractRepo.UpdateAsync(contract, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Contract updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

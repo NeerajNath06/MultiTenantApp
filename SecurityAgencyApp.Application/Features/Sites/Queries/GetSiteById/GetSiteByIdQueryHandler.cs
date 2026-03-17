@@ -112,6 +112,6 @@ public class GetSiteByIdQueryHandler : IRequestHandler<GetSiteByIdQuery, ApiResp
             })
             .FirstOrDefault();
 
-        return ApiResponse<SiteDto>.SuccessResponse(siteDto, "Site retrieved successfully");
+        return ApiResponse<SiteDto>.SuccessResponse(siteDto);
     }
 }

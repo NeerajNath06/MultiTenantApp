@@ -76,6 +76,6 @@ public class CreateAssignmentCommandHandler : IRequestHandler<CreateAssignmentCo
         await _unitOfWork.Repository<GuardAssignment>().AddAsync(assignment, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(assignment.Id, "Guard assigned successfully");
+        return ApiResponse<Guid>.SuccessResponse(assignment.Id);
     }
 }

@@ -31,6 +31,6 @@ public class DeleteClientCommandHandler : IRequestHandler<DeleteClientCommand, A
         entity.Status = "Inactive";
         await repo.UpdateAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Client deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

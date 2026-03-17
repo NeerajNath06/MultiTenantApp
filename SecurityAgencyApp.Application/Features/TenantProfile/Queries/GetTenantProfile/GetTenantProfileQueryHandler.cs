@@ -73,6 +73,6 @@ public class GetTenantProfileQueryHandler : IRequestHandler<GetTenantProfileQuer
             SubscriptionStartDate = tenant.SubscriptionStartDate,
             SubscriptionEndDate = tenant.SubscriptionEndDate
         };
-        return ApiResponse<TenantProfileDto>.SuccessResponse(dto, "Profile retrieved successfully");
+        return ApiResponse<TenantProfileDto>.SuccessResponse(dto);
     }
 }

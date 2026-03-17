@@ -1,9 +1,9 @@
 @model SecurityAgencyApp.Web.Controllers.RosterViewModel
 @{
     ViewData["Title"] = "Roster";
-    var deployments = Model?.Deployments ?? new List<SecurityAgencyApp.Web.Models.Api.RosterDeploymentDto>();
+    var deployments = Model?.Deployments ?? new List<SecurityAgencyApp.Model.Api.RosterDeploymentDto>();
     var weekDays = Model?.WeekDays ?? new List<DateTime>();
-    var sites = ViewBag.Sites as List<SecurityAgencyApp.Web.Models.Api.SiteDto> ?? new List<SecurityAgencyApp.Web.Models.Api.SiteDto>();
+    var sites = ViewBag.Sites as List<SecurityAgencyApp.Model.Api.SiteDto> ?? new List<SecurityAgencyApp.Model.Api.SiteDto>();
     var guardIds = deployments.Select(d => d.GuardId).Distinct().ToList();
     var guardNames = deployments.GroupBy(d => d.GuardId).ToDictionary(g => g.Key, g => g.First().GuardName ?? "—");
     var totalDeployments = deployments.Count;

@@ -47,6 +47,6 @@ public class DeleteMenuCommandHandler : IRequestHandler<DeleteMenuCommand, ApiRe
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Menu deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

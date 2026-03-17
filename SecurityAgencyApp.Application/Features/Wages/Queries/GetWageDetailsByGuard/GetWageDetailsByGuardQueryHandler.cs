@@ -84,6 +84,6 @@ public class GetWageDetailsByGuardQueryHandler : IRequestHandler<GetWageDetailsB
             PageSize = request.PageSize,
             TotalPages = totalPages
         };
-        return ApiResponse<GuardPayslipsResponseDto>.SuccessResponse(response, "Payslips retrieved");
+        return ApiResponse<GuardPayslipsResponseDto>.SuccessResponse(response);
     }
 }

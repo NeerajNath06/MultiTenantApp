@@ -40,6 +40,6 @@ public class GetGuardDocumentsQueryHandler : IRequestHandler<GetGuardDocumentsQu
             CreatedDate = d.CreatedDate
         }).ToList();
 
-        return ApiResponse<List<GuardDocumentDto>>.SuccessResponse(list, "Documents retrieved successfully");
+        return ApiResponse<List<GuardDocumentDto>>.SuccessResponse(list);
     }
 }

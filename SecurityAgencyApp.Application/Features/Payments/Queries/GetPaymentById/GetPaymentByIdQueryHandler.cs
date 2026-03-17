@@ -66,6 +66,6 @@ public class GetPaymentByIdQueryHandler : IRequestHandler<GetPaymentByIdQuery, A
             ModifiedDate = payment.ModifiedDate
         };
 
-        return ApiResponse<PaymentDto>.SuccessResponse(paymentDto, "Payment retrieved successfully");
+        return ApiResponse<PaymentDto>.SuccessResponse(paymentDto);
     }
 }

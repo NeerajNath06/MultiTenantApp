@@ -65,6 +65,6 @@ public class GetFormTemplateByIdQueryHandler : IRequestHandler<GetFormTemplateBy
                 .ToList()
         };
 
-        return ApiResponse<FormTemplateDto>.SuccessResponse(templateDto, "Form template retrieved successfully");
+        return ApiResponse<FormTemplateDto>.SuccessResponse(templateDto);
     }
 }

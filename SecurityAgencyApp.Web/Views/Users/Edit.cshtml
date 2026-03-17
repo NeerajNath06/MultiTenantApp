@@ -1,4 +1,4 @@
-@model SecurityAgencyApp.Web.Models.Api.UpdateUserRequest
+@model SecurityAgencyApp.Model.Api.UpdateUserRequest
 @{
     ViewData["Title"] = "Edit User";
 }
@@ -93,7 +93,7 @@
                         <p class="text-muted small mb-2">Assign roles (e.g. <strong>Supervisor</strong> to allow managing assigned guards).</p>
                         <div class="d-flex flex-wrap gap-3">
                         @{
-                            var editRolesList = ViewBag.Roles as IEnumerable<SecurityAgencyApp.Web.Models.Api.RoleDto>;
+                            var editRolesList = ViewBag.Roles as IEnumerable<SecurityAgencyApp.Model.Api.RoleDto>;
                         }
                         @if (editRolesList != null && editRolesList.Any())
                         {

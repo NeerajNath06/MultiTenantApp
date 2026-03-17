@@ -54,6 +54,6 @@ public class CreateLeaveRequestCommandHandler : IRequestHandler<CreateLeaveReque
         await _unitOfWork.Repository<LeaveRequest>().AddAsync(leaveRequest, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(leaveRequest.Id, "Leave request created successfully");
+        return ApiResponse<Guid>.SuccessResponse(leaveRequest.Id);
     }
 }

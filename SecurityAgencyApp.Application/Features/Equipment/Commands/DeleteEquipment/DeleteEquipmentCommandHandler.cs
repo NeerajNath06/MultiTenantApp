@@ -30,6 +30,6 @@ public class DeleteEquipmentCommandHandler : IRequestHandler<DeleteEquipmentComm
         entity.ModifiedDate = DateTime.UtcNow;
         await repo.UpdateAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Equipment deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

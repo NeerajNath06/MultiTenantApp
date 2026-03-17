@@ -47,6 +47,6 @@ public class DeleteDesignationCommandHandler : IRequestHandler<DeleteDesignation
         await designationRepo.UpdateAsync(designation, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Designation deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

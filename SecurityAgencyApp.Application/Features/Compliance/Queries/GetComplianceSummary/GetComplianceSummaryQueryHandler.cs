@@ -163,6 +163,6 @@ public class GetComplianceSummaryQueryHandler : IRequestHandler<GetComplianceSum
             Items = items.OrderByDescending(i => i.Status == "non-compliant" ? 2 : i.Status == "warning" ? 1 : 0).ThenBy(i => i.Title).ToList()
         };
 
-        return ApiResponse<ComplianceSummaryDto>.SuccessResponse(result, "Compliance summary retrieved");
+        return ApiResponse<ComplianceSummaryDto>.SuccessResponse(result);
     }
 }

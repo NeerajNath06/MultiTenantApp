@@ -53,6 +53,6 @@ public class UpdateDepartmentCommandHandler : IRequestHandler<UpdateDepartmentCo
         await deptRepo.UpdateAsync(department, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Department updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

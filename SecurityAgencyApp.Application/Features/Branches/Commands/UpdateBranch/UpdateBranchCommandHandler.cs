@@ -50,7 +50,7 @@ public class UpdateBranchCommandHandler : IRequestHandler<UpdateBranchCommand, A
 
         await repo.UpdateAsync(branch, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Branch updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 
     private static string? Normalize(string? value)

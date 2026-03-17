@@ -47,6 +47,6 @@ public class DeleteShiftCommandHandler : IRequestHandler<DeleteShiftCommand, Api
         await shiftRepo.UpdateAsync(shift, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Shift deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

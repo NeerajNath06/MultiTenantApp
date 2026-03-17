@@ -90,6 +90,6 @@ public class GetDepartmentListQueryHandler : IRequestHandler<GetDepartmentListQu
             Search = request.Search
         };
 
-        return ApiResponse<DepartmentListResponseDto>.SuccessResponse(response, "Departments retrieved successfully");
+        return ApiResponse<DepartmentListResponseDto>.SuccessResponse(response);
     }
 }

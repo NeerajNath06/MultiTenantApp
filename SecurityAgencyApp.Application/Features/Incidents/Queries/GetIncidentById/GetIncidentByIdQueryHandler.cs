@@ -48,6 +48,6 @@ public class GetIncidentByIdQueryHandler : IRequestHandler<GetIncidentByIdQuery,
             Description = incident.Description,
             ActionTaken = incident.ActionTaken
         };
-        return ApiResponse<IncidentDetailDto>.SuccessResponse(dto, "Incident retrieved");
+        return ApiResponse<IncidentDetailDto>.SuccessResponse(dto);
     }
 }

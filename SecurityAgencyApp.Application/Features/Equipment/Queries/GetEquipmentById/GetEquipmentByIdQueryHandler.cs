@@ -59,6 +59,6 @@ public class GetEquipmentByIdQueryHandler : IRequestHandler<GetEquipmentByIdQuer
             IsActive = equipment.IsActive,
             CreatedDate = equipment.CreatedDate
         };
-        return ApiResponse<EquipmentDetailDto>.SuccessResponse(dto, "Equipment retrieved");
+        return ApiResponse<EquipmentDetailDto>.SuccessResponse(dto);
     }
 }

@@ -50,6 +50,6 @@ public class GetDesignationByIdQueryHandler : IRequestHandler<GetDesignationById
             ModifiedDate = designation.ModifiedDate
         };
 
-        return ApiResponse<DesignationDto>.SuccessResponse(designationDto, "Designation retrieved successfully");
+        return ApiResponse<DesignationDto>.SuccessResponse(designationDto);
     }
 }

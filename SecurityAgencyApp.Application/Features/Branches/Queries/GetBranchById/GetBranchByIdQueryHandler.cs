@@ -25,7 +25,7 @@ public class GetBranchByIdQueryHandler : IRequestHandler<GetBranchByIdQuery, Api
         if (branch == null || branch.TenantId != _tenantContext.TenantId.Value)
             return ApiResponse<BranchDto>.ErrorResponse("Branch not found");
 
-        return ApiResponse<BranchDto>.SuccessResponse(Map(branch), "Branch retrieved successfully");
+        return ApiResponse<BranchDto>.SuccessResponse(Map(branch));
     }
 
     private static BranchDto Map(Branch branch)

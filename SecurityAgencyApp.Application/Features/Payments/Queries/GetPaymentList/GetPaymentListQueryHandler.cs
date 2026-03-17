@@ -117,6 +117,6 @@ public class GetPaymentListQueryHandler : IRequestHandler<GetPaymentListQuery, A
             TotalPages = totalPages
         };
 
-        return ApiResponse<PaymentListResponseDto>.SuccessResponse(response, "Payments retrieved successfully");
+        return ApiResponse<PaymentListResponseDto>.SuccessResponse(response);
     }
 }

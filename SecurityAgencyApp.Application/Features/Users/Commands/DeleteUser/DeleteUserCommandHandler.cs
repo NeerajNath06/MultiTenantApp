@@ -48,6 +48,6 @@ public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, ApiRe
         await userRepo.DeleteAsync(user, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "User deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

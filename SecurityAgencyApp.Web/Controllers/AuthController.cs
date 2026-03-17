@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Features.Authentication.Commands.Login;
 using SecurityAgencyApp.Application.Features.Authentication.Commands.RegisterAgency;
-using SecurityAgencyApp.Web.Models.Api;
+using SecurityAgencyApp.Model.Api;
 using SecurityAgencyApp.Web.Services;
 
 namespace SecurityAgencyApp.Web.Controllers;
@@ -130,7 +130,7 @@ public class AuthController : Controller
             return View();
         }
 
-        var result = await _apiClient.PostAsync<Models.Api.ForgotPasswordResponse>("api/v1/Auth/forgot-password", new { email = email.Trim() });
+        var result = await _apiClient.PostAsync<ForgotPasswordResponse>("api/v1/Auth/forgot-password", new { email = email.Trim() });
         if (result.Success && result.Data != null)
         {
             TempData["ForgotPasswordEmail"] = result.Data.Email;

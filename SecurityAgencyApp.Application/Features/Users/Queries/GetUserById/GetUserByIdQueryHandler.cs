@@ -75,6 +75,6 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, ApiResp
             CreatedDate = user.CreatedDate
         };
 
-        return ApiResponse<UserDto>.SuccessResponse(userDto, "User retrieved successfully");
+        return ApiResponse<UserDto>.SuccessResponse(userDto);
     }
 }

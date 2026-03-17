@@ -28,6 +28,6 @@ public class DeleteBranchCommandHandler : IRequestHandler<DeleteBranchCommand, A
 
         await repo.DeleteAsync(branch, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Branch deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

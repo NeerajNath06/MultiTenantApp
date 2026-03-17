@@ -118,6 +118,6 @@ public class GetEquipmentListQueryHandler : IRequestHandler<GetEquipmentListQuer
             TotalPages = totalPages
         };
 
-        return ApiResponse<EquipmentListResponseDto>.SuccessResponse(response, "Equipment retrieved successfully");
+        return ApiResponse<EquipmentListResponseDto>.SuccessResponse(response);
     }
 }

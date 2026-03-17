@@ -60,7 +60,7 @@ public class CreateSitePostCommandHandler : IRequestHandler<CreateSitePostComman
 
         await repo.AddAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<Guid>.SuccessResponse(entity.Id, "Site post created successfully");
+        return ApiResponse<Guid>.SuccessResponse(entity.Id);
     }
 
     private static string? Normalize(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();

@@ -97,6 +97,6 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, ApiRe
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "User updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

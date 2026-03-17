@@ -48,6 +48,6 @@ public class DeleteDepartmentCommandHandler : IRequestHandler<DeleteDepartmentCo
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Department deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

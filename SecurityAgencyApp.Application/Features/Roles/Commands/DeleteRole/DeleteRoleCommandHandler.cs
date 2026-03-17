@@ -53,6 +53,6 @@ public class DeleteRoleCommandHandler : IRequestHandler<DeleteRoleCommand, ApiRe
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Role deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

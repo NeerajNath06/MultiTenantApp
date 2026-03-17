@@ -46,6 +46,6 @@ public class CreateDepartmentCommandHandler : IRequestHandler<CreateDepartmentCo
         await deptRepo.AddAsync(department, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(department.Id, "Department created successfully");
+        return ApiResponse<Guid>.SuccessResponse(department.Id);
     }
 }

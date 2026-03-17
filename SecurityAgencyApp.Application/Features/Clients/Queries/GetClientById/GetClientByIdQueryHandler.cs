@@ -72,6 +72,6 @@ public class GetClientByIdQueryHandler : IRequestHandler<GetClientByIdQuery, Api
             ModifiedDate = client.ModifiedDate
         };
 
-        return ApiResponse<ClientDto>.SuccessResponse(clientDto, "Client retrieved successfully");
+        return ApiResponse<ClientDto>.SuccessResponse(clientDto);
     }
 }

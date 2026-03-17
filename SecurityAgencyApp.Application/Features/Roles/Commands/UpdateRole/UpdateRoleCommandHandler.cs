@@ -83,6 +83,6 @@ public class UpdateRoleCommandHandler : IRequestHandler<UpdateRoleCommand, ApiRe
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Role updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

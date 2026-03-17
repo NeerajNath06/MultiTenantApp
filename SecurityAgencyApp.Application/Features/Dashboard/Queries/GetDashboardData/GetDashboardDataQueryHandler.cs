@@ -84,6 +84,6 @@ public class GetDashboardDataQueryHandler : IRequestHandler<GetDashboardDataQuer
             RecentActivities = recentActivities
         };
 
-        return ApiResponse<DashboardDataDto>.SuccessResponse(dashboardData, "Dashboard data retrieved successfully");
+        return ApiResponse<DashboardDataDto>.SuccessResponse(dashboardData);
     }
 }

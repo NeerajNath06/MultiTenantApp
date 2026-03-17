@@ -28,6 +28,6 @@ public class DeleteSitePostCommandHandler : IRequestHandler<DeleteSitePostComman
 
         await repo.DeleteAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Site post deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

@@ -30,6 +30,6 @@ public class DeleteVisitorCommandHandler : IRequestHandler<DeleteVisitorCommand,
         entity.ModifiedDate = DateTime.UtcNow;
         await repo.UpdateAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Visitor deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

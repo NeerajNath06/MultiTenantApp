@@ -39,6 +39,6 @@ public class GetAnnouncementByIdQueryHandler : IRequestHandler<GetAnnouncementBy
             IsActive = entity.IsActive,
             CreatedDate = entity.CreatedDate
         };
-        return ApiResponse<AnnouncementDto>.SuccessResponse(dto, "Announcement retrieved");
+        return ApiResponse<AnnouncementDto>.SuccessResponse(dto);
     }
 }

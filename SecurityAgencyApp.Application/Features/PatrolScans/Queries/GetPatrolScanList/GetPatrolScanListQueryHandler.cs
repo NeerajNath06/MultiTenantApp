@@ -57,6 +57,6 @@ public class GetPatrolScanListQueryHandler : IRequestHandler<GetPatrolScanListQu
         }).ToList();
 
         var response = new PatrolScanListResponseDto { Items = items, TotalCount = totalCount };
-        return ApiResponse<PatrolScanListResponseDto>.SuccessResponse(response, "Patrol scans retrieved");
+        return ApiResponse<PatrolScanListResponseDto>.SuccessResponse(response);
     }
 }

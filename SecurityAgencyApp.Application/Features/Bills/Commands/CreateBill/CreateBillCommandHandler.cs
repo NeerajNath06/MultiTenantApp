@@ -107,6 +107,6 @@ public class CreateBillCommandHandler : IRequestHandler<CreateBillCommand, ApiRe
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(bill.Id, "Bill created successfully");
+        return ApiResponse<Guid>.SuccessResponse(bill.Id);
     }
 }

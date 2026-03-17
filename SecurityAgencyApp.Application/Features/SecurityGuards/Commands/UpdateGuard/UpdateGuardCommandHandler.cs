@@ -70,6 +70,6 @@ public class UpdateGuardCommandHandler : IRequestHandler<UpdateGuardCommand, Api
         await guardRepo.UpdateAsync(guard, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Security guard updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

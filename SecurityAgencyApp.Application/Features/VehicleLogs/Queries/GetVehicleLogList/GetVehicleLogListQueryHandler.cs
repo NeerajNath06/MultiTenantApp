@@ -101,6 +101,6 @@ public class GetVehicleLogListQueryHandler : IRequestHandler<GetVehicleLogListQu
             PageSize = request.PageSize,
             TotalPages = totalPages
         };
-        return ApiResponse<VehicleLogListResponseDto>.SuccessResponse(response, "Vehicle log retrieved");
+        return ApiResponse<VehicleLogListResponseDto>.SuccessResponse(response);
     }
 }

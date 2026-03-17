@@ -54,6 +54,6 @@ public class GetLeaveRequestByIdQueryHandler : IRequestHandler<GetLeaveRequestBy
             IsActive = leave.IsActive,
             CreatedDate = leave.CreatedDate
         };
-        return ApiResponse<LeaveRequestDetailDto>.SuccessResponse(dto, "Leave request retrieved");
+        return ApiResponse<LeaveRequestDetailDto>.SuccessResponse(dto);
     }
 }

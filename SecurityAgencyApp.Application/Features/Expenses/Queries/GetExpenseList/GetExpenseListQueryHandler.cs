@@ -127,6 +127,6 @@ public class GetExpenseListQueryHandler : IRequestHandler<GetExpenseListQuery, A
             TotalPages = totalPages
         };
 
-        return ApiResponse<ExpenseListResponseDto>.SuccessResponse(response, "Expenses retrieved successfully");
+        return ApiResponse<ExpenseListResponseDto>.SuccessResponse(response);
     }
 }

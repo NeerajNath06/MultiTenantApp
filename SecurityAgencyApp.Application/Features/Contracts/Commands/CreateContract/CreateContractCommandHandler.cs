@@ -96,6 +96,6 @@ public class CreateContractCommandHandler : IRequestHandler<CreateContractComman
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(contract.Id, "Contract created successfully");
+        return ApiResponse<Guid>.SuccessResponse(contract.Id);
     }
 }

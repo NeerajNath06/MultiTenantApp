@@ -61,7 +61,7 @@ public class UpdateSitePostCommandHandler : IRequestHandler<UpdateSitePostComman
 
         await repo.UpdateAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Site post updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 
     private static string? Normalize(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();

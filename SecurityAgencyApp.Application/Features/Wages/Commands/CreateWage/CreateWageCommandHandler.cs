@@ -131,6 +131,6 @@ public class CreateWageCommandHandler : IRequestHandler<CreateWageCommand, ApiRe
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(wage.Id, "Wage sheet created successfully");
+        return ApiResponse<Guid>.SuccessResponse(wage.Id);
     }
 }

@@ -30,6 +30,6 @@ public class DeleteTrainingRecordCommandHandler : IRequestHandler<DeleteTraining
         entity.ModifiedDate = DateTime.UtcNow;
         await repo.UpdateAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Training record deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

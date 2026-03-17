@@ -99,6 +99,6 @@ public class GetLeaveRequestListQueryHandler : IRequestHandler<GetLeaveRequestLi
             TotalPages = totalPages
         };
 
-        return ApiResponse<LeaveRequestListResponseDto>.SuccessResponse(response, "Leave requests retrieved successfully");
+        return ApiResponse<LeaveRequestListResponseDto>.SuccessResponse(response);
     }
 }

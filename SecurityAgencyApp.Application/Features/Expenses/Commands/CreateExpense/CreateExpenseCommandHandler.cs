@@ -75,6 +75,6 @@ public class CreateExpenseCommandHandler : IRequestHandler<CreateExpenseCommand,
         await expenseRepo.AddAsync(expense, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(expense.Id, "Expense created successfully");
+        return ApiResponse<Guid>.SuccessResponse(expense.Id);
     }
 }

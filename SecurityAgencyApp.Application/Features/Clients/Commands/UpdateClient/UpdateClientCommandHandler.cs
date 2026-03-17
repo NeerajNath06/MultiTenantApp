@@ -81,6 +81,6 @@ public class UpdateClientCommandHandler : IRequestHandler<UpdateClientCommand, A
         await clientRepo.UpdateAsync(client, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Client updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

@@ -43,6 +43,6 @@ public class GetShiftByIdQueryHandler : IRequestHandler<GetShiftByIdQuery, ApiRe
             ModifiedDate = shift.ModifiedDate
         };
 
-        return ApiResponse<ShiftDto>.SuccessResponse(shiftDto, "Shift retrieved successfully");
+        return ApiResponse<ShiftDto>.SuccessResponse(shiftDto);
     }
 }

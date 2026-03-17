@@ -53,6 +53,6 @@ public class GetNotificationListQueryHandler : IRequestHandler<GetNotificationLi
             TotalCount = totalCount,
             UnreadCount = unreadCount
         };
-        return ApiResponse<NotificationListResponseDto>.SuccessResponse(response, "Notifications retrieved");
+        return ApiResponse<NotificationListResponseDto>.SuccessResponse(response);
     }
 }

@@ -63,6 +63,6 @@ public class UpdateDesignationCommandHandler : IRequestHandler<UpdateDesignation
         await designationRepo.UpdateAsync(designation, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Designation updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

@@ -58,6 +58,6 @@ public class GetRoleByIdQueryHandler : IRequestHandler<GetRoleByIdQuery, ApiResp
             SubMenuIds = subMenuIds
         };
 
-        return ApiResponse<RoleDto>.SuccessResponse(roleDto, "Role retrieved successfully");
+        return ApiResponse<RoleDto>.SuccessResponse(roleDto);
     }
 }

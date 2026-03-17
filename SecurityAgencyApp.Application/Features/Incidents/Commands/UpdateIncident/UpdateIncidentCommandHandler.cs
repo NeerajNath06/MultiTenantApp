@@ -39,6 +39,6 @@ public class UpdateIncidentCommandHandler : IRequestHandler<UpdateIncidentComman
         await incidentRepo.UpdateAsync(incident, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Incident updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

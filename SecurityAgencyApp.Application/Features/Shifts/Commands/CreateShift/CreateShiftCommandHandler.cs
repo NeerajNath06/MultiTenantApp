@@ -36,6 +36,6 @@ public class CreateShiftCommandHandler : IRequestHandler<CreateShiftCommand, Api
         await _unitOfWork.Repository<Shift>().AddAsync(shift, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(shift.Id, "Shift created successfully");
+        return ApiResponse<Guid>.SuccessResponse(shift.Id);
     }
 }

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SecurityAgencyApp.Web.Filters;
-using SecurityAgencyApp.Web.Models.Api;
+using SecurityAgencyApp.Model.Api;
 using SecurityAgencyApp.Web.Services;
 
 namespace SecurityAgencyApp.Web.Controllers;
@@ -96,7 +96,7 @@ public class GuardAssignmentsController : Controller
         ModelState.AddModelError("", result.Message);
         if (result.Errors?.Count > 0)
             foreach (var err in result.Errors)
-                ModelState.AddModelError("", err);
+                ModelState.AddModelError(err.Field ?? string.Empty, err.Message);
         await LoadDropdowns(request.SiteId);
         return View(request);
     }

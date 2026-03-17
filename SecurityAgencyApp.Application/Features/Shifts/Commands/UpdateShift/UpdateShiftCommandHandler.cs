@@ -46,6 +46,6 @@ public class UpdateShiftCommandHandler : IRequestHandler<UpdateShiftCommand, Api
         await shiftRepo.UpdateAsync(shift, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Shift updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

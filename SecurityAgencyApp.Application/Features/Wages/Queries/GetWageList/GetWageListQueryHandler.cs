@@ -98,6 +98,6 @@ public class GetWageListQueryHandler : IRequestHandler<GetWageListQuery, ApiResp
             TotalPages = totalPages
         };
 
-        return ApiResponse<WageListResponseDto>.SuccessResponse(response, "Wages retrieved successfully");
+        return ApiResponse<WageListResponseDto>.SuccessResponse(response);
     }
 }

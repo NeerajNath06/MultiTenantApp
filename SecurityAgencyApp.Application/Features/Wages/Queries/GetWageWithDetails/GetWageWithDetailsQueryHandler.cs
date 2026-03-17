@@ -73,6 +73,6 @@ public class GetWageWithDetailsQueryHandler : IRequestHandler<GetWageWithDetails
             Notes = wage.Notes,
             Details = detailDtos
         };
-        return ApiResponse<WageWithDetailsDto>.SuccessResponse(dto, "Wage with details retrieved");
+        return ApiResponse<WageWithDetailsDto>.SuccessResponse(dto);
     }
 }

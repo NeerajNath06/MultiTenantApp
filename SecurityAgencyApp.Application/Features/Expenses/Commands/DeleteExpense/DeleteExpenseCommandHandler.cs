@@ -30,6 +30,6 @@ public class DeleteExpenseCommandHandler : IRequestHandler<DeleteExpenseCommand,
         entity.ModifiedDate = DateTime.UtcNow;
         await repo.UpdateAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Expense deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

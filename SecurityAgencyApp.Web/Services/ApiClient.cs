@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using SecurityAgencyApp.Application.Common.Models;
 
 namespace SecurityAgencyApp.Web.Services;
 
@@ -25,6 +26,13 @@ public class ApiClient : IApiClient
     /// <summary>Build absolute URI so request always hits API (BaseAddress + path with correct slash).</summary>
     private Uri BuildRequestUri(string path)
     {
+        var ctx = _httpContext.HttpContext;
+        if (ctx != null && !Uri.IsWellFormedUriString(path, UriKind.Absolute))
+        {
+            var request = ctx.Request;
+            return new Uri($"{request.Scheme}://{request.Host}{request.PathBase}/{path.TrimStart('/')}");
+        }
+
         if (_http.BaseAddress == null)
             return new Uri(path.TrimStart('/'), UriKind.Relative);
         var segment = path.TrimStart('/');
@@ -163,7 +171,13 @@ public class ApiClient : IApiClient
             SetAuthHeaders(request);
             var response = await _http.SendAsync(request, cancellationToken);
             var parsed = await ParseResponse<object>(response, cancellationToken);
-            return new ApiResult<bool> { Success = parsed.Success, Message = parsed.Message, Data = parsed.Success };
+            return new ApiResult<bool>
+            {
+                Success = parsed.Success,
+                Message = parsed.Message,
+                Data = parsed.Success,
+                Errors = parsed.Errors
+            };
         }
         catch (Exception ex)
         {
@@ -231,12 +245,30 @@ public class ApiClient : IApiClient
             var root = doc.RootElement;
             var success = root.TryGetProperty("success", out var s) && s.GetBoolean();
             var message = root.TryGetProperty("message", out var m) ? m.GetString() ?? "" : "";
-            var errors = new List<string>();
+            var errors = new List<ApiError>();
             if (root.TryGetProperty("errors", out var errArr) && errArr.ValueKind == JsonValueKind.Array)
             {
                 foreach (var e in errArr.EnumerateArray())
+                {
                     if (e.ValueKind == JsonValueKind.String)
-                        errors.Add(e.GetString() ?? "");
+                    {
+                        errors.Add(ApiError.Create(e.GetString() ?? ""));
+                        continue;
+                    }
+
+                    if (e.ValueKind != JsonValueKind.Object)
+                        continue;
+
+                    var field = e.TryGetProperty("field", out var fieldElement) && fieldElement.ValueKind != JsonValueKind.Null
+                        ? fieldElement.GetString()
+                        : null;
+                    var errorMessage = e.TryGetProperty("message", out var errorMessageElement) && errorMessageElement.ValueKind != JsonValueKind.Null
+                        ? errorMessageElement.GetString()
+                        : null;
+
+                    if (!string.IsNullOrWhiteSpace(errorMessage))
+                        errors.Add(ApiError.Create(errorMessage, field));
+                }
             }
             T? data = default;
             if (root.TryGetProperty("data", out var d) && d.ValueKind != JsonValueKind.Null && d.ValueKind != JsonValueKind.Undefined)

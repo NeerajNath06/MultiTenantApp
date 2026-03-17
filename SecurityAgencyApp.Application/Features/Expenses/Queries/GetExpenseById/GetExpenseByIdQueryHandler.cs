@@ -58,6 +58,6 @@ public class GetExpenseByIdQueryHandler : IRequestHandler<GetExpenseByIdQuery, A
             IsActive = expense.IsActive,
             CreatedDate = expense.CreatedDate
         };
-        return ApiResponse<ExpenseDetailDto>.SuccessResponse(dto, "Expense retrieved");
+        return ApiResponse<ExpenseDetailDto>.SuccessResponse(dto);
     }
 }

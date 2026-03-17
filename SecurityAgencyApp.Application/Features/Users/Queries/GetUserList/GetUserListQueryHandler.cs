@@ -122,6 +122,6 @@ public class GetUserListQueryHandler : IRequestHandler<GetUserListQuery, ApiResp
             TotalPages = totalPages
         };
 
-        return ApiResponse<UserListResponseDto>.SuccessResponse(response, "Users retrieved successfully");
+        return ApiResponse<UserListResponseDto>.SuccessResponse(response);
     }
 }

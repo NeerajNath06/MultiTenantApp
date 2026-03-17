@@ -71,6 +71,6 @@ public class GetContractByIdQueryHandler : IRequestHandler<GetContractByIdQuery,
             }).ToList()
         };
 
-        return ApiResponse<ContractDto>.SuccessResponse(contractDto, "Contract retrieved successfully");
+        return ApiResponse<ContractDto>.SuccessResponse(contractDto);
     }
 }

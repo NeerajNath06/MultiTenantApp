@@ -100,6 +100,6 @@ public class GetTrainingRecordListQueryHandler : IRequestHandler<GetTrainingReco
             TotalPages = totalPages
         };
 
-        return ApiResponse<TrainingRecordListResponseDto>.SuccessResponse(response, "Training records retrieved successfully");
+        return ApiResponse<TrainingRecordListResponseDto>.SuccessResponse(response);
     }
 }

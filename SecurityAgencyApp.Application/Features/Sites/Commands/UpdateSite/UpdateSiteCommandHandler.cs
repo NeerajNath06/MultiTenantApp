@@ -152,6 +152,6 @@ public class UpdateSiteCommandHandler : IRequestHandler<UpdateSiteCommand, ApiRe
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Site updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

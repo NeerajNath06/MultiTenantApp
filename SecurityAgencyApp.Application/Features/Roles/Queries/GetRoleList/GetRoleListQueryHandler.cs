@@ -97,6 +97,6 @@ public class GetRoleListQueryHandler : IRequestHandler<GetRoleListQuery, ApiResp
             Search = request.Search
         };
 
-        return ApiResponse<RoleListResponseDto>.SuccessResponse(response, "Roles retrieved successfully");
+        return ApiResponse<RoleListResponseDto>.SuccessResponse(response);
     }
 }

@@ -28,6 +28,6 @@ public class DeleteVehicleLogCommandHandler : IRequestHandler<DeleteVehicleLogCo
 
         await repo.DeleteAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Vehicle log deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

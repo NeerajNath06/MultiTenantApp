@@ -129,6 +129,6 @@ public class GetGuardListQueryHandler : IRequestHandler<GetGuardListQuery, ApiRe
             Search = request.Search
         };
 
-        return ApiResponse<GuardListResponseDto>.SuccessResponse(response, "Security guards retrieved successfully");
+        return ApiResponse<GuardListResponseDto>.SuccessResponse(response);
     }
 }

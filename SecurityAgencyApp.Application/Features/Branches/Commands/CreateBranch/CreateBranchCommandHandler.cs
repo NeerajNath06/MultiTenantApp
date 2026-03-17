@@ -49,7 +49,7 @@ public class CreateBranchCommandHandler : IRequestHandler<CreateBranchCommand, A
 
         await repo.AddAsync(branch, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<Guid>.SuccessResponse(branch.Id, "Branch created successfully");
+        return ApiResponse<Guid>.SuccessResponse(branch.Id);
     }
 
     private static string? Normalize(string? value)

@@ -91,6 +91,6 @@ public class GetClientListQueryHandler : IRequestHandler<GetClientListQuery, Api
             TotalPages = totalPages
         };
 
-        return ApiResponse<ClientListResponseDto>.SuccessResponse(response, "Clients retrieved successfully");
+        return ApiResponse<ClientListResponseDto>.SuccessResponse(response);
     }
 }

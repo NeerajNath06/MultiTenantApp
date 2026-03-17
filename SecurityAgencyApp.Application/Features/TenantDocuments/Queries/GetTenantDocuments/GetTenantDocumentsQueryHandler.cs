@@ -36,6 +36,6 @@ public class GetTenantDocumentsQueryHandler : IRequestHandler<GetTenantDocuments
             CreatedDate = d.CreatedDate
         }).ToList();
 
-        return ApiResponse<List<TenantDocumentDto>>.SuccessResponse(list, "Documents retrieved successfully");
+        return ApiResponse<List<TenantDocumentDto>>.SuccessResponse(list);
     }
 }

@@ -37,6 +37,6 @@ public class DeleteSiteCommandHandler : IRequestHandler<DeleteSiteCommand, ApiRe
         await siteRepo.UpdateAsync(site, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Site deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

@@ -75,6 +75,6 @@ public class CreateClientCommandHandler : IRequestHandler<CreateClientCommand, A
         await clientRepo.AddAsync(client, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(client.Id, "Client created successfully");
+        return ApiResponse<Guid>.SuccessResponse(client.Id);
     }
 }

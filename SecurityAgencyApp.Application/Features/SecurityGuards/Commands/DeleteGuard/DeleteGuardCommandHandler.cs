@@ -48,6 +48,6 @@ public class DeleteGuardCommandHandler : IRequestHandler<DeleteGuardCommand, Api
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Security guard deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

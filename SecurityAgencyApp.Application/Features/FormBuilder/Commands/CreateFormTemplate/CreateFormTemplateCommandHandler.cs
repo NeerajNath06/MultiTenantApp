@@ -83,6 +83,6 @@ public class CreateFormTemplateCommandHandler : IRequestHandler<CreateFormTempla
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(template.Id, "Form template created successfully");
+        return ApiResponse<Guid>.SuccessResponse(template.Id);
     }
 }

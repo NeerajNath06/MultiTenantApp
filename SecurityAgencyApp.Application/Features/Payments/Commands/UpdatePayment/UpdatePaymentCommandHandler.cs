@@ -61,6 +61,6 @@ public class UpdatePaymentCommandHandler : IRequestHandler<UpdatePaymentCommand,
         await paymentRepo.UpdateAsync(payment, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Payment updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

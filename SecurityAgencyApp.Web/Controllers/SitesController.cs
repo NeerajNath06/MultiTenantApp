@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SecurityAgencyApp.Web.Filters;
-using SecurityAgencyApp.Web.Models.Api;
+using SecurityAgencyApp.Model.Api;
 using SecurityAgencyApp.Web.Services;
 using SecurityAgencyApp.Application.Features.MonthlyDocuments.Commands.GenerateMonthlyDocuments;
 

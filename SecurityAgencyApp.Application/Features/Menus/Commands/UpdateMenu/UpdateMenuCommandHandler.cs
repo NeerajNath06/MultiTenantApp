@@ -67,6 +67,6 @@ public class UpdateMenuCommandHandler : IRequestHandler<UpdateMenuCommand, ApiRe
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Menu updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

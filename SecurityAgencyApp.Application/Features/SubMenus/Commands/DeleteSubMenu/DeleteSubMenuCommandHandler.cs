@@ -45,6 +45,6 @@ public class DeleteSubMenuCommandHandler : IRequestHandler<DeleteSubMenuCommand,
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "SubMenu deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

@@ -31,6 +31,6 @@ public class DeleteContractCommandHandler : IRequestHandler<DeleteContractComman
         entity.Status = "Terminated";
         await repo.UpdateAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Contract deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

@@ -60,6 +60,6 @@ public class CreateSubMenuCommandHandler : IRequestHandler<CreateSubMenuCommand,
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(subMenu.Id, "SubMenu created successfully");
+        return ApiResponse<Guid>.SuccessResponse(subMenu.Id);
     }
 }

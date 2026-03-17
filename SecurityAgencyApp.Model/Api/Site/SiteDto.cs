@@ -1,0 +1,39 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace SecurityAgencyApp.Model.Api;
+
+public class SiteDto
+{
+    public Guid Id { get; set; }
+    public string SiteCode { get; set; } = string.Empty;
+    public string SiteName { get; set; } = string.Empty;
+    public Guid? ClientId { get; set; }
+    public Guid? BranchId { get; set; }
+    public string? BranchName { get; set; }
+    public string ClientName { get; set; } = string.Empty;
+    public string Address { get; set; } = string.Empty;
+    public string City { get; set; } = string.Empty;
+    public string State { get; set; } = string.Empty;
+    public string PinCode { get; set; } = string.Empty;
+    public string? ContactPerson { get; set; }
+    public string? ContactPhone { get; set; }
+    public string? ContactEmail { get; set; }
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactPhone { get; set; }
+    public string? MusterPoint { get; set; }
+    public string? AccessZoneNotes { get; set; }
+    public string? SiteInstructionBook { get; set; }
+    public string? GeofenceExceptionNotes { get; set; }
+    public bool IsActive { get; set; }
+    public int GuardCount { get; set; }
+    public int PostsCount { get; set; }
+    public bool HasActiveDeploymentPlan { get; set; }
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+    public int? GeofenceRadiusMeters { get; set; }
+    public List<Guid> SupervisorIds { get; set; } = new();
+    public List<SitePostDto> Posts { get; set; } = new();
+    public SiteDeploymentPlanDto? ActiveDeploymentPlan { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public DateTime? ModifiedDate { get; set; }
+}

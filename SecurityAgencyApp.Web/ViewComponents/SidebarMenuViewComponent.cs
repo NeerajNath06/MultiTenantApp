@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SecurityAgencyApp.Web.Models.Api;
+using SecurityAgencyApp.Model.Api;
 using SecurityAgencyApp.Web.Services;
 
 namespace SecurityAgencyApp.Web.ViewComponents;

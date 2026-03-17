@@ -64,6 +64,6 @@ public class GetMenuByIdQueryHandler : IRequestHandler<GetMenuByIdQuery, ApiResp
             PermissionIds = menuPermissions.Select(mp => mp.PermissionId).ToList()
         };
 
-        return ApiResponse<MenuDto>.SuccessResponse(menuDto, "Menu retrieved successfully");
+        return ApiResponse<MenuDto>.SuccessResponse(menuDto);
     }
 }

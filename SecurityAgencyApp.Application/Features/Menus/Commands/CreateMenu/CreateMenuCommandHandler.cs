@@ -52,6 +52,6 @@ public class CreateMenuCommandHandler : IRequestHandler<CreateMenuCommand, ApiRe
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(menu.Id, "Menu created successfully");
+        return ApiResponse<Guid>.SuccessResponse(menu.Id);
     }
 }

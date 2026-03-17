@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SecurityAgencyApp.Domain.Enums;
 using SecurityAgencyApp.Web.Filters;
-using SecurityAgencyApp.Web.Models.Api;
+using SecurityAgencyApp.Model.Api;
 using SecurityAgencyApp.Web.Services;
 
 namespace SecurityAgencyApp.Web.Controllers;
@@ -87,7 +87,7 @@ public class SecurityGuardsController : Controller
             TempData["SuccessMessage"] = "Security guard created successfully";
             return RedirectToAction(nameof(Index));
         }
-        ModelState.AddModelError("", result.Message ?? "API did not create the guard. Check that the API is running and ApiSettings:BaseUrl points to it.");
+        ModelState.AddModelError("", result.Message ?? "The guard could not be created. Please verify the request details and try again.");
         await LoadSupervisorsIntoViewBag();
         LoadGenderList();
         return View(request);

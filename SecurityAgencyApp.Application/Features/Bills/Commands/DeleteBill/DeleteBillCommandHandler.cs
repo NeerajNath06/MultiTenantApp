@@ -31,6 +31,6 @@ public class DeleteBillCommandHandler : IRequestHandler<DeleteBillCommand, ApiRe
         bill.Status = "Cancelled";
         await billRepo.UpdateAsync(bill, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Bill deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

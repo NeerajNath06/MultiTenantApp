@@ -44,6 +44,6 @@ public class GetVehicleLogByIdQueryHandler : IRequestHandler<GetVehicleLogByIdQu
             EntryTime = entity.EntryTime,
             ExitTime = entity.ExitTime,
         };
-        return ApiResponse<VehicleLogDto>.SuccessResponse(dto, "Vehicle log retrieved");
+        return ApiResponse<VehicleLogDto>.SuccessResponse(dto);
     }
 }

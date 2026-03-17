@@ -31,6 +31,6 @@ public class DeleteLeaveRequestCommandHandler : IRequestHandler<DeleteLeaveReque
         entity.ModifiedDate = DateTime.UtcNow;
         await repo.UpdateAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Leave request deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

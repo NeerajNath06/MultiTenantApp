@@ -77,6 +77,6 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, ApiRe
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(user.Id, "User created successfully");
+        return ApiResponse<Guid>.SuccessResponse(user.Id);
     }
 }

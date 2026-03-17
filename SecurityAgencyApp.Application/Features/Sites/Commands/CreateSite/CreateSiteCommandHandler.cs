@@ -91,7 +91,7 @@ public class CreateSiteCommandHandler : IRequestHandler<CreateSiteCommand, ApiRe
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        return ApiResponse<Guid>.SuccessResponse(site.Id, "Site created successfully");
+        return ApiResponse<Guid>.SuccessResponse(site.Id);
     }
 
     private async Task SyncSitePlanningAsync(

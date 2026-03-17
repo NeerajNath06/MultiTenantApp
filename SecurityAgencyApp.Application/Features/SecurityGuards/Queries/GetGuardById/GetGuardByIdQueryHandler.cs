@@ -62,6 +62,6 @@ public class GetGuardByIdQueryHandler : IRequestHandler<GetGuardByIdQuery, ApiRe
             PhotoPath = guard.PhotoPath
         };
 
-        return ApiResponse<GuardDto>.SuccessResponse(guardDto, "Security guard retrieved successfully");
+        return ApiResponse<GuardDto>.SuccessResponse(guardDto);
     }
 }

@@ -48,6 +48,6 @@ public class UpdateAssignmentCommandHandler : IRequestHandler<UpdateAssignmentCo
 
         await repo.UpdateAsync(assignment, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Assignment updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

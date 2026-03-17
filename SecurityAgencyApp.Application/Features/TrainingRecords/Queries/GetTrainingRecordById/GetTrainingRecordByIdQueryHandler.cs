@@ -47,6 +47,6 @@ public class GetTrainingRecordByIdQueryHandler : IRequestHandler<GetTrainingReco
             IsActive = tr.IsActive,
             CreatedDate = tr.CreatedDate
         };
-        return ApiResponse<TrainingRecordDetailDto>.SuccessResponse(dto, "Training record retrieved");
+        return ApiResponse<TrainingRecordDetailDto>.SuccessResponse(dto);
     }
 }

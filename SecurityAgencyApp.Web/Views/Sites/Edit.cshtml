@@ -1,4 +1,4 @@
-@model SecurityAgencyApp.Web.Models.Api.UpdateSiteRequest
+@model SecurityAgencyApp.Model.Api.UpdateSiteRequest
 @using Microsoft.AspNetCore.Mvc.Rendering
 @{
     ViewData["Title"] = "Edit Site";
@@ -34,9 +34,9 @@
                     <div class="col-12 col-md-6">
                         <label asp-for="ClientId" class="form-label fw-semibold">Client (link for billing)</label>
                         @{
-                            var clients = ViewBag.Clients as IEnumerable<SecurityAgencyApp.Web.Models.Api.ClientItemDto> ?? new List<SecurityAgencyApp.Web.Models.Api.ClientItemDto>();
+                            var clients = ViewBag.Clients as IEnumerable<SecurityAgencyApp.Model.Api.ClientItemDto> ?? new List<SecurityAgencyApp.Model.Api.ClientItemDto>();
                         }
-                        <select asp-for="ClientId" class="form-select" id="siteClientIdDropdown" asp-items="@(new SelectList(clients, nameof(SecurityAgencyApp.Web.Models.Api.ClientItemDto.Id), nameof(SecurityAgencyApp.Web.Models.Api.ClientItemDto.CompanyName), Model.ClientId))">
+                        <select asp-for="ClientId" class="form-select" id="siteClientIdDropdown" asp-items="@(new SelectList(clients, nameof(SecurityAgencyApp.Model.Api.ClientItemDto.Id), nameof(SecurityAgencyApp.Model.Api.ClientItemDto.CompanyName), Model.ClientId))">
                             <option value="">-- Select Client --</option>
                         </select>
                         <span class="small text-muted">Select client for this site; required before saving rate. Only clients that have this site in their contract are listed.</span>
@@ -198,8 +198,8 @@
 
 <!-- Rate plan: separate form so "Save Rate" does not submit the site form -->
 @{
-    var rate = ViewBag.SiteRate as SecurityAgencyApp.Web.Models.Api.SiteRateDto;
-    var ratePlans = ViewBag.SiteRatePlans as IEnumerable<SecurityAgencyApp.Web.Models.Api.SiteRateHistoryDto> ?? new List<SecurityAgencyApp.Web.Models.Api.SiteRateHistoryDto>();
+    var rate = ViewBag.SiteRate as SecurityAgencyApp.Model.Api.SiteRateDto;
+    var ratePlans = ViewBag.SiteRatePlans as IEnumerable<SecurityAgencyApp.Model.Api.SiteRateHistoryDto> ?? new List<SecurityAgencyApp.Model.Api.SiteRateHistoryDto>();
     var effectiveFrom = rate?.EffectiveFrom.ToString("yyyy-MM-dd") ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
     var rateDisplay = rate != null ? rate.RateAmount.ToString("0.00") : "Not set";
     var rateClientName = rate?.ClientName ?? "—";

@@ -52,6 +52,6 @@ public class UpdateSubMenuCommandHandler : IRequestHandler<UpdateSubMenuCommand,
         await subMenuRepo.UpdateAsync(subMenu, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "SubMenu updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

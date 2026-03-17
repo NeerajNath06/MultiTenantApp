@@ -49,6 +49,6 @@ public class UpdateVisitorCommandHandler : IRequestHandler<UpdateVisitorCommand,
 
         await repo.UpdateAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Visitor updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

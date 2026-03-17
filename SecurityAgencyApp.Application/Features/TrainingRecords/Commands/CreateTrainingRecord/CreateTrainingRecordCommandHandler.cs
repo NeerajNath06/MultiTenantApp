@@ -49,6 +49,6 @@ public class CreateTrainingRecordCommandHandler : IRequestHandler<CreateTraining
         await _unitOfWork.Repository<TrainingRecord>().AddAsync(trainingRecord, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(trainingRecord.Id, "Training record created successfully");
+        return ApiResponse<Guid>.SuccessResponse(trainingRecord.Id);
     }
 }

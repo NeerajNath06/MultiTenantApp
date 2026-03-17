@@ -81,6 +81,6 @@ public class GetBillByIdQueryHandler : IRequestHandler<GetBillByIdQuery, ApiResp
             }).ToList()
         };
 
-        return ApiResponse<BillDto>.SuccessResponse(billDto, "Bill retrieved successfully");
+        return ApiResponse<BillDto>.SuccessResponse(billDto);
     }
 }

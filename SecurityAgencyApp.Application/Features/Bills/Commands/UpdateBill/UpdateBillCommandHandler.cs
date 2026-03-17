@@ -109,6 +109,6 @@ public class UpdateBillCommandHandler : IRequestHandler<UpdateBillCommand, ApiRe
         await billRepo.UpdateAsync(bill, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(true, "Bill updated successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

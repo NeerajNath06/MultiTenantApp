@@ -57,6 +57,6 @@ public class CreateDesignationCommandHandler : IRequestHandler<CreateDesignation
         await designationRepo.AddAsync(designation, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(designation.Id, "Designation created successfully");
+        return ApiResponse<Guid>.SuccessResponse(designation.Id);
     }
 }

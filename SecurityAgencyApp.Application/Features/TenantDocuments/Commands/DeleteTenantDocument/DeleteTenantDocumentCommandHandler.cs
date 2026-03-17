@@ -27,6 +27,6 @@ public class DeleteTenantDocumentCommandHandler : IRequestHandler<DeleteTenantDo
 
         await _unitOfWork.Repository<TenantDocument>().DeleteAsync(doc, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(true, "Document deleted successfully");
+        return ApiResponse<bool>.SuccessResponse(true);
     }
 }

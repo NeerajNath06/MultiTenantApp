@@ -107,6 +107,6 @@ public class GetBillListQueryHandler : IRequestHandler<GetBillListQuery, ApiResp
             TotalPages = totalPages
         };
 
-        return ApiResponse<BillListResponseDto>.SuccessResponse(response, "Bills retrieved successfully");
+        return ApiResponse<BillListResponseDto>.SuccessResponse(response);
     }
 }

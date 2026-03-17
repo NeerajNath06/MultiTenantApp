@@ -138,7 +138,7 @@
                     </div>
                 }
                 
-                <form method="post" asp-action="Login" asp-controller="Auth">
+                <form method="post" action="@Url.Content("~/Auth/Login")">
                     <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
                     
                     <div class="mb-3">
@@ -154,9 +154,9 @@
                     </div>
 
                     <div class="mb-3">
-                        <a href="@Url.Action("ForgotPassword", "Auth")" class="text-decoration-none small">Forgot password?</a>
+                        <a href="@Url.Content("~/Auth/ForgotPassword")" class="text-decoration-none small">Forgot password?</a>
                         <span class="text-muted mx-1">|</span>
-                        <a href="@Url.Action("ResetPassword", "Auth")" class="text-decoration-none small">Reset password</a>
+                        <a href="@Url.Content("~/Auth/ResetPassword")" class="text-decoration-none small">Reset password</a>
                     </div>
                     <div class="mb-4">
                         <div class="form-check remember-me-check">
@@ -174,7 +174,7 @@
 
                 <div class="text-center mt-4">
                     <p class="text-muted mb-0">Don't have an account?</p>
-                    <a href="@Url.Action("Register", "Auth")" class="text-decoration-none fw-semibold">
+                    <a href="@Url.Content("~/Auth/Register")" class="text-decoration-none fw-semibold">
                         <i class="fas fa-building me-1"></i>Register Your Agency
                     </a>
                 </div>

@@ -86,6 +86,6 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         await paymentRepo.AddAsync(payment, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(payment.Id, "Payment created successfully");
+        return ApiResponse<Guid>.SuccessResponse(payment.Id);
     }
 }

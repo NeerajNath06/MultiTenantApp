@@ -86,6 +86,6 @@ public class GetAnnouncementListQueryHandler : IRequestHandler<GetAnnouncementLi
             TotalPages = totalPages
         };
 
-        return ApiResponse<AnnouncementListResponseDto>.SuccessResponse(response, "Announcements retrieved successfully");
+        return ApiResponse<AnnouncementListResponseDto>.SuccessResponse(response);
     }
 }

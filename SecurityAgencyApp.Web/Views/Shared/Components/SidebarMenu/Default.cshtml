@@ -1,4 +1,4 @@
-@model IEnumerable<SecurityAgencyApp.Web.Models.Api.MenuDto>
+@model IEnumerable<SecurityAgencyApp.Model.Api.MenuDto>
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
 
@@ -28,14 +28,14 @@
     </a>
 }
 
-@foreach (var menu in Model ?? Enumerable.Empty<SecurityAgencyApp.Web.Models.Api.MenuDto>())
+@foreach (var menu in Model ?? Enumerable.Empty<SecurityAgencyApp.Model.Api.MenuDto>())
 {
     if (!menu.IsActive) { continue; }
     var hasSubMenus = menu.SubMenus != null && menu.SubMenus.Any(s => s.IsActive);
     if (hasSubMenus)
     {
         var menuId = "menu-" + menu.Id.ToString("N")[..8];
-        var hasActiveChild = (menu.SubMenus ?? Enumerable.Empty<SecurityAgencyApp.Web.Models.Api.SubMenuItemDto>())
+        var hasActiveChild = (menu.SubMenus ?? Enumerable.Empty<SecurityAgencyApp.Model.Api.SubMenuItemDto>())
             .Where(s => s.IsActive)
             .Any(s => string.Equals(GetControllerName(s.Route ?? s.Name), controller, StringComparison.OrdinalIgnoreCase));
         <div class="menu-group">
@@ -48,7 +48,7 @@
                 <i class="fas fa-chevron-down menu-chevron"></i>
             </a>
             <div class="collapse submenu-list @(hasActiveChild ? "show" : "")" id="@menuId">
-                @foreach (var sub in (menu.SubMenus ?? Enumerable.Empty<SecurityAgencyApp.Web.Models.Api.SubMenuItemDto>()).Where(s => s.IsActive).OrderBy(s => s.DisplayOrder))
+                @foreach (var sub in (menu.SubMenus ?? Enumerable.Empty<SecurityAgencyApp.Model.Api.SubMenuItemDto>()).Where(s => s.IsActive).OrderBy(s => s.DisplayOrder))
                 {
                     var subRoute = sub.Route ?? sub.Name;
                     var subController = GetControllerName(subRoute);

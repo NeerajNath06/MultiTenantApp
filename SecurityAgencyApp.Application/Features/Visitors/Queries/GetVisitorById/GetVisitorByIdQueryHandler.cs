@@ -49,6 +49,6 @@ public class GetVisitorByIdQueryHandler : IRequestHandler<GetVisitorByIdQuery, A
             IdProofNumber = entity.IdProofNumber,
             BadgeNumber = entity.BadgeNumber,
         };
-        return ApiResponse<VisitorDto>.SuccessResponse(dto, "Visitor retrieved");
+        return ApiResponse<VisitorDto>.SuccessResponse(dto);
     }
 }

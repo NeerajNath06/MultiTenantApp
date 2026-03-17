@@ -103,6 +103,6 @@ public class GetVisitorListQueryHandler : IRequestHandler<GetVisitorListQuery, A
             PageSize = request.PageSize,
             TotalPages = totalPages
         };
-        return ApiResponse<VisitorListResponseDto>.SuccessResponse(response, "Visitors retrieved");
+        return ApiResponse<VisitorListResponseDto>.SuccessResponse(response);
     }
 }
