@@ -14,6 +14,7 @@
         <form asp-action="Edit" method="post" class="form" id="siteEditForm">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
             <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ClientName" />
 
             <div class="form-section">
                 <h5 class="section-title"><i class="fas fa-map-marker-alt"></i>Site Details</h5>

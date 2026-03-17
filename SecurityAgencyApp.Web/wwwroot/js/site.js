@@ -1,4 +1,4 @@
-﻿// Security Agency Management System - Custom JavaScript
+// Security Agency Management System - Custom JavaScript
 
 $(document).ready(function () {
     // Initialize tooltips
@@ -6,34 +6,23 @@ $(document).ready(function () {
 
     // Initialize popovers
     $('[data-bs-toggle="popover"]').popover();
-
-    // Auto-dismiss alerts after 5 seconds
-    setTimeout(function () {
-        $('.alert').fadeOut('slow');
-    }, 5000);
 });
 
 // Common utility functions
 function showSuccessMessage(message) {
-    showAlert(message, 'success');
+    showAlert(message, 'success', 'Success');
 }
 
 function showErrorMessage(message) {
-    showAlert(message, 'danger');
+    showAlert(message, 'danger', 'Action failed');
 }
 
-function showAlert(message, type) {
-    const alertHtml = `
-        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-    $('main').prepend(alertHtml);
-    
-    setTimeout(function () {
-        $('.alert').fadeOut('slow', function () {
-            $(this).remove();
-        });
-    }, 5000);
+function showAlert(message, type, title) {
+    if (typeof window.showCrudFeedbackModal !== 'function') return;
+
+    window.showCrudFeedbackModal({
+        message: message,
+        type: type,
+        title: title
+    });
 }

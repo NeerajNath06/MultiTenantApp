@@ -1,0 +1,113 @@
+@using System.Text.Json
+@{
+    var successMessage = TempData.Peek("SuccessMessage") as string;
+    var errorMessage = (TempData.Peek("Error") as string) ?? (TempData.Peek("ErrorMessage") as string);
+    var initialType = !string.IsNullOrWhiteSpace(errorMessage) ? "danger" : (!string.IsNullOrWhiteSpace(successMessage) ? "success" : string.Empty);
+    var initialMessage = !string.IsNullOrWhiteSpace(errorMessage) ? errorMessage : successMessage;
+    var initialTitle = initialType == "danger" ? "Action failed" : "Success";
+}
+
+<div class="modal fade crud-feedback-modal" id="crudFeedbackModal" tabindex="-1" aria-labelledby="crudFeedbackModalTitle" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-body p-4 p-md-5 text-center">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="crud-feedback-icon mx-auto mb-3" id="crudFeedbackModalIcon" aria-hidden="true">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h4 class="crud-feedback-title mb-2" id="crudFeedbackModalTitle">Success</h4>
+                <p class="crud-feedback-message text-secondary mb-4" id="crudFeedbackModalMessage"></p>
+                <button type="button" class="btn btn-primary px-4" id="crudFeedbackModalAction" data-bs-dismiss="modal">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var modalEl = document.getElementById('crudFeedbackModal');
+        if (!modalEl || typeof bootstrap === 'undefined') return;
+
+        var titleEl = document.getElementById('crudFeedbackModalTitle');
+        var messageEl = document.getElementById('crudFeedbackModalMessage');
+        var iconEl = document.getElementById('crudFeedbackModalIcon');
+        var actionBtn = document.getElementById('crudFeedbackModalAction');
+        var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+        var typeConfig = {
+            success: {
+                title: 'Success',
+                icon: 'fa-check',
+                iconClass: 'is-success',
+                buttonClass: 'btn-primary'
+            },
+            danger: {
+                title: 'Action failed',
+                icon: 'fa-xmark',
+                iconClass: 'is-danger',
+                buttonClass: 'btn-danger'
+            },
+            warning: {
+                title: 'Attention',
+                icon: 'fa-exclamation',
+                iconClass: 'is-warning',
+                buttonClass: 'btn-warning'
+            },
+            info: {
+                title: 'Information',
+                icon: 'fa-info',
+                iconClass: 'is-info',
+                buttonClass: 'btn-primary'
+            }
+        };
+
+        function removeLegacyAlerts() {
+            var legacyAlerts = document.querySelectorAll('.page-content .alert.alert-dismissible');
+            legacyAlerts.forEach(function (alert) {
+                alert.remove();
+            });
+        }
+
+        function applyFeedback(options) {
+            var type = options && options.type ? options.type.toLowerCase() : 'success';
+            var config = typeConfig[type] || typeConfig.success;
+            var title = options && options.title ? options.title : config.title;
+            var message = options && options.message ? options.message : '';
+            var buttonText = options && options.buttonText ? options.buttonText : 'OK';
+
+            if (titleEl) titleEl.textContent = title;
+            if (messageEl) messageEl.textContent = message;
+            if (iconEl) {
+                iconEl.classList.remove('is-success', 'is-danger', 'is-warning', 'is-info');
+                iconEl.classList.add(config.iconClass);
+                iconEl.innerHTML = '<i class="fas ' + config.icon + '"></i>';
+            }
+            if (actionBtn) {
+                actionBtn.textContent = buttonText;
+                actionBtn.classList.remove('btn-primary', 'btn-danger', 'btn-warning', 'btn-info');
+                actionBtn.classList.add(config.buttonClass);
+            }
+        }
+
+        window.showCrudFeedbackModal = function (options) {
+            if (!options || !options.message) return;
+            applyFeedback(options);
+            removeLegacyAlerts();
+            modal.show();
+        };
+
+        var initialFeedback = {
+            type: @Html.Raw(JsonSerializer.Serialize(initialType)),
+            title: @Html.Raw(JsonSerializer.Serialize(initialTitle)),
+            message: @Html.Raw(JsonSerializer.Serialize(initialMessage))
+        };
+
+        if (initialFeedback.message) {
+            window.setTimeout(function () {
+                window.showCrudFeedbackModal(initialFeedback);
+            }, 150);
+        }
+    })();
+</script>

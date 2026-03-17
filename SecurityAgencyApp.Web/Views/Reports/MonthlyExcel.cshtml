@@ -9,14 +9,6 @@
     <p class="page-subtitle mb-0">Download agency monthly Excel with BILL, ATTENDANCE, Wages and Other sheets (like reference format).</p>
 </div>
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
-
 <div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
         <form method="get" asp-action="DownloadMonthlyExcel" target="_blank" class="row g-3">
