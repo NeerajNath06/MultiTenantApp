@@ -1,8 +1,12 @@
-@model SecurityAgencyApp.Model.Api.PaymentDetailDto
 @{
     ViewData["Title"] = "Payment Details";
+    var paymentId = ViewBag.PaymentId;
 }
 
+<div id="paymentDetailsPage"
+     data-payment-id="@paymentId"
+     data-load-endpoint="Payments/@paymentId"
+     data-index-url="@Url.Action("Index")">
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
         <div>
@@ -10,16 +14,12 @@
             <p class="page-subtitle mb-0">View payment information</p>
         </div>
         <div>
-            <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary">
+            <a href="@Url.Action("Edit", new { id = paymentId })" class="btn btn-primary">
                 <i class="fas fa-edit me-2"></i>Edit
             </a>
-            <form asp-action="Delete" method="post" class="d-inline" data-confirm-message="Are you sure you want to delete this payment?">
-                <input type="hidden" name="id" value="@Model.Id" />
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-outline-danger">
-                    <i class="fas fa-trash me-2"></i>Delete
-                </button>
-            </form>
+            <button type="button" id="paymentDeleteButton" class="btn btn-outline-danger">
+                <i class="fas fa-trash me-2"></i>Delete
+            </button>
             <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to List
             </a>
@@ -35,77 +35,54 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-muted">Payment Number</label>
-                        <p class="mb-0"><strong>@Model.PaymentNumber</strong></p>
+                        <p class="mb-0"><strong data-field="paymentNumber">-</strong></p>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-muted">Payment Date</label>
-                        <p class="mb-0">@Model.PaymentDate.ToString("dd MMM yyyy")</p>
+                        <p class="mb-0" data-field="paymentDate">-</p>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-muted">Amount</label>
-                        <p class="mb-0"><strong class="text-success">₹@Model.Amount.ToString("N2")</strong></p>
+                        <p class="mb-0"><strong class="text-success" data-field="amount">-</strong></p>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-muted">Payment Method</label>
-                        <p class="mb-0">@Model.PaymentMethod</p>
+                        <p class="mb-0" data-field="paymentMethod">-</p>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-muted">Status</label>
                         <p class="mb-0">
-                            <span class="badge bg-@(Model.Status == "Completed" ? "success" : Model.Status == "Failed" ? "danger" : "warning")">
-                                @Model.Status
-                            </span>
+                            <span class="badge bg-secondary" data-field="statusBadge">-</span>
                         </p>
                     </div>
-                    @if (Model.BillId.HasValue)
-                    {
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">Bill</label>
-                            <p class="mb-0">@(Model.BillNumber ?? "-")</p>
-                        </div>
-                    }
-                    @if (Model.ClientId.HasValue)
-                    {
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">Client</label>
-                            <p class="mb-0">@(Model.ClientName ?? "-")</p>
-                        </div>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.ChequeNumber))
-                    {
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">Cheque Number</label>
-                            <p class="mb-0">@Model.ChequeNumber</p>
-                        </div>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.BankName))
-                    {
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">Bank Name</label>
-                            <p class="mb-0">@Model.BankName</p>
-                        </div>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.TransactionReference))
-                    {
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">Transaction Reference</label>
-                            <p class="mb-0">@Model.TransactionReference</p>
-                        </div>
-                    }
-                    @if (Model.ReceivedDate.HasValue)
-                    {
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">Received Date</label>
-                            <p class="mb-0">@Model.ReceivedDate.Value.ToString("dd MMM yyyy")</p>
-                        </div>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.Notes))
-                    {
-                        <div class="col-12">
-                            <label class="form-label fw-semibold text-muted">Notes</label>
-                            <p class="mb-0">@Model.Notes</p>
-                        </div>
-                    }
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Bill</label>
+                        <p class="mb-0" data-field="billNumber">-</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Client</label>
+                        <p class="mb-0" data-field="clientName">-</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Cheque Number</label>
+                        <p class="mb-0" data-field="chequeNumber">-</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Bank Name</label>
+                        <p class="mb-0" data-field="bankName">-</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Transaction Reference</label>
+                        <p class="mb-0" data-field="transactionReference">-</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted">Received Date</label>
+                        <p class="mb-0" data-field="receivedDate">-</p>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold text-muted">Notes</label>
+                        <p class="mb-0" data-field="notes">-</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -116,16 +93,18 @@
                 <h5 class="section-title"><i class="fas fa-info-circle"></i>Additional Information</h5>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Created Date</label>
-                    <p class="mb-0">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</p>
+                    <p class="mb-0" data-field="createdDate">-</p>
                 </div>
-                @if (Model.ModifiedDate.HasValue)
-                {
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold text-muted">Last Modified</label>
-                        <p class="mb-0">@Model.ModifiedDate.Value.ToString("dd MMM yyyy HH:mm")</p>
-                    </div>
-                }
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-muted">Last Modified</label>
+                    <p class="mb-0" data-field="modifiedDate">-</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/payments/details.js" asp-append-version="true"></script>
+}

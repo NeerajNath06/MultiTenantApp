@@ -17,10 +17,10 @@ public class CompanyProfileController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var profileResult = await _apiClient.GetAsync<TenantProfileDto>("api/v1/TenantProfile");
+        var profileResult = await _apiClient.GetAsync<TenantProfileDto>("TenantProfile");
         var profile = profileResult.Success && profileResult.Data != null ? profileResult.Data : new TenantProfileDto();
 
-        var docsResult = await _apiClient.GetAsync<List<TenantDocumentDto>>("api/v1/TenantDocuments");
+        var docsResult = await _apiClient.GetAsync<List<TenantDocumentDto>>("TenantDocuments");
         var documents = docsResult.Success && docsResult.Data != null ? docsResult.Data : new List<TenantDocumentDto>();
 
         ViewBag.Profile = profile;
@@ -39,7 +39,7 @@ public class CompanyProfileController : Controller
             TempData["ErrorMessage"] = "Company name, email and phone are required.";
             return RedirectToAction(nameof(Index));
         }
-        var result = await _apiClient.PutAsync<bool>("api/v1/TenantProfile", request);
+        var result = await _apiClient.PutAsync<bool>("TenantProfile", request);
         if (result.Success)
             TempData["SuccessMessage"] = "Profile updated successfully.";
         else
@@ -72,7 +72,7 @@ public class CompanyProfileController : Controller
         if (expiryDate.HasValue)
             formData["expiryDate"] = expiryDate.Value.ToString("O");
 
-        var result = await _apiClient.PostMultipartAsync<Guid>("api/v1/TenantDocuments", formData);
+        var result = await _apiClient.PostMultipartAsync<Guid>("TenantDocuments", formData);
         if (result.Success)
             TempData["SuccessMessage"] = "Document uploaded successfully.";
         else
@@ -84,7 +84,7 @@ public class CompanyProfileController : Controller
     [HttpGet]
     public async Task<IActionResult> ExportDocuments(string format = "csv")
     {
-        var result = await _apiClient.GetFileAsync("api/v1/TenantDocuments/export", new Dictionary<string, string?> { ["format"] = format ?? "csv" });
+        var result = await _apiClient.GetFileAsync("TenantDocuments/export", new Dictionary<string, string?> { ["format"] = format ?? "csv" });
         if (!result.Success || result.Data == null)
             return NotFound();
         return File(result.Data.Content, result.Data.ContentType, result.Data.FileName);
@@ -92,7 +92,7 @@ public class CompanyProfileController : Controller
 
     public async Task<IActionResult> DownloadDocument(Guid id)
     {
-        var result = await _apiClient.GetFileAsync($"api/v1/TenantDocuments/{id}/download");
+        var result = await _apiClient.GetFileAsync($"TenantDocuments/{id}/download");
         if (!result.Success || result.Data == null)
             return NotFound();
         return File(result.Data.Content, result.Data.ContentType, result.Data.FileName);
@@ -102,7 +102,7 @@ public class CompanyProfileController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteDocument([FromForm] Guid id)
     {
-        var result = await _apiClient.DeleteAsync($"api/v1/TenantDocuments/{id}");
+        var result = await _apiClient.DeleteAsync($"TenantDocuments/{id}");
         if (result.Success)
             TempData["SuccessMessage"] = "Document deleted.";
         else

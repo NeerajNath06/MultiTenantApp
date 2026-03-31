@@ -8,10 +8,15 @@
     <p class="page-subtitle mb-0">Update guard information</p>
 </div>
 
+<div id="securityGuardFormPage"
+     data-mode="edit"
+     data-load-endpoint="SecurityGuards/@Model.Id"
+     data-submit-endpoint="SecurityGuards/@Model.Id"
+     data-redirect-url="@Url.Action("Index")">
 <div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Edit" method="post" class="form">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <form id="securityGuardForm" class="form">
+            <div id="securityGuardFormErrors" class="alert alert-danger d-none"></div>
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="GuardCode" />
 
@@ -49,7 +54,7 @@
                 </div>
                 <div class="col-md-6">
                     <label asp-for="Gender" class="form-label fw-semibold">Gender <span class="text-danger">*</span></label>
-                    <select asp-for="Gender" class="form-select" asp-items="ViewBag.GenderList" required>
+                    <select asp-for="Gender" id="securityGuardGender" class="form-select" required>
                         <option value="">-- Select --</option>
                     </select>
                     <span asp-validation-for="Gender" class="text-danger small"></span>
@@ -111,7 +116,7 @@
                 </div>
                 <div class="col-md-6">
                     <label asp-for="SupervisorId" class="form-label fw-semibold">Supervisor</label>
-                    <select asp-for="SupervisorId" class="form-select" asp-items="ViewBag.Supervisors">
+                    <select asp-for="SupervisorId" id="securityGuardSupervisorId" class="form-select">
                         <option value="">-- No Supervisor --</option>
                     </select>
                 </div>
@@ -127,7 +132,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" id="securityGuardFormSubmitButton" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Update Guard
                 </button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -137,7 +142,8 @@
         </form>
     </div>
 </div>
+</div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/pages/security-guards/form.js" asp-append-version="true"></script>
 }

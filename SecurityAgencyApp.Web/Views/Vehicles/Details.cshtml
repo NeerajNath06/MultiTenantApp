@@ -1,29 +1,21 @@
-@model SecurityAgencyApp.Model.Api.VehicleLogDetailDto
 @{
     ViewData["Title"] = "Vehicle Log Details";
 }
 
+<div id="vehicleDetailsPage"
+     data-vehicle-log-id="@ViewBag.VehicleLogId"
+     data-load-endpoint="Vehicles/@ViewBag.VehicleLogId"
+     data-index-url="@Url.Action("Index")">
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="page-title">Vehicle Log Details</h1>
-            <p class="page-subtitle mb-0">@Model.VehicleNumber · @Model.VehicleType</p>
+            <p class="page-subtitle mb-0"><span data-field="vehicleNumber">-</span> · <span data-field="vehicleType">-</span></p>
         </div>
         <div>
-            <form asp-action="Delete" method="post" class="d-inline" data-confirm-message="Are you sure you want to delete this vehicle log entry?">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="id" value="@Model.Id" />
-                <button type="submit" class="btn btn-outline-danger"><i class="fas fa-trash me-2"></i>Delete</button>
-            </form>
+            <button id="vehicleDeleteButton" type="button" class="btn btn-outline-danger"><i class="fas fa-trash me-2"></i>Delete</button>
             <a href="@Url.Action("Index")" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-2"></i>Back to List</a>
-            @if (!Model.ExitTime.HasValue)
-            {
-                <form asp-action="RecordExit" method="post" class="d-inline" data-confirm-message="Record exit for this vehicle?">
-                    <input type="hidden" name="id" value="@Model.Id" />
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-success"><i class="fas fa-sign-out-alt me-2"></i>Record Exit</button>
-                </form>
-            }
+            <button id="vehicleExitButton" type="button" class="btn btn-success d-none"><i class="fas fa-sign-out-alt me-2"></i>Record Exit</button>
         </div>
     </div>
 </div>
@@ -34,44 +26,49 @@
         <div class="row g-3">
             <div class="col-md-6">
                 <label class="form-label text-muted small">Vehicle Number</label>
-                <p class="fw-semibold mb-0">@Model.VehicleNumber</p>
+                <p class="fw-semibold mb-0" data-field="vehicleNumber">-</p>
             </div>
             <div class="col-md-6">
                 <label class="form-label text-muted small">Vehicle Type</label>
-                <p class="fw-semibold mb-0">@Model.VehicleType</p>
+                <p class="fw-semibold mb-0" data-field="vehicleType">-</p>
             </div>
             <div class="col-md-6">
                 <label class="form-label text-muted small">Driver Name</label>
-                <p class="fw-semibold mb-0">@Model.DriverName</p>
+                <p class="fw-semibold mb-0" data-field="driverName">-</p>
             </div>
             <div class="col-md-6">
                 <label class="form-label text-muted small">Driver Phone</label>
-                <p class="fw-semibold mb-0">@(Model.DriverPhone ?? "-")</p>
+                <p class="fw-semibold mb-0" data-field="driverPhone">-</p>
             </div>
             <div class="col-md-6">
                 <label class="form-label text-muted small">Purpose</label>
-                <p class="fw-semibold mb-0">@Model.Purpose</p>
+                <p class="fw-semibold mb-0" data-field="purpose">-</p>
             </div>
             <div class="col-md-6">
                 <label class="form-label text-muted small">Parking Slot</label>
-                <p class="fw-semibold mb-0">@(Model.ParkingSlot ?? "-")</p>
+                <p class="fw-semibold mb-0" data-field="parkingSlot">-</p>
             </div>
             <div class="col-md-6">
                 <label class="form-label text-muted small">Site</label>
-                <p class="fw-semibold mb-0">@Model.SiteName</p>
+                <p class="fw-semibold mb-0" data-field="siteName">-</p>
             </div>
             <div class="col-md-6">
                 <label class="form-label text-muted small">Registering Guard</label>
-                <p class="fw-semibold mb-0">@Model.GuardName</p>
+                <p class="fw-semibold mb-0" data-field="guardName">-</p>
             </div>
             <div class="col-md-6">
                 <label class="form-label text-muted small">Entry Time</label>
-                <p class="fw-semibold mb-0">@Model.EntryTime.ToString("dd MMM yyyy HH:mm")</p>
+                <p class="fw-semibold mb-0" data-field="entryTime">-</p>
             </div>
             <div class="col-md-6">
                 <label class="form-label text-muted small">Exit Time</label>
-                <p class="fw-semibold mb-0">@(Model.ExitTime.HasValue ? Model.ExitTime.Value.ToString("dd MMM yyyy HH:mm") : "Inside premises")</p>
+                <p class="fw-semibold mb-0" data-field="exitTime">-</p>
             </div>
         </div>
     </div>
 </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/vehicles/details.js" asp-append-version="true"></script>
+}

@@ -1,23 +1,18 @@
 @model SecurityAgencyApp.Model.Api.CreateSitePostRequest
-@using Microsoft.AspNetCore.Mvc.Rendering
-@{
-    var sites = ViewBag.Sites as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>());
-    var branches = ViewBag.Branches as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>());
-}
 
 <div class="form-section">
     <h5 class="section-title"><i class="fas fa-users-cog"></i>Post Identity</h5>
     <div class="row g-3">
         <div class="col-12 col-md-6">
             <label asp-for="SiteId" class="form-label fw-semibold"></label>
-            <select asp-for="SiteId" class="form-select" asp-items="sites">
+            <select id="sitePostSiteId" asp-for="SiteId" class="form-select">
                 <option value="">-- Select Site --</option>
             </select>
             <span asp-validation-for="SiteId" class="text-danger small"></span>
         </div>
         <div class="col-12 col-md-6">
             <label asp-for="BranchId" class="form-label fw-semibold"></label>
-            <select asp-for="BranchId" class="form-select" asp-items="branches">
+            <select id="sitePostBranchId" asp-for="BranchId" class="form-select">
                 <option value="">-- Select Branch --</option>
             </select>
             <span asp-validation-for="BranchId" class="text-danger small"></span>

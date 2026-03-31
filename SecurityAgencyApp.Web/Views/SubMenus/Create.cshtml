@@ -8,12 +8,12 @@
     <p class="page-subtitle mb-0">Add a new submenu item</p>
 </div>
 
-<div class="card border-0 shadow-sm enterprise-form-card">
+<div class="card border-0 shadow-sm enterprise-form-card" id="subMenuFormPage" data-mode="create" data-submit-endpoint="SubMenus" data-redirect-url="@Url.Action("Index", "SubMenus", new { menuId = Model.MenuId })">
     <div class="card-body">
-        <form asp-action="Create" method="post" class="form">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <form class="form" id="subMenuForm">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none" role="alert" id="subMenuFormErrors"></div>
             
-            <input type="hidden" asp-for="MenuId" />
+            <input type="hidden" asp-for="MenuId" id="subMenuMenuId" />
 
             <div class="row g-3">
                 <div class="col-md-6">
@@ -57,7 +57,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="subMenuFormSubmitButton">
                     <i class="fas fa-save me-2"></i>Create SubMenu
                 </button>
                 <a href="@Url.Action("Index", "Menus")" class="btn btn-outline-secondary">
@@ -69,5 +69,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/pages/submenus/form.js" asp-append-version="true"></script>
 }

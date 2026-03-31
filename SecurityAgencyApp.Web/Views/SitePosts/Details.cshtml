@@ -1,17 +1,20 @@
-@model SecurityAgencyApp.Model.Api.SitePostItemDto
 @{
     ViewData["Title"] = "Site Post Details";
     ViewData["Breadcrumbs"] = new[] { ("Site Posts", Url.Action("Index")), ("Site Post Details", (string?)null) };
 }
 
+<div id="sitePostDetailsPage"
+     data-site-post-id="@ViewBag.SitePostId"
+     data-load-endpoint="SitePosts/@ViewBag.SitePostId"
+     data-index-url="@Url.Action("Index")">
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
             <h1 class="page-title">Site Post Details</h1>
-            <p class="page-subtitle mb-0">@Model.PostName - @Model.PostCode</p>
+            <p class="page-subtitle mb-0"><span data-field="postName">-</span> - <span data-field="postCode">-</span></p>
         </div>
         <div class="d-flex gap-2">
-            <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary">
+            <a href="@Url.Action("Edit", new { id = ViewBag.SitePostId })" class="btn btn-primary">
                 <i class="fas fa-edit me-2"></i>Edit
             </a>
             <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -30,31 +33,31 @@
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
                             <label class="form-label fw-semibold text-muted">Site</label>
-                            <p class="mb-0">@Model.SiteName</p>
+                            <p class="mb-0" data-field="siteName">-</p>
                         </div>
                         <div class="col-12 col-md-6">
                             <label class="form-label fw-semibold text-muted">Branch</label>
-                            <p class="mb-0">@(Model.BranchName ?? "-")</p>
+                            <p class="mb-0" data-field="branchName">-</p>
                         </div>
                         <div class="col-12 col-md-6">
                             <label class="form-label fw-semibold text-muted">Post Code</label>
-                            <p class="mb-0">@Model.PostCode</p>
+                            <p class="mb-0" data-field="postCode">-</p>
                         </div>
                         <div class="col-12 col-md-6">
                             <label class="form-label fw-semibold text-muted">Post Name</label>
-                            <p class="mb-0">@Model.PostName</p>
+                            <p class="mb-0" data-field="postName">-</p>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label fw-semibold text-muted">Shift</label>
-                            <p class="mb-0">@(Model.ShiftName ?? "-")</p>
+                            <p class="mb-0" data-field="shiftName">-</p>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label fw-semibold text-muted">Sanctioned Strength</label>
-                            <p class="mb-0">@Model.SanctionedStrength</p>
+                            <p class="mb-0" data-field="sanctionedStrength">-</p>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label fw-semibold text-muted">Weekly Off Pattern</label>
-                            <p class="mb-0">@(Model.WeeklyOffPattern ?? "-")</p>
+                            <p class="mb-0" data-field="weeklyOffPattern">-</p>
                         </div>
                     </div>
                 </div>
@@ -67,40 +70,40 @@
                 <h5 class="section-title"><i class="fas fa-shield-alt"></i>Operational Flags</h5>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Gender Requirement</label>
-                    <p class="mb-0">@(Model.GenderRequirement ?? "-")</p>
+                    <p class="mb-0" data-field="genderRequirement">-</p>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Skill Requirement</label>
-                    <p class="mb-0">@(Model.SkillRequirement ?? "-")</p>
+                    <p class="mb-0" data-field="skillRequirement">-</p>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Requires Weapon</label>
-                    <p class="mb-0">@(Model.RequiresWeapon ? "Yes" : "No")</p>
+                    <p class="mb-0" data-field="requiresWeapon">-</p>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Reliever Required</label>
-                    <p class="mb-0">@(Model.RelieverRequired ? "Yes" : "No")</p>
+                    <p class="mb-0" data-field="relieverRequired">-</p>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Status</label>
                     <p class="mb-0">
-                        <span class="badge bg-@(Model.IsActive ? "success" : "secondary")">
-                            @(Model.IsActive ? "Active" : "Inactive")
-                        </span>
+                        <span data-field="statusBadge" class="badge bg-secondary">-</span>
                     </p>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Created</label>
-                    <p class="mb-0">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</p>
+                    <p class="mb-0" data-field="createdDate">-</p>
                 </div>
-                @if (Model.ModifiedDate.HasValue)
-                {
-                    <div class="mb-0">
-                        <label class="form-label fw-semibold text-muted">Last Modified</label>
-                        <p class="mb-0">@Model.ModifiedDate.Value.ToString("dd MMM yyyy HH:mm")</p>
-                    </div>
-                }
+                <div class="mb-0">
+                    <label class="form-label fw-semibold text-muted">Last Modified</label>
+                    <p class="mb-0" data-field="modifiedDate">-</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/site-posts/details.js" asp-append-version="true"></script>
+}

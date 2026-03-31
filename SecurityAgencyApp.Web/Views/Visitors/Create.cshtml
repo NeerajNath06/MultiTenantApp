@@ -10,8 +10,12 @@
 
 <div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Create" method="post" class="form">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <div id="visitorFormPage"
+             data-mode="create"
+             data-submit-endpoint="Visitors"
+             data-redirect-url="@Url.Action("Index")">
+        <form id="visitorForm" class="form">
+            <div id="visitorFormErrors" class="alert alert-danger d-none"></div>
             <div class="form-section">
                 <h5 class="section-title"><i class="fas fa-user"></i>Visitor Information</h5>
                 <div class="row g-3">
@@ -58,20 +62,20 @@
                     </div>
                     <div class="col-12 col-md-6">
                         <label asp-for="HostDepartment" class="form-label fw-semibold">Host Department</label>
-                        <select asp-for="HostDepartment" class="form-select" asp-items="ViewBag.Departments">
+                        <select id="visitorHostDepartment" asp-for="HostDepartment" class="form-select">
                             <option value="">-- Select Department --</option>
                         </select>
                     </div>
                     <div class="col-12 col-md-6">
                         <label asp-for="SiteId" class="form-label fw-semibold">Site <span class="text-danger">*</span></label>
-                        <select asp-for="SiteId" class="form-select" asp-items="ViewBag.Sites" required>
+                        <select id="visitorSiteId" asp-for="SiteId" class="form-select" required>
                             <option value="">-- Select Site --</option>
                         </select>
                         <span asp-validation-for="SiteId" class="text-danger small"></span>
                     </div>
                     <div class="col-12 col-md-6">
                         <label asp-for="GuardId" class="form-label fw-semibold">Registering Guard <span class="text-danger">*</span></label>
-                        <select asp-for="GuardId" class="form-select" asp-items="ViewBag.Guards" required>
+                        <select id="visitorGuardId" asp-for="GuardId" class="form-select" required>
                             <option value="">-- Select Guard --</option>
                         </select>
                         <span asp-validation-for="GuardId" class="text-danger small"></span>
@@ -98,13 +102,15 @@
                 </div>
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Register Visitor</button>
+                <button id="visitorFormSubmitButton" type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Register Visitor</button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancel</a>
             </div>
         </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/pages/visitors/form.js" asp-append-version="true"></script>
 }

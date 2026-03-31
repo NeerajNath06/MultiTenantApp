@@ -1,11 +1,11 @@
-@model SecurityAgencyApp.Model.Api.WageListResponse
 @{
     ViewData["Title"] = "Wages Management";
-    var totalSheets = Model?.TotalCount ?? 0;
-    var paidSheets = Model?.Items?.Count(w => string.Equals(w.Status, "Paid", StringComparison.OrdinalIgnoreCase)) ?? 0;
-    var visibleNetAmount = Model?.Items?.Sum(w => w.NetAmount) ?? 0m;
 }
 
+<div id="wagesIndexPage"
+     data-index-url="@Url.Action("Index")"
+     data-create-url="@Url.Action("Create")"
+     data-details-base="@Url.Action("Details", new { id = "__id__" })">
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
         <div>
@@ -23,7 +23,7 @@
         <div class="card stat-card h-100">
             <div class="card-body">
                 <div class="stat-label">Total Wage Sheets</div>
-                <div class="stat-value">@totalSheets</div>
+                <div class="stat-value" data-stat="total">0</div>
             </div>
         </div>
     </div>
@@ -31,7 +31,7 @@
         <div class="card stat-card h-100">
             <div class="card-body">
                 <div class="stat-label">Paid Sheets</div>
-                <div class="stat-value">@paidSheets</div>
+                <div class="stat-value" data-stat="paid">0</div>
             </div>
         </div>
     </div>
@@ -39,99 +39,53 @@
         <div class="card stat-card h-100">
             <div class="card-body">
                 <div class="stat-label">Visible Net Amount</div>
-                <div class="stat-value">₹@visibleNetAmount.ToString("N2")</div>
+                <div class="stat-value" data-stat="visibleNetAmount">₹0.00</div>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-body-tertiary py-3">
+        <h5 class="mb-0"><i class="fas fa-filter me-2 text-primary"></i>Search &amp; Filters</h5>
+    </div>
+    <div class="card-body">
+        <form id="wagesFilterForm" class="row g-3 form">
+            <input type="hidden" name="pageNumber" value="1" />
+            <input type="hidden" name="pageSize" value="10" />
+            <div class="col-md-8">
+                <input type="text" id="wagesSearch" name="search" class="form-control" placeholder="Search by wage sheet number..." />
+            </div>
+            <div class="col-md-3">
+                <select id="wagesStatus" name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="Draft">Draft</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Paid">Paid</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i></button>
+            </div>
+        </form>
     </div>
 </div>
 
 <div class="card border-0 shadow-sm overflow-hidden">
     <div class="card-header bg-body-tertiary py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2 text-primary"></i>Wage Directory</h5>
-        <span class="text-muted small">@totalSheets total records</span>
+        <span id="wagesRecordCount" class="text-muted small">0 total records</span>
     </div>
     <div class="card-body">
-        @if (Model?.Items != null && Model.Items.Any())
-        {
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Wage Sheet Number</th>
-                            <th>Period</th>
-                            <th>Payment Date</th>
-                            <th class="text-end">Total Wages</th>
-                            <th class="text-end">Net Amount</th>
-                            <th>Status</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var wage in Model.Items)
-                        {
-                            <tr>
-                                <td><strong>@wage.WageSheetNumber</strong></td>
-                                <td>
-                                    @wage.WagePeriodStart.ToString("dd MMM") - @wage.WagePeriodEnd.ToString("dd MMM yyyy")
-                                </td>
-                                <td>@wage.PaymentDate.ToString("dd MMM yyyy")</td>
-                                <td class="text-end">₹@wage.TotalWages.ToString("N2")</td>
-                                <td class="text-end"><strong>₹@wage.NetAmount.ToString("N2")</strong></td>
-                                <td>
-                                    <span class="badge bg-@(wage.Status == "Paid" ? "success" : wage.Status == "Approved" ? "info" : "secondary")">
-                                        @wage.Status
-                                    </span>
-                                </td>
-                                <td class="text-end">
-                                    <a href="@Url.Action("Details", new { id = wage.Id })" class="btn btn-sm btn-outline-primary" title="View">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-
-            @if (Model.TotalPages > 1)
-            {
-                <nav aria-label="Page navigation" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        @if (Model.PageNumber > 1)
-                        {
-                            <li class="page-item">
-                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize, search = ViewBag.Search, status = ViewBag.Status })">
-                                    <i class="fas fa-chevron-left"></i> Previous
-                                </a>
-                            </li>
-                        }
-                        @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
-                        {
-                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = i, pageSize = Model.PageSize, search = ViewBag.Search, status = ViewBag.Status })">@i</a>
-                            </li>
-                        }
-                        @if (Model.PageNumber < Model.TotalPages)
-                        {
-                            <li class="page-item">
-                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize, search = ViewBag.Search, status = ViewBag.Status })">
-                                    Next <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                </nav>
-            }
-        }
-        else
-        {
-            <div class="text-center py-5">
-                <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No wage sheets found</h5>
-                <a href="@Url.Action("Create")" class="btn btn-primary mt-3">
-                    <i class="fas fa-money-bill-wave me-2"></i>Create New Wage Sheet
-                </a>
-            </div>
-        }
+        <div id="wagesTableWrapper"></div>
+        <div id="wagesPaginationContainer" class="mt-4 d-none">
+            <div id="wagesPaginationSummary" class="text-muted text-center small mb-2"></div>
+            <ul id="wagesPagination" class="pagination justify-content-center"></ul>
+        </div>
     </div>
 </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/wages/index.js" asp-append-version="true"></script>
+}

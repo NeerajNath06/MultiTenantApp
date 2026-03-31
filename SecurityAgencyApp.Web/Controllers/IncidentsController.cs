@@ -26,7 +26,7 @@ public class IncidentsController : Controller
         if (!string.IsNullOrEmpty(search)) query["search"] = search;
         if (!string.IsNullOrEmpty(sortBy)) query["sortBy"] = sortBy;
         if (!string.IsNullOrEmpty(sortDirection)) query["sortDirection"] = sortDirection;
-        var result = await _apiClient.GetFileAsync("api/v1/Incidents/export", query);
+        var result = await _apiClient.GetFileAsync("Incidents/export", query);
         if (!result.Success || result.Data == null)
             return NotFound();
         return File(result.Data.Content, result.Data.ContentType, result.Data.FileName);
@@ -44,8 +44,8 @@ public class IncidentsController : Controller
         if (!string.IsNullOrEmpty(search)) query["search"] = search;
         if (!string.IsNullOrEmpty(sortBy)) query["sortBy"] = sortBy;
         if (!string.IsNullOrEmpty(sortDirection)) query["sortDirection"] = sortDirection;
-        var result = await _apiClient.GetAsync<IncidentListResponse>("api/v1/Incidents", query);
-        var siteResult = await _apiClient.GetAsync<SiteListResponse>("api/v1/Sites", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
+        var result = await _apiClient.GetAsync<IncidentListResponse>("Incidents", query);
+        var siteResult = await _apiClient.GetAsync<SiteListResponse>("Sites", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
         ViewBag.Sites = new SelectList(siteResult.Data?.Items ?? new List<SiteDto>(), "Id", "SiteName", siteId);
         if (result.Success && result.Data != null)
             return View(result.Data);
@@ -69,7 +69,7 @@ public class IncidentsController : Controller
             return View(request);
         }
         var body = new { siteId = request.SiteId, guardId = request.GuardId, incidentDate = request.IncidentDate, incidentType = request.IncidentType, severity = request.Severity, description = request.Description, actionTaken = request.ActionTaken };
-        var result = await _apiClient.PostAsync<Guid>("api/v1/Incidents", body);
+        var result = await _apiClient.PostAsync<Guid>("Incidents", body);
         if (result.Success)
         {
             TempData["SuccessMessage"] = "Incident report created successfully";
@@ -86,7 +86,7 @@ public class IncidentsController : Controller
     public async Task<IActionResult> Resolve(Guid id, string? actionTaken)
     {
         var body = new { id, actionTaken, status = "Resolved" };
-        var result = await _apiClient.PutAsync<object>($"api/v1/Incidents/{id}", body);
+        var result = await _apiClient.PutAsync<object>($"Incidents/{id}", body);
         if (result.Success)
             TempData["SuccessMessage"] = "Incident resolved successfully";
         else
@@ -96,7 +96,7 @@ public class IncidentsController : Controller
 
     public async Task<IActionResult> Details(Guid id)
     {
-        var result = await _apiClient.GetAsync<IncidentDetailDto>($"api/v1/Incidents/{id}");
+        var result = await _apiClient.GetAsync<IncidentDetailDto>($"Incidents/{id}");
         if (!result.Success || result.Data == null)
             return NotFound();
         return View(result.Data);
@@ -104,7 +104,7 @@ public class IncidentsController : Controller
 
     public async Task<IActionResult> Edit(Guid id)
     {
-        var result = await _apiClient.GetAsync<IncidentDetailDto>($"api/v1/Incidents/{id}");
+        var result = await _apiClient.GetAsync<IncidentDetailDto>($"Incidents/{id}");
         if (!result.Success || result.Data == null)
             return NotFound();
         ViewBag.SeverityList = new SelectList(new[] { new { Value = "Low", Text = "Low" }, new { Value = "Medium", Text = "Medium" }, new { Value = "High", Text = "High" }, new { Value = "Critical", Text = "Critical" } }, "Value", "Text");
@@ -118,7 +118,7 @@ public class IncidentsController : Controller
         if (string.IsNullOrEmpty(request.Status))
             request.Status = "Open";
         var body = new { id = request.Id, actionTaken = request.ActionTaken, status = request.Status };
-        var result = await _apiClient.PutAsync<object>($"api/v1/Incidents/{request.Id}", body);
+        var result = await _apiClient.PutAsync<object>($"Incidents/{request.Id}", body);
         if (result.Success)
         {
             TempData["SuccessMessage"] = "Incident updated successfully";
@@ -133,7 +133,7 @@ public class IncidentsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var result = await _apiClient.DeleteAsync($"api/v1/Incidents/{id}");
+        var result = await _apiClient.DeleteAsync($"Incidents/{id}");
         if (result.Success)
             TempData["SuccessMessage"] = "Incident deleted successfully";
         else
@@ -143,9 +143,9 @@ public class IncidentsController : Controller
 
     private async Task LoadDropdowns()
     {
-        var siteResult = await _apiClient.GetAsync<SiteListResponse>("api/v1/Sites", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
+        var siteResult = await _apiClient.GetAsync<SiteListResponse>("Sites", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
         ViewBag.Sites = new SelectList(siteResult.Data?.Items ?? new List<SiteDto>(), "Id", "SiteName");
-        var guardResult = await _apiClient.GetAsync<GuardListResponse>("api/v1/SecurityGuards", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
+        var guardResult = await _apiClient.GetAsync<GuardListResponse>("SecurityGuards", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
         ViewBag.Guards = new SelectList(guardResult.Data?.Items ?? new List<GuardItemDto>(), "Id", "GuardCode");
     }
 }

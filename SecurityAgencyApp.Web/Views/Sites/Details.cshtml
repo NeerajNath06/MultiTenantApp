@@ -1,22 +1,25 @@
-@model SecurityAgencyApp.Model.Api.SiteDto
 @{
     ViewData["Title"] = "Site Details";
+    var siteId = ViewBag.SiteId;
 }
 
+<div id="siteDetailsPage"
+     data-site-id="@siteId"
+     data-load-endpoint="Sites/@siteId">
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
             <h1 class="page-title">Site Details</h1>
-            <p class="page-subtitle mb-0">@Model.SiteName - @Model.SiteCode</p>
+            <p class="page-subtitle mb-0"><span data-field="siteName">-</span> - <span data-field="siteCodeText">-</span></p>
         </div>
         <div class="d-flex gap-2">
-            <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary">
+            <a href="@Url.Action("Edit", new { id = siteId })" class="btn btn-primary">
                 <i class="fas fa-edit me-2"></i>Edit
             </a>
-            <a href="@Url.Action("Index", "SitePosts", new { siteId = Model.Id })" class="btn btn-outline-primary">
+            <a href="@Url.Action("Index", "SitePosts", new { siteId = siteId })" class="btn btn-outline-primary">
                 <i class="fas fa-users-cog me-2"></i>Site Posts
             </a>
-            <a href="@Url.Action("Index", "SiteRates", new { siteId = Model.Id })" class="btn btn-outline-info">
+            <a href="@Url.Action("Index", "SiteRates", new { siteId = siteId })" class="btn btn-outline-info">
                 <i class="fas fa-rupee-sign me-2"></i>Rate Management
             </a>
             <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -34,31 +37,31 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-muted">Site Code</label>
-                        <p class="mb-0"><span class="badge bg-secondary">@Model.SiteCode</span></p>
+                        <p class="mb-0"><span class="badge bg-secondary" data-field="siteCode">-</span></p>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-muted">Client</label>
-                        <p class="mb-0">@(string.IsNullOrWhiteSpace(Model.ClientName) ? "-" : Model.ClientName)</p>
+                        <p class="mb-0" data-field="clientName">-</p>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-muted">Branch</label>
-                        <p class="mb-0">@(string.IsNullOrWhiteSpace(Model.BranchName) ? "-" : Model.BranchName)</p>
+                        <p class="mb-0" data-field="branchName">-</p>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-semibold text-muted">Address</label>
-                        <p class="mb-0">@Model.Address</p>
+                        <p class="mb-0" data-field="address">-</p>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold text-muted">City</label>
-                        <p class="mb-0">@Model.City</p>
+                        <p class="mb-0" data-field="city">-</p>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold text-muted">State</label>
-                        <p class="mb-0">@Model.State</p>
+                        <p class="mb-0" data-field="state">-</p>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold text-muted">Pin Code</label>
-                        <p class="mb-0">@Model.PinCode</p>
+                        <p class="mb-0" data-field="pinCode">-</p>
                     </div>
                 </div>
             </div>
@@ -70,47 +73,45 @@
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label fw-semibold text-muted">Contact Person</label>
-                        <p class="mb-0">@(Model.ContactPerson ?? "-")</p>
+                        <p class="mb-0" data-field="contactPerson">-</p>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold text-muted">Contact Phone</label>
-                        <p class="mb-0">@(Model.ContactPhone ?? "-")</p>
+                        <p class="mb-0" data-field="contactPhone">-</p>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold text-muted">Contact Email</label>
-                        <p class="mb-0">@(Model.ContactEmail ?? "-")</p>
+                        <p class="mb-0" data-field="contactEmail">-</p>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-muted">Assigned Supervisors</label>
-                        <p class="mb-0">@Model.SupervisorIds.Count</p>
+                        <p class="mb-0" data-field="supervisorCount">-</p>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-muted">Status</label>
                         <p class="mb-0">
-                            <span class="badge bg-@(Model.IsActive ? "success" : "danger")">
-                                @(Model.IsActive ? "Active" : "Inactive")
-                            </span>
+                            <span class="badge bg-secondary" data-field="statusBadge">-</span>
                         </p>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-muted">Emergency Contact</label>
-                        <p class="mb-0">@(string.IsNullOrWhiteSpace(Model.EmergencyContactName) ? "-" : $"{Model.EmergencyContactName} ({Model.EmergencyContactPhone ?? "-"})")</p>
+                        <p class="mb-0" data-field="emergencyContact">-</p>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-muted">Muster Point</label>
-                        <p class="mb-0">@(Model.MusterPoint ?? "-")</p>
+                        <p class="mb-0" data-field="musterPoint">-</p>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-semibold text-muted">Access Zones</label>
-                        <p class="mb-0">@(Model.AccessZoneNotes ?? "-")</p>
+                        <p class="mb-0" data-field="accessZoneNotes">-</p>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-semibold text-muted">Site Instruction Book</label>
-                        <p class="mb-0">@(Model.SiteInstructionBook ?? "-")</p>
+                        <p class="mb-0" data-field="siteInstructionBook">-</p>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-semibold text-muted">Geofence Exception Notes</label>
-                        <p class="mb-0">@(Model.GeofenceExceptionNotes ?? "-")</p>
+                        <p class="mb-0" data-field="geofenceExceptionNotes">-</p>
                     </div>
                 </div>
             </div>
@@ -123,27 +124,24 @@
                 <h5 class="section-title"><i class="fas fa-crosshairs"></i>Geofence</h5>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Latitude</label>
-                    <p class="mb-0">@(Model.Latitude?.ToString() ?? "-")</p>
+                    <p class="mb-0" data-field="latitude">-</p>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Longitude</label>
-                    <p class="mb-0">@(Model.Longitude?.ToString() ?? "-")</p>
+                    <p class="mb-0" data-field="longitude">-</p>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Radius (meters)</label>
-                    <p class="mb-0">@(Model.GeofenceRadiusMeters?.ToString() ?? "-")</p>
+                    <p class="mb-0" data-field="geofenceRadiusMeters">-</p>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Created Date</label>
-                    <p class="mb-0">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</p>
+                    <p class="mb-0" data-field="createdDate">-</p>
                 </div>
-                @if (Model.ModifiedDate.HasValue)
-                {
-                    <div class="mb-0">
-                        <label class="form-label fw-semibold text-muted">Last Modified</label>
-                        <p class="mb-0">@Model.ModifiedDate.Value.ToString("dd MMM yyyy HH:mm")</p>
-                    </div>
-                }
+                <div class="mb-0">
+                    <label class="form-label fw-semibold text-muted">Last Modified</label>
+                    <p class="mb-0" data-field="modifiedDate">-</p>
+                </div>
             </div>
         </div>
 
@@ -152,37 +150,26 @@
                 <h5 class="section-title"><i class="fas fa-users-cog"></i>Deployment Planning</h5>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Site Posts</label>
-                    @if (Model.Posts.Count == 0)
-                    {
-                        <p class="mb-0">-</p>
-                    }
-                    else
-                    {
-                        <ul class="mb-0 ps-3">
-                            @foreach (var post in Model.Posts)
-                            {
-                                <li>@post.PostCode - @post.PostName (@post.SanctionedStrength)</li>
-                            }
-                        </ul>
-                    }
+                    <div id="sitePostsList" class="mb-0">-</div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Deployment Plan</label>
-                    <p class="mb-0">@(Model.ActiveDeploymentPlan?.InstructionSummary ?? "-")</p>
+                    <p class="mb-0" data-field="planInstructionSummary">-</p>
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-muted">Effective Window</label>
-                    <p class="mb-0">
-                        @(Model.ActiveDeploymentPlan == null
-                            ? "-"
-                            : $"{Model.ActiveDeploymentPlan.EffectiveFrom:dd MMM yyyy} - {(Model.ActiveDeploymentPlan.EffectiveTo.HasValue ? Model.ActiveDeploymentPlan.EffectiveTo.Value.ToString("dd MMM yyyy") : "Open")}")
-                    </p>
+                    <p class="mb-0" data-field="planWindow">-</p>
                 </div>
                 <div class="mb-0">
                     <label class="form-label fw-semibold text-muted">Reserve Pool / Zones</label>
-                    <p class="mb-0">@(string.IsNullOrWhiteSpace(Model.ActiveDeploymentPlan?.ReservePoolMapping) && string.IsNullOrWhiteSpace(Model.ActiveDeploymentPlan?.AccessZones) ? "-" : $"{Model.ActiveDeploymentPlan?.ReservePoolMapping ?? "-"} | {Model.ActiveDeploymentPlan?.AccessZones ?? "-"}")</p>
+                    <p class="mb-0" data-field="reserveZones">-</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/sites/details.js" asp-append-version="true"></script>
+}

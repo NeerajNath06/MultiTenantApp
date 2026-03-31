@@ -10,9 +10,14 @@
 
 <div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Edit" method="post" class="form">
+        <div id="announcementFormPage"
+             data-mode="edit"
+             data-submit-endpoint="Announcements/@Model.Id"
+             data-load-endpoint="Announcements/@Model.Id"
+             data-redirect-url="@Url.Action("Index")">
+        <form id="announcementForm" class="form">
             <input type="hidden" asp-for="Id" />
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div id="announcementFormErrors" class="alert alert-danger d-none"></div>
             <div class="form-section">
                 <h5 class="section-title"><i class="fas fa-bullhorn"></i>Announcement</h5>
                 <div class="row g-3">
@@ -46,13 +51,15 @@
                 </div>
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Update</button>
+                <button id="announcementFormSubmitButton" type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Update</button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancel</a>
             </div>
         </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/pages/announcements/form.js" asp-append-version="true"></script>
 }

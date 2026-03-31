@@ -24,7 +24,7 @@ public class ComplianceController : Controller
             if (!string.IsNullOrEmpty(userIdStr))
                 query["supervisorId"] = userIdStr;
         }
-        var result = await _apiClient.GetAsync<ComplianceSummaryResponse>("api/v1/Compliance/summary", query);
+        var result = await _apiClient.GetAsync<ComplianceSummaryResponse>("Compliance/summary", query);
         if (result.Success && result.Data != null)
             return View(result.Data);
         return View(new ComplianceSummaryResponse());

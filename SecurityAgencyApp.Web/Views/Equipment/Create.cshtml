@@ -1,8 +1,6 @@
 @model SecurityAgencyApp.Model.Api.CreateEquipmentRequest
 @{
     ViewData["Title"] = "Add Equipment";
-    var sites = ViewBag.Sites as List<SecurityAgencyApp.Model.Api.SiteDto>;
-    var guards = ViewBag.Guards as List<SecurityAgencyApp.Model.Api.GuardItemDto>;
 }
 
 <div class="page-header">
@@ -12,8 +10,12 @@
 
 <div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Create" method="post" class="form">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <div id="equipmentFormPage"
+             data-mode="create"
+             data-submit-endpoint="Equipment"
+             data-redirect-url="@Url.Action("Index")">
+        <form id="equipmentForm" class="form">
+            <div id="equipmentFormErrors" class="alert alert-danger d-none"></div>
 
             <div class="form-section">
                 <h5 class="section-title"><i class="fas fa-box"></i>Basic Information</h5>
@@ -86,28 +88,14 @@
                     </div>
                     <div class="col-12 col-md-4">
                         <label asp-for="AssignedToGuardId" class="form-label fw-semibold">Assign to Guard</label>
-                        <select asp-for="AssignedToGuardId" class="form-select">
+                        <select id="equipmentAssignedToGuardId" asp-for="AssignedToGuardId" class="form-select">
                             <option value="">Not Assigned</option>
-                            @if (guards != null)
-                            {
-                                @foreach (var guard in guards)
-                                {
-                                    <option value="@guard.Id">@guard.GuardCode - @guard.FirstName @guard.LastName</option>
-                                }
-                            }
                         </select>
                     </div>
                     <div class="col-12 col-md-4">
                         <label asp-for="AssignedToSiteId" class="form-label fw-semibold">Assign to Site</label>
-                        <select asp-for="AssignedToSiteId" class="form-select">
+                        <select id="equipmentAssignedToSiteId" asp-for="AssignedToSiteId" class="form-select">
                             <option value="">Not Assigned</option>
-                            @if (sites != null)
-                            {
-                                @foreach (var site in sites)
-                                {
-                                    <option value="@site.Id">@site.SiteName</option>
-                                }
-                            }
                         </select>
                     </div>
                 </div>
@@ -132,7 +120,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
+                <button id="equipmentFormSubmitButton" type="submit" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Add Equipment
                 </button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -140,9 +128,11 @@
                 </a>
             </div>
         </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/pages/equipment/form.js" asp-append-version="true"></script>
 }

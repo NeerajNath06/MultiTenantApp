@@ -1,5 +1,4 @@
 @model SecurityAgencyApp.Model.Api.CreateSiteRequest
-@using Microsoft.AspNetCore.Mvc.Rendering
 @{
     ViewData["Title"] = "Create Site";
 }
@@ -9,10 +8,14 @@
     <p class="page-subtitle mb-0">Add a new client site</p>
 </div>
 
+<div id="siteFormPage"
+     data-mode="create"
+     data-submit-endpoint="Sites"
+     data-redirect-url="@Url.Action("Index")">
 <div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Create" method="post" class="form">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <form id="siteForm" class="form">
+            <div id="siteFormErrors" class="alert alert-danger d-none" role="alert"></div>
 
             <div class="form-section">
                 <h5 class="section-title"><i class="fas fa-map-marker-alt"></i>Site Details</h5>
@@ -98,20 +101,7 @@
                         <span id="siteSupervisorsLabel">-- Select Supervisors --</span>
                         <i class="fas fa-chevron-down ms-auto"></i>
                     </button>
-                    <ul class="dropdown-menu w-100 px-2" id="siteSupervisorsMenu" style="max-height: 220px; overflow-y: auto;">
-                        @if (ViewBag.Supervisors is IEnumerable<SelectListItem> supervisorList)
-                        {
-                            @foreach (var item in supervisorList)
-                            {
-                                <li>
-                                    <label class="dropdown-item d-flex align-items-center gap-2 cursor-pointer mb-0">
-                                        <input type="checkbox" class="form-check-input site-supervisor-cb" value="@item.Value" data-name="@item.Text" />
-                                        <span>@item.Text</span>
-                                    </label>
-                                </li>
-                            }
-                        }
-                    </ul>
+                    <ul class="dropdown-menu w-100 px-2" id="siteSupervisorsMenu" style="max-height: 220px; overflow-y: auto;"></ul>
                     <div id="siteSupervisorsHiddenContainer"></div>
                 </div>
             </div>
@@ -171,38 +161,14 @@
             <partial name="_SitePlanningEditor" model="Model" />
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Create Site</button>
+                <button type="submit" class="btn btn-primary" id="siteFormSubmitButton"><i class="fas fa-save me-2"></i>Create Site</button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary"><i class="fas fa-times me-2"></i>Cancel</a>
             </div>
         </form>
     </div>
 </div>
+</div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script>
-        (function () {
-            var container = document.getElementById('siteSupervisorsHiddenContainer');
-            var label = document.getElementById('siteSupervisorsLabel');
-            var cbs = document.querySelectorAll('.site-supervisor-cb');
-            var selectedIds = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model?.SupervisorIds ?? new List<Guid>()));
-            function syncHidden() {
-                container.innerHTML = '';
-                var names = [];
-                cbs.forEach(function (cb) {
-                    if (cb.checked) {
-                        container.appendChild(Object.assign(document.createElement('input'), { type: 'hidden', name: 'SupervisorIds', value: cb.value }));
-                        names.push(cb.getAttribute('data-name'));
-                    }
-                });
-                label.textContent = names.length ? names.join(', ') : '-- Select Supervisors --';
-            }
-            cbs.forEach(function (cb) {
-                if (selectedIds.indexOf(cb.value) !== -1) cb.checked = true;
-                cb.addEventListener('change', syncHidden);
-            });
-            syncHidden();
-            document.getElementById('siteSupervisorsMenu').addEventListener('click', function (e) { e.stopPropagation(); });
-        })();
-    </script>
+    <script src="~/js/pages/sites/form.js" asp-append-version="true"></script>
 }

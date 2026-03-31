@@ -27,7 +27,7 @@ public class SidebarMenuViewComponent : ViewComponent
         List<MenuDto> items = new();
         if (hasToken)
         {
-            var result = await _apiClient.GetAsync<MenuListResponse>("api/v1/Menus/for-current-user");
+            var result = await _apiClient.GetAsync<MenuListResponse>("Menus/for-current-user");
             if (result.Success && result.Data?.Items != null)
             {
                 items = result.Data.Items.OrderBy(m => m.DisplayOrder).ToList();

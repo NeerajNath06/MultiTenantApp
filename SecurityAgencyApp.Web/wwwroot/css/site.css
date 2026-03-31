@@ -1637,3 +1637,54 @@ form .row .col-12,
     line-height: 1.65;
     min-height: 3rem;
 }
+
+.global-api-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.global-api-loader__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+}
+
+.global-api-loader__content {
+    position: relative;
+    z-index: 1;
+    min-width: 220px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+}
+
+.app-toast {
+    color: #fff;
+    min-width: 280px;
+    box-shadow: var(--shadow-lg);
+}
+
+.app-toast-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.app-toast-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.app-toast-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.app-toast-info {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}

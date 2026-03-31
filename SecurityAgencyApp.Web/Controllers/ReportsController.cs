@@ -45,7 +45,7 @@ public class ReportsController : Controller
         if (siteId.HasValue) query["siteId"] = siteId.Value.ToString();
         if (wageId.HasValue) query["wageId"] = wageId.Value.ToString();
         if (billId.HasValue) query["billId"] = billId.Value.ToString();
-        var result = await _apiClient.GetFileAsync("api/v1/Reports/monthly-excel", query);
+        var result = await _apiClient.GetFileAsync("Reports/monthly-excel", query);
         if (!result.Success || result.Data == null)
         {
             TempData["Error"] = result.Message ?? "Failed to generate report.";

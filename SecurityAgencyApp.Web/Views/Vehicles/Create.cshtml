@@ -10,8 +10,12 @@
 
 <div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Create" method="post" class="form">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <div id="vehicleFormPage"
+             data-mode="create"
+             data-submit-endpoint="Vehicles"
+             data-redirect-url="@Url.Action("Index")">
+        <form id="vehicleForm" class="form">
+            <div id="vehicleFormErrors" class="alert alert-danger d-none"></div>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label asp-for="VehicleNumber" class="form-label fw-semibold">Vehicle Number <span class="text-danger">*</span></label>
@@ -48,27 +52,29 @@
                 </div>
                 <div class="col-md-6">
                     <label asp-for="SiteId" class="form-label fw-semibold">Site <span class="text-danger">*</span></label>
-                    <select asp-for="SiteId" class="form-select" asp-items="ViewBag.Sites" required>
+                    <select id="vehicleSiteId" asp-for="SiteId" class="form-select" required>
                         <option value="">-- Select Site --</option>
                     </select>
                     <span asp-validation-for="SiteId" class="text-danger small"></span>
                 </div>
                 <div class="col-md-6">
                     <label asp-for="GuardId" class="form-label fw-semibold">Registering Guard <span class="text-danger">*</span></label>
-                    <select asp-for="GuardId" class="form-select" asp-items="ViewBag.Guards" required>
+                    <select id="vehicleGuardId" asp-for="GuardId" class="form-select" required>
                         <option value="">-- Select Guard --</option>
                     </select>
                     <span asp-validation-for="GuardId" class="text-danger small"></span>
                 </div>
             </div>
             <div class="mt-4">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Register Entry</button>
+                <button id="vehicleFormSubmitButton" type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Register Entry</button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancel</a>
             </div>
         </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/pages/vehicles/form.js" asp-append-version="true"></script>
 }

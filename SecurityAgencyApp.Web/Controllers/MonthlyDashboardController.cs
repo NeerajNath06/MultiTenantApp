@@ -19,7 +19,7 @@ public class MonthlyDashboardController : Controller
     {
         var y = year ?? DateTime.UtcNow.Year;
         var m = month ?? DateTime.UtcNow.Month;
-        var res = await _apiClient.GetAsync<MonthlySiteSummaryResponseDto>("api/v1/Dashboard/monthly-summary",
+        var res = await _apiClient.GetAsync<MonthlySiteSummaryResponseDto>("Dashboard/monthly-summary",
             new Dictionary<string, string?> { ["year"] = y.ToString(), ["month"] = m.ToString() });
         if (!res.Success || res.Data == null)
             return View(new MonthlySiteSummaryResponseDto { Year = y, Month = m, Items = new List<MonthlySiteSummaryItemDto>() });

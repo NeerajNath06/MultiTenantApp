@@ -28,7 +28,7 @@ public class AttendanceController : Controller
         if (!string.IsNullOrEmpty(search)) query["search"] = search;
         if (!string.IsNullOrEmpty(sortBy)) query["sortBy"] = sortBy;
         if (!string.IsNullOrEmpty(sortDirection)) query["sortDirection"] = sortDirection;
-        var result = await _apiClient.GetFileAsync("api/v1/Attendance/export", query);
+        var result = await _apiClient.GetFileAsync("Attendance/export", query);
         if (!result.Success || result.Data == null)
             return NotFound();
         return File(result.Data.Content, result.Data.ContentType, result.Data.FileName);
@@ -48,8 +48,8 @@ public class AttendanceController : Controller
         if (!string.IsNullOrEmpty(search)) query["search"] = search;
         if (!string.IsNullOrEmpty(sortBy)) query["sortBy"] = sortBy;
         if (!string.IsNullOrEmpty(sortDirection)) query["sortDirection"] = sortDirection;
-        var result = await _apiClient.GetAsync<AttendanceListResponse>("api/v1/Attendance", query);
-        var guardResult = await _apiClient.GetAsync<GuardListResponse>("api/v1/SecurityGuards", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
+        var result = await _apiClient.GetAsync<AttendanceListResponse>("Attendance", query);
+        var guardResult = await _apiClient.GetAsync<GuardListResponse>("SecurityGuards", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
         ViewBag.Guards = new SelectList(
             guardResult.Data?.Items ?? new List<GuardItemDto>(),
             "Id", "GuardCode", guardId);
@@ -86,7 +86,7 @@ public class AttendanceController : Controller
             status = request.Status,
             remarks = request.Remarks
         };
-        var result = await _apiClient.PostAsync<Guid>("api/v1/Attendance/mark", body);
+        var result = await _apiClient.PostAsync<Guid>("Attendance/mark", body);
         if (result.Success)
         {
             TempData["SuccessMessage"] = "Attendance marked successfully";
@@ -100,9 +100,9 @@ public class AttendanceController : Controller
 
     private async Task LoadDropdowns()
     {
-        var guardResult = await _apiClient.GetAsync<GuardListResponse>("api/v1/SecurityGuards", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
+        var guardResult = await _apiClient.GetAsync<GuardListResponse>("SecurityGuards", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
         ViewBag.Guards = new SelectList(guardResult.Data?.Items ?? new List<GuardItemDto>(), "Id", "GuardCode");
-        var assignmentResult = await _apiClient.GetAsync<AssignmentListResponse>("api/v1/GuardAssignments", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
+        var assignmentResult = await _apiClient.GetAsync<AssignmentListResponse>("GuardAssignments", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
         ViewBag.Assignments = new SelectList(assignmentResult.Data?.Items ?? new List<AssignmentItemDto>(), "Id", "SiteName");
         if (ViewBag.StatusList == null)
             ViewBag.StatusList = new SelectList(new[] { new { Value = "Present", Text = "Present" }, new { Value = "Absent", Text = "Absent" }, new { Value = "Leave", Text = "Leave" }, new { Value = "HalfDay", Text = "Half Day" } }, "Value", "Text");

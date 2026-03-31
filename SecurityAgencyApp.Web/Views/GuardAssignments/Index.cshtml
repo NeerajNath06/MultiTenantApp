@@ -1,15 +1,14 @@
-@model SecurityAgencyApp.Model.Api.AssignmentListResponse
 @{
     ViewData["Title"] = "Guard Assignments";
-    var currentSort = Model?.SortBy ?? "";
-    var currentDirection = Model?.SortDirection ?? "desc";
-    var guards = ViewBag.Guards as SelectList;
-    var sites = ViewBag.Sites as SelectList;
-    var totalAssignments = Model?.TotalCount ?? 0;
-    var activeAssignments = Model?.Items?.Count(a => string.Equals(a.Status, "Active", StringComparison.OrdinalIgnoreCase)) ?? 0;
-    var completedAssignments = Model?.Items?.Count(a => string.Equals(a.Status, "Completed", StringComparison.OrdinalIgnoreCase)) ?? 0;
+    var supervisorId = string.Equals(Context.Session.GetString("IsSupervisor"), "True", StringComparison.OrdinalIgnoreCase)
+        ? (Context.Session.GetString("UserId") ?? string.Empty)
+        : string.Empty;
 }
 
+<div id="guardAssignmentsIndexPage"
+     data-index-url="@Url.Action("Index")"
+     data-create-url="@Url.Action("Create")"
+     data-supervisor-id="@supervisorId">
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
         <div>
@@ -32,7 +31,7 @@
         <div class="card stat-card h-100">
             <div class="card-body">
                 <div class="stat-label">Total Assignments</div>
-                <div class="stat-value">@totalAssignments</div>
+                <div class="stat-value" data-stat="total">0</div>
             </div>
         </div>
     </div>
@@ -40,7 +39,7 @@
         <div class="card stat-card h-100">
             <div class="card-body">
                 <div class="stat-label">Active Assignments</div>
-                <div class="stat-value">@activeAssignments</div>
+                <div class="stat-value" data-stat="active">0</div>
             </div>
         </div>
     </div>
@@ -48,7 +47,7 @@
         <div class="card stat-card h-100">
             <div class="card-body">
                 <div class="stat-label">Completed</div>
-                <div class="stat-value">@completedAssignments</div>
+                <div class="stat-value" data-stat="completed">0</div>
             </div>
         </div>
     </div>
@@ -59,20 +58,20 @@
         <h5 class="mb-0"><i class="fas fa-filter me-2 text-primary"></i>Search & Filters</h5>
     </div>
     <div class="card-body">
-        <form method="get" class="row g-3">
+        <form id="guardAssignmentsFilterForm" method="get" class="row g-3">
             <input type="hidden" name="pageNumber" value="1" />
-            <input type="hidden" name="pageSize" value="@(Model?.PageSize ?? 10)" />
-            <input type="hidden" name="sortBy" value="@currentSort" />
-            <input type="hidden" name="sortDirection" value="@currentDirection" />
+            <input type="hidden" name="pageSize" value="10" />
+            <input type="hidden" name="sortBy" value="" />
+            <input type="hidden" name="sortDirection" value="desc" />
             <div class="col-md-4">
                 <label class="form-label">Filter by Guard</label>
-                <select name="guardId" class="form-select" asp-items="guards">
+                <select id="guardAssignmentsGuardId" name="guardId" class="form-select">
                     <option value="">All Guards</option>
                 </select>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Filter by Site</label>
-                <select name="siteId" class="form-select" asp-items="sites">
+                <select id="guardAssignmentsSiteId" name="siteId" class="form-select">
                     <option value="">All Sites</option>
                 </select>
             </div>
@@ -89,147 +88,31 @@
 <div class="card border-0 shadow-sm overflow-hidden">
     <div class="card-header bg-body-tertiary py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="mb-0"><i class="fas fa-user-check me-2 text-primary"></i>Assignment Directory</h5>
-        <span class="text-muted small">@totalAssignments total records</span>
+        <span id="guardAssignmentsRecordCount" class="text-muted small">0 total records</span>
     </div>
     <div class="card-body">
-        @if (Model?.Items != null && Model.Items.Any())
-        {
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                    <span class="text-muted">Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to @(Math.Min(Model.PageNumber * Model.PageSize, Model.TotalCount)) of @Model.TotalCount assignments</span>
-                </div>
-                <div>
-                    <select class="form-select form-select-sm d-inline-block" style="width: auto;" onchange="changePageSize(this.value)">
-                        <option value="10" selected="@(Model.PageSize == 10)">10 per page</option>
-                        <option value="25" selected="@(Model.PageSize == 25)">25 per page</option>
-                        <option value="50" selected="@(Model.PageSize == 50)">50 per page</option>
-                        <option value="100" selected="@(Model.PageSize == 100)">100 per page</option>
-                    </select>
-                </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <span id="guardAssignmentsShowingSummary" class="text-muted">No assignments to display</span>
             </div>
-
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Guard</th>
-                            <th>Site</th>
-                            <th>Shift</th>
-                            <th>
-                                <a href="@Url.Action("Index", new { pageNumber = Model.PageNumber, pageSize = Model.PageSize, search = Model.Search, sortBy = "date", sortDirection = currentSort == "date" && currentDirection == "asc" ? "desc" : "asc", guardId = ViewContext.HttpContext.Request.Query["guardId"], siteId = ViewContext.HttpContext.Request.Query["siteId"] })" class="text-decoration-none text-dark">
-                                    Start Date
-                                    @if (currentSort == "date")
-                                    {
-                                        <i class="fas fa-sort-@(currentDirection == "asc" ? "up" : "down")"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="fas fa-sort text-muted"></i>
-                                    }
-                                </a>
-                            </th>
-                            <th>End Date</th>
-                            <th>
-                                <a href="@Url.Action("Index", new { pageNumber = Model.PageNumber, pageSize = Model.PageSize, search = Model.Search, sortBy = "status", sortDirection = currentSort == "status" && currentDirection == "asc" ? "desc" : "asc", guardId = ViewContext.HttpContext.Request.Query["guardId"], siteId = ViewContext.HttpContext.Request.Query["siteId"] })" class="text-decoration-none text-dark">
-                                    Status
-                                    @if (currentSort == "status")
-                                    {
-                                        <i class="fas fa-sort-@(currentDirection == "asc" ? "up" : "down")"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="fas fa-sort text-muted"></i>
-                                    }
-                                </a>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var assignment in Model.Items)
-                        {
-                            <tr>
-                                <td>
-                                    <div class="fw-semibold">@assignment.GuardName</div>
-                                    <small class="text-muted">@assignment.GuardCode</small>
-                                </td>
-                                <td>@assignment.SiteName</td>
-                                <td>
-                                    @assignment.ShiftName
-                                    @if (!string.IsNullOrEmpty(assignment.ShiftStartTime) || !string.IsNullOrEmpty(assignment.ShiftEndTime))
-                                    {
-                                        <small class="text-muted d-block">@(assignment.ShiftStartTime ?? "—") - @(assignment.ShiftEndTime ?? "—")</small>
-                                    }
-                                </td>
-                                <td>@assignment.AssignmentStartDate.ToString("dd MMM yyyy")</td>
-                                <td>@(assignment.AssignmentEndDate?.ToString("dd MMM yyyy") ?? "Ongoing")</td>
-                                <td>
-                                    @if (assignment.Status == "Active")
-                                    {
-                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Active</span>
-                                    }
-                                    else if (assignment.Status == "Completed")
-                                    {
-                                        <span class="badge bg-info"><i class="fas fa-check me-1"></i>Completed</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Cancelled</span>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+            <div>
+                <select id="guardAssignmentsPageSize" class="form-select form-select-sm d-inline-block" style="width: auto;">
+                    <option value="10">10 per page</option>
+                    <option value="25">25 per page</option>
+                    <option value="50">50 per page</option>
+                    <option value="100">100 per page</option>
+                </select>
             </div>
-
-            @if (Model.TotalPages > 1)
-            {
-                <nav aria-label="Page navigation" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        @if (Model.PageNumber > 1)
-                        {
-                            <li class="page-item">
-                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize, search = Model.Search, sortBy = Model.SortBy, sortDirection = Model.SortDirection, guardId = ViewContext.HttpContext.Request.Query["guardId"], siteId = ViewContext.HttpContext.Request.Query["siteId"] })">
-                                    <i class="fas fa-chevron-left"></i> Previous
-                                </a>
-                            </li>
-                        }
-                        @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
-                        {
-                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = i, pageSize = Model.PageSize, search = Model.Search, sortBy = Model.SortBy, sortDirection = Model.SortDirection, guardId = ViewContext.HttpContext.Request.Query["guardId"], siteId = ViewContext.HttpContext.Request.Query["siteId"] })">@i</a>
-                            </li>
-                        }
-                        @if (Model.PageNumber < Model.TotalPages)
-                        {
-                            <li class="page-item">
-                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize, search = Model.Search, sortBy = Model.SortBy, sortDirection = Model.SortDirection, guardId = ViewContext.HttpContext.Request.Query["guardId"], siteId = ViewContext.HttpContext.Request.Query["siteId"] })">
-                                    Next <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                </nav>
-            }
-        }
-        else
-        {
-            <div class="text-center py-5">
-                <i class="fas fa-user-check fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No assignments found</h5>
-                <a href="@Url.Action("Create")" class="btn btn-primary mt-3">
-                    <i class="fas fa-user-check me-2"></i>Assign Guard
-                </a>
-            </div>
-        }
+        </div>
+        <div id="guardAssignmentsTableWrapper"></div>
+        <div id="guardAssignmentsPaginationContainer" class="d-none mt-4">
+            <div id="guardAssignmentsPaginationSummary" class="text-muted small mb-2"></div>
+            <ul id="guardAssignmentsPagination" class="pagination justify-content-center mb-0"></ul>
+        </div>
     </div>
 </div>
+</div>
 
-<script>
-    function changePageSize(size) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('pageSize', size);
-        url.searchParams.set('pageNumber', '1');
-        window.location.href = url.toString();
-    }
-</script>
+@section Scripts {
+    <script src="~/js/pages/guard-assignments/index.js" asp-append-version="true"></script>
+}

@@ -139,6 +139,7 @@
                 }
                 
                 <form method="post" action="@Url.Content("~/Auth/Login")">
+                    @Html.AntiForgeryToken()
                     <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
                     
                     <div class="mb-3">

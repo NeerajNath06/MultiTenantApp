@@ -35,7 +35,7 @@ public class NotificationsController : Controller
         if (isRead.HasValue) query["isRead"] = isRead.Value.ToString().ToLowerInvariant();
         if (!string.IsNullOrEmpty(type)) query["type"] = type;
 
-        var result = await _apiClient.GetAsync<NotificationListResponse>("api/v1/Notifications", query);
+        var result = await _apiClient.GetAsync<NotificationListResponse>("Notifications", query);
         if (result.Success && result.Data != null)
             return View(result.Data);
         return View(new NotificationListResponse());
@@ -47,7 +47,7 @@ public class NotificationsController : Controller
     {
         var userIdStr = HttpContext.Session.GetString("UserId");
         if (string.IsNullOrEmpty(userIdStr)) return RedirectToAction(nameof(Index));
-        var result = await _apiClient.PatchAsync<object>($"api/v1/Notifications/{id}/read?userId={userIdStr}", null);
+        var result = await _apiClient.PatchAsync<object>($"Notifications/{id}/read?userId={userIdStr}", null);
         if (result.Success) TempData["SuccessMessage"] = "Marked as read.";
         return RedirectToAction(nameof(Index));
     }
@@ -58,7 +58,7 @@ public class NotificationsController : Controller
     {
         var userIdStr = HttpContext.Session.GetString("UserId");
         if (string.IsNullOrEmpty(userIdStr)) return RedirectToAction(nameof(Index));
-        var result = await _apiClient.PatchAsync<object>($"api/v1/Notifications/read-all?userId={userIdStr}", null);
+        var result = await _apiClient.PatchAsync<object>($"Notifications/read-all?userId={userIdStr}", null);
         if (result.Success) TempData["SuccessMessage"] = "All marked as read.";
         return RedirectToAction(nameof(Index));
     }
@@ -87,7 +87,7 @@ public class NotificationsController : Controller
             return View(request);
         }
         var body = new { userIds = request.UserIds, title = request.Title.Trim(), body = (request.Body ?? "").Trim(), type = request.Type ?? "Info" };
-        var result = await _apiClient.PostAsync<object>("api/v1/Notifications/send", body);
+        var result = await _apiClient.PostAsync<object>("Notifications/send", body);
         if (result.Success)
         {
             TempData["SuccessMessage"] = "Notification sent successfully.";
@@ -101,16 +101,16 @@ public class NotificationsController : Controller
     private async Task LoadRecipients()
     {
         var queryAll = new Dictionary<string, string?> { ["pageSize"] = "1000", ["isActive"] = "true" };
-        var userResult = await _apiClient.GetAsync<UserListResponse>("api/v1/Users", queryAll);
+        var userResult = await _apiClient.GetAsync<UserListResponse>("Users", queryAll);
         var users = userResult.Data?.Items ?? new List<UserItemDto>();
         var list = users.Select(u => new { Value = u.Id.ToString(), Text = $"{u.FirstName} {u.LastName} ({u.UserName})" }).ToList();
         ViewBag.Recipients = new MultiSelectList(list, "Value", "Text");
 
-        var guardResult = await _apiClient.GetAsync<UserListResponse>("api/v1/Users", new Dictionary<string, string?> { ["pageSize"] = "1000", ["isActive"] = "true", ["roleCode"] = "GUARD" });
+        var guardResult = await _apiClient.GetAsync<UserListResponse>("Users", new Dictionary<string, string?> { ["pageSize"] = "1000", ["isActive"] = "true", ["roleCode"] = "GUARD" });
         var guardUserIds = (guardResult.Data?.Items ?? new List<UserItemDto>()).Select(u => u.Id.ToString()).ToList();
         ViewBag.GuardUserIds = guardUserIds;
 
-        var supervisorResult = await _apiClient.GetAsync<UserListResponse>("api/v1/Users", new Dictionary<string, string?> { ["pageSize"] = "1000", ["isActive"] = "true", ["roleCode"] = "SUPERVISOR" });
+        var supervisorResult = await _apiClient.GetAsync<UserListResponse>("Users", new Dictionary<string, string?> { ["pageSize"] = "1000", ["isActive"] = "true", ["roleCode"] = "SUPERVISOR" });
         var supervisorUserIds = (supervisorResult.Data?.Items ?? new List<UserItemDto>()).Select(u => u.Id.ToString()).ToList();
         ViewBag.SupervisorUserIds = supervisorUserIds;
 

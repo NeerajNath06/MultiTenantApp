@@ -1,14 +1,14 @@
-@model List<SecurityAgencyApp.Model.Api.SiteRateHistoryDto>
 @{
-    var site = ViewBag.Site as SecurityAgencyApp.Model.Api.SiteDto;
     ViewData["Title"] = "Rate Management";
+    var siteId = ViewBag.SiteId;
 }
 
+<div id="siteRatesPage" data-site-id="@siteId">
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
             <h1 class="page-title">Rate Management</h1>
-            <p class="page-subtitle mb-0">Site: <b>@(site?.SiteName)</b> | Client: @(site?.ClientName)</p>
+            <p class="page-subtitle mb-0">Site: <b data-field="siteName">-</b> | Client: <span data-field="clientName">-</span></p>
         </div>
         <a class="btn btn-outline-secondary" href="@Url.Action("Index", "Sites")">
             <i class="fas fa-arrow-left me-2"></i>Back to Sites
@@ -18,11 +18,7 @@
 
 <div class="card border-0 shadow-sm enterprise-form-card mb-4">
     <div class="card-body">
-        <form asp-action="Create" method="post" class="form">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="siteId" value="@(site?.Id ?? Guid.Empty)" />
-            <input type="hidden" name="clientId" value="@(site?.ClientId ?? Guid.Empty)" />
-
+        <form id="siteRatesForm" class="form">
             <div class="form-section">
                 <h5 class="section-title"><i class="fas fa-file-invoice-dollar"></i>Add / Change Rate</h5>
                 <div class="row g-3">
@@ -39,11 +35,12 @@
                         <input type="date" class="form-control" name="effectiveTo" />
                     </div>
                     <div class="col-12 col-md-6 col-lg-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">
+                        <button type="submit" id="siteRatesSubmitButton" class="btn btn-primary w-100">
                             <i class="fas fa-save me-2"></i>Save Rate
                         </button>
                     </div>
                 </div>
+                <div id="siteRatesFormErrors" class="alert alert-danger d-none mt-3 mb-0"></div>
                 <p class="small text-muted mt-3 mb-0">Monthly generation uses the rate effective on the <b>1st</b> of that month. Only <b>Present</b> days are billable/payable.</p>
             </div>
         </form>
@@ -54,46 +51,12 @@
     <div class="card-body">
         <h5 class="section-title"><i class="fas fa-history"></i>Rate History</h5>
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>Rate</th>
-                        <th>Effective From</th>
-                        <th>Effective To</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model != null && Model.Any())
-                    {
-                        foreach (var r in Model)
-                        {
-                            <tr>
-                                <td><span class="badge bg-secondary">₹ @r.RateAmount.ToString("0.00")</span></td>
-                                <td>@r.EffectiveFrom.ToString("dd-MMM-yyyy")</td>
-                                <td>@(r.EffectiveTo?.ToString("dd-MMM-yyyy") ?? "-")</td>
-                                <td>
-                                    @if (r.IsActive)
-                                    {
-                                        <span class="badge bg-success">Active</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-light text-dark">Inactive</span>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="4" class="text-muted">No rate plans found.</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <div id="siteRatesHistoryWrapper"></div>
         </div>
     </div>
 </div>
+</div>
 
+@section Scripts {
+    <script src="~/js/pages/site-rates/index.js" asp-append-version="true"></script>
+}

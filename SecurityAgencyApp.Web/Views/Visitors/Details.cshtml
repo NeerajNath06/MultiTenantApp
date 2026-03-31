@@ -1,25 +1,24 @@
-@model SecurityAgencyApp.Model.Api.VisitorDetailDto
 @{
     ViewData["Title"] = "Visitor Details";
 }
 
+<div id="visitorDetailsPage"
+     data-visitor-id="@ViewBag.VisitorId"
+     data-load-endpoint="Visitors/@ViewBag.VisitorId"
+     data-index-url="@Url.Action("Index")">
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="page-title">Visitor Details</h1>
-            <p class="page-subtitle mb-0">@Model.VisitorName</p>
+            <p class="page-subtitle mb-0" data-field="visitorName">-</p>
         </div>
         <div>
-            <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary">
+            <a href="@Url.Action("Edit", new { id = ViewBag.VisitorId })" class="btn btn-primary">
                 <i class="fas fa-edit me-2"></i>Edit
             </a>
-            <form asp-action="Delete" method="post" class="d-inline" data-confirm-message="Are you sure you want to delete this visitor record?">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="id" value="@Model.Id" />
-                <button type="submit" class="btn btn-outline-danger">
-                    <i class="fas fa-trash me-2"></i>Delete
-                </button>
-            </form>
+            <button id="visitorDeleteButton" type="button" class="btn btn-outline-danger">
+                <i class="fas fa-trash me-2"></i>Delete
+            </button>
             <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to List
             </a>
@@ -33,78 +32,65 @@
         <div class="row g-3">
             <div class="col-md-6">
                 <label class="form-label fw-semibold text-muted">Visitor Name</label>
-                <p class="mb-0"><strong>@Model.VisitorName</strong></p>
+                <p class="mb-0"><strong data-field="visitorName">-</strong></p>
             </div>
             <div class="col-md-6">
                 <label class="form-label fw-semibold text-muted">Type</label>
-                <p class="mb-0">@Model.VisitorType</p>
+                <p class="mb-0" data-field="visitorType">-</p>
             </div>
-            @if (!string.IsNullOrEmpty(Model.CompanyName))
-            {
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold text-muted">Company</label>
-                    <p class="mb-0">@Model.CompanyName</p>
-                </div>
-            }
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Company</label>
+                <p class="mb-0" data-field="companyName">-</p>
+            </div>
             <div class="col-md-6">
                 <label class="form-label fw-semibold text-muted">Phone</label>
-                <p class="mb-0">@Model.PhoneNumber</p>
+                <p class="mb-0" data-field="phoneNumber">-</p>
             </div>
-            @if (!string.IsNullOrEmpty(Model.Email))
-            {
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold text-muted">Email</label>
-                    <p class="mb-0">@Model.Email</p>
-                </div>
-            }
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Email</label>
+                <p class="mb-0" data-field="email">-</p>
+            </div>
             <div class="col-md-6">
                 <label class="form-label fw-semibold text-muted">Purpose</label>
-                <p class="mb-0">@Model.Purpose</p>
+                <p class="mb-0" data-field="purpose">-</p>
             </div>
-            @if (!string.IsNullOrEmpty(Model.HostName))
-            {
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold text-muted">Host Name</label>
-                    <p class="mb-0">@Model.HostName</p>
-                </div>
-            }
-            @if (!string.IsNullOrEmpty(Model.HostDepartment))
-            {
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold text-muted">Host Department</label>
-                    <p class="mb-0">@Model.HostDepartment</p>
-                </div>
-            }
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Host Name</label>
+                <p class="mb-0" data-field="hostName">-</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Host Department</label>
+                <p class="mb-0" data-field="hostDepartment">-</p>
+            </div>
             <div class="col-md-6">
                 <label class="form-label fw-semibold text-muted">Site</label>
-                <p class="mb-0">@(Model.SiteName ?? "-")</p>
+                <p class="mb-0" data-field="siteName">-</p>
             </div>
             <div class="col-md-6">
                 <label class="form-label fw-semibold text-muted">Guard</label>
-                <p class="mb-0">@(Model.GuardName ?? "-")</p>
+                <p class="mb-0" data-field="guardName">-</p>
             </div>
             <div class="col-md-6">
                 <label class="form-label fw-semibold text-muted">Entry Time</label>
-                <p class="mb-0">@Model.EntryTime.ToString("dd MMM yyyy HH:mm")</p>
+                <p class="mb-0" data-field="entryTime">-</p>
             </div>
             <div class="col-md-6">
                 <label class="form-label fw-semibold text-muted">Exit Time</label>
-                <p class="mb-0">@(Model.ExitTime.HasValue ? Model.ExitTime.Value.ToString("dd MMM yyyy HH:mm") : "Inside")</p>
+                <p class="mb-0" data-field="exitTime">-</p>
             </div>
-            @if (!string.IsNullOrEmpty(Model.BadgeNumber))
-            {
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold text-muted">Badge Number</label>
-                    <p class="mb-0">@Model.BadgeNumber</p>
-                </div>
-            }
-            @if (!string.IsNullOrEmpty(Model.IdProofType))
-            {
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold text-muted">ID Proof</label>
-                    <p class="mb-0">@Model.IdProofType @(string.IsNullOrEmpty(Model.IdProofNumber) ? "" : "- " + Model.IdProofNumber)</p>
-                </div>
-            }
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">Badge Number</label>
+                <p class="mb-0" data-field="badgeNumber">-</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-muted">ID Proof</label>
+                <p class="mb-0" data-field="idProof">-</p>
+            </div>
         </div>
     </div>
 </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/visitors/details.js" asp-append-version="true"></script>
+}

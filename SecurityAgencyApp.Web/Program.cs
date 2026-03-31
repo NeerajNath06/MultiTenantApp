@@ -3,7 +3,7 @@ using SecurityAgencyApp.Web.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSecurityAgencyWebServices(builder.Configuration);
-builder.Services.AddConfiguredApiVersioning();
+builder.Services.AddConfiguredApiVersioning(builder.Configuration);
 builder.Services.AddConfiguredSwagger();
 builder.Services.AddConfiguredJwtAuthentication(builder.Configuration);
 builder.Services.AddConfiguredCorsPolicy(builder.Configuration);

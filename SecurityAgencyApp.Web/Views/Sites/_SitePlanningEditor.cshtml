@@ -1,8 +1,6 @@
 @model SecurityAgencyApp.Model.Api.CreateSiteRequest
-@using Microsoft.AspNetCore.Mvc.Rendering
 @using SecurityAgencyApp.Model.Api
 @{
-    var branches = ViewBag.Branches as SelectList ?? new SelectList(Enumerable.Empty<SelectListItem>());
     var posts = Model.Posts?.Any() == true
         ? Model.Posts
         : new List<SitePostDto>();
@@ -18,7 +16,7 @@
     <div class="row g-3">
         <div class="col-12 col-md-6">
             <label asp-for="BranchId" class="form-label fw-semibold">Branch</label>
-            <select asp-for="BranchId" class="form-select" asp-items="branches">
+            <select asp-for="BranchId" id="siteBranchId" class="form-select">
                 <option value="">-- Select Branch --</option>
             </select>
             <span class="small text-muted">Optional branch mapping for operational ownership and numbering.</span>
@@ -174,93 +172,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    (function () {
-        var table = document.getElementById('sitePostsTable');
-        var addBtn = document.getElementById('addSitePostBtn');
-        if (!table || !addBtn || table.dataset.sitePlanningInitialized === '1') {
-            return;
-        }
-
-        table.dataset.sitePlanningInitialized = '1';
-
-        function createRow() {
-            var row = document.createElement('tr');
-            row.className = 'site-post-row';
-            row.innerHTML =
-                '<td>' +
-                    '<input type="hidden" data-post-field="Id" value="00000000-0000-0000-0000-000000000000" />' +
-                    '<input type="text" class="form-control form-control-sm mb-2" data-post-field="PostCode" placeholder="Code" />' +
-                    '<input type="text" class="form-control form-control-sm" data-post-field="PostName" placeholder="Post name" />' +
-                '</td>' +
-                '<td>' +
-                    '<input type="text" class="form-control form-control-sm mb-2" data-post-field="ShiftName" placeholder="Shift" />' +
-                    '<input type="text" class="form-control form-control-sm" data-post-field="WeeklyOffPattern" placeholder="Weekly off pattern" />' +
-                '</td>' +
-                '<td>' +
-                    '<input type="number" min="0" class="form-control form-control-sm mb-2" data-post-field="SanctionedStrength" value="1" />' +
-                    '<select class="form-select form-select-sm" data-post-field="IsActive">' +
-                        '<option value="true" selected>Active</option>' +
-                        '<option value="false">Inactive</option>' +
-                    '</select>' +
-                '</td>' +
-                '<td>' +
-                    '<input type="text" class="form-control form-control-sm mb-2" data-post-field="GenderRequirement" placeholder="Gender requirement" />' +
-                    '<input type="text" class="form-control form-control-sm" data-post-field="SkillRequirement" placeholder="Skill requirement" />' +
-                '</td>' +
-                '<td>' +
-                    '<select class="form-select form-select-sm mb-2" data-post-field="RequiresWeapon">' +
-                        '<option value="false" selected>Weapon: No</option>' +
-                        '<option value="true">Weapon: Yes</option>' +
-                    '</select>' +
-                    '<select class="form-select form-select-sm" data-post-field="RelieverRequired">' +
-                        '<option value="false" selected>Reliever: No</option>' +
-                        '<option value="true">Reliever: Yes</option>' +
-                    '</select>' +
-                '</td>' +
-                '<td class="text-end">' +
-                    '<button type="button" class="btn btn-sm btn-outline-danger remove-site-post-btn"><i class="fas fa-trash"></i></button>' +
-                '</td>';
-            return row;
-        }
-
-        function reindexRows() {
-            var rows = table.querySelectorAll('tbody .site-post-row');
-            rows.forEach(function (row, index) {
-                row.querySelectorAll('[data-post-field]').forEach(function (field) {
-                    field.name = 'Posts[' + index + '].' + field.getAttribute('data-post-field');
-                });
-            });
-        }
-
-        addBtn.addEventListener('click', function () {
-            var emptyRow = table.querySelector('.site-post-empty-row');
-            if (emptyRow) {
-                emptyRow.remove();
-            }
-            table.querySelector('tbody').appendChild(createRow());
-            reindexRows();
-        });
-
-        table.addEventListener('click', function (event) {
-            var removeBtn = event.target.closest('.remove-site-post-btn');
-            if (!removeBtn) {
-                return;
-            }
-
-            var rows = table.querySelectorAll('tbody .site-post-row');
-            if (rows.length === 1) {
-                rows[0].remove();
-                table.querySelector('tbody').innerHTML = '<tr class="site-post-empty-row"><td colspan="6" class="text-center text-muted py-4">No posts added yet. Use <b>Add Post</b> to define staffing positions.</td></tr>';
-                reindexRows();
-                return;
-            }
-
-            removeBtn.closest('.site-post-row').remove();
-            reindexRows();
-        });
-
-        reindexRows();
-    })();
-</script>

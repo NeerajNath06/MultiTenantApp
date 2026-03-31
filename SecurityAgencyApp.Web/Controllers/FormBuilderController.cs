@@ -18,7 +18,7 @@ public class FormBuilderController : Controller
     public async Task<IActionResult> Index(bool includeInactive = false)
     {
         var query = new Dictionary<string, string?> { ["includeInactive"] = includeInactive.ToString().ToLowerInvariant() };
-        var result = await _apiClient.GetAsync<FormTemplateListResponse>("api/v1/FormBuilder/templates", query);
+        var result = await _apiClient.GetAsync<FormTemplateListResponse>("FormBuilder/templates", query);
         if (result.Success && result.Data != null)
             return View(result.Data);
         return View(new FormTemplateListResponse());
@@ -38,7 +38,7 @@ public class FormBuilderController : Controller
         if (!ModelState.IsValid)
             return View(request);
         var body = new { name = request.Name, code = request.Code, description = request.Description, category = request.Category, isSystemTemplate = request.IsSystemTemplate, fields = (request.Fields ?? new List<CreateFormFieldRequest>()).Select(f => new { fieldName = f.FieldName, fieldLabel = f.FieldLabel, fieldType = f.FieldType, fieldOrder = f.FieldOrder, isRequired = f.IsRequired, defaultValue = f.DefaultValue, placeholder = f.Placeholder, validationRules = f.ValidationRules, options = f.Options }) };
-        var result = await _apiClient.PostAsync<Guid>("api/v1/FormBuilder/templates", body);
+        var result = await _apiClient.PostAsync<Guid>("FormBuilder/templates", body);
         if (result.Success)
         {
             TempData["SuccessMessage"] = "Form template created successfully!";
@@ -50,7 +50,7 @@ public class FormBuilderController : Controller
 
     public async Task<IActionResult> Details(Guid id)
     {
-        var result = await _apiClient.GetAsync<FormTemplateDetailDto>($"api/v1/FormBuilder/templates/{id}");
+        var result = await _apiClient.GetAsync<FormTemplateDetailDto>($"FormBuilder/templates/{id}");
         if (!result.Success || result.Data == null)
             return NotFound();
         return View(result.Data);
@@ -58,7 +58,7 @@ public class FormBuilderController : Controller
 
     public async Task<IActionResult> Submit(Guid id)
     {
-        var result = await _apiClient.GetAsync<FormTemplateDetailDto>($"api/v1/FormBuilder/templates/{id}");
+        var result = await _apiClient.GetAsync<FormTemplateDetailDto>($"FormBuilder/templates/{id}");
         if (!result.Success || result.Data == null)
             return NotFound();
         ViewBag.Template = result.Data;
@@ -72,7 +72,7 @@ public class FormBuilderController : Controller
         if (ModelState.IsValid)
         {
             var body = new { formTemplateId = request.FormTemplateId, data = request.Data ?? new Dictionary<string, object>(), remarks = request.Remarks };
-            var result = await _apiClient.PostAsync<Guid>("api/v1/FormBuilder/submit", body);
+            var result = await _apiClient.PostAsync<Guid>("FormBuilder/submit", body);
             if (result.Success)
             {
                 TempData["SuccessMessage"] = "Form submitted successfully!";
@@ -80,7 +80,7 @@ public class FormBuilderController : Controller
             }
             ModelState.AddModelError("", result.Message);
         }
-        var templateResult = await _apiClient.GetAsync<FormTemplateDetailDto>($"api/v1/FormBuilder/templates/{request.FormTemplateId}");
+        var templateResult = await _apiClient.GetAsync<FormTemplateDetailDto>($"FormBuilder/templates/{request.FormTemplateId}");
         if (templateResult.Success && templateResult.Data != null)
             ViewBag.Template = templateResult.Data;
         return View(request);

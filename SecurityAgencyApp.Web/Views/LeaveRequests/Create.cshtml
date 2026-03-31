@@ -1,7 +1,6 @@
 @model SecurityAgencyApp.Model.Api.CreateLeaveRequestRequest
 @{
     ViewData["Title"] = "Create Leave Request";
-    var guards = ViewBag.Guards as List<SecurityAgencyApp.Model.Api.GuardItemDto>;
 }
 
 <div class="page-header">
@@ -11,21 +10,18 @@
 
 <div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Create" method="post" class="form">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <div id="leaveRequestFormPage"
+             data-mode="create"
+             data-submit-endpoint="LeaveRequests"
+             data-redirect-url="@Url.Action("Index")">
+        <form id="leaveRequestForm" class="form">
+            <div id="leaveRequestFormErrors" class="alert alert-danger d-none"></div>
 
             <div class="row g-3 mb-4">
                 <div class="col-md-6">
                     <label asp-for="GuardId" class="form-label fw-semibold">Guard <span class="text-danger">*</span></label>
-                    <select asp-for="GuardId" class="form-select" required>
+                    <select id="leaveRequestGuardId" asp-for="GuardId" class="form-select" required>
                         <option value="">Select Guard</option>
-                        @if (guards != null)
-                        {
-                            @foreach (var guard in guards)
-                            {
-                                <option value="@guard.Id">@guard.GuardCode - @guard.FirstName @guard.LastName</option>
-                            }
-                        }
                     </select>
                     <span asp-validation-for="GuardId" class="text-danger small"></span>
                 </div>
@@ -67,7 +63,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
+                <button id="leaveRequestFormSubmitButton" type="submit" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Submit Leave Request
                 </button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -75,9 +71,11 @@
                 </a>
             </div>
         </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/pages/leave-requests/form.js" asp-append-version="true"></script>
 }

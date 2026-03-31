@@ -5,6 +5,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
     <meta name="theme-color" content="#1e293b" />
+    <meta name="app-api-base-url" content="@Url.Content("~/api/v1")" />
+    <meta name="app-access-token" content="@(Context.Session.GetString("AccessToken") ?? string.Empty)" />
+    <meta name="app-tenant-id" content="@(Context.Session.GetString("TenantId") ?? string.Empty)" />
     <title>@ViewData["Title"] - Security Agency Management</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css" asp-append-version="true" />
@@ -151,9 +154,14 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    @await Html.PartialAsync("_ApiUiShell")
     @await Html.PartialAsync("_ConfirmModal")
     @await Html.PartialAsync("_CrudFeedbackModal")
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/core/app-ui.js" asp-append-version="true"></script>
+    <script src="~/js/core/api-client.js" asp-append-version="true"></script>
+    <script src="~/js/core/crud-page.js" asp-append-version="true"></script>
     <script>
         (function () {
             var html = document.documentElement;

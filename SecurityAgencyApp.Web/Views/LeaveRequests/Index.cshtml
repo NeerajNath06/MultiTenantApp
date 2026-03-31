@@ -1,11 +1,11 @@
-@model SecurityAgencyApp.Model.Api.LeaveRequestListResponse
 @{
     ViewData["Title"] = "Leave Requests";
-    var totalRequests = Model?.TotalCount ?? 0;
-    var approvedRequests = Model?.Items?.Count(l => string.Equals(l.Status, "Approved", StringComparison.OrdinalIgnoreCase)) ?? 0;
-    var pendingRequests = Model?.Items?.Count(l => string.Equals(l.Status, "Pending", StringComparison.OrdinalIgnoreCase)) ?? 0;
 }
 
+<div id="leaveRequestsIndexPage"
+     data-index-url="@Url.Action("Index")"
+     data-create-url="@Url.Action("Create")"
+     data-details-base="@Url.Action("Details", new { id = "__id__" })">
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
         <div>
@@ -23,7 +23,7 @@
         <div class="card stat-card h-100">
             <div class="card-body">
                 <div class="stat-label">Total Requests</div>
-                <div class="stat-value">@totalRequests</div>
+                <div class="stat-value" data-stat="total">0</div>
             </div>
         </div>
     </div>
@@ -31,7 +31,7 @@
         <div class="card stat-card h-100">
             <div class="card-body">
                 <div class="stat-label">Approved</div>
-                <div class="stat-value">@approvedRequests</div>
+                <div class="stat-value" data-stat="approved">0</div>
             </div>
         </div>
     </div>
@@ -39,7 +39,7 @@
         <div class="card stat-card h-100">
             <div class="card-body">
                 <div class="stat-label">Pending</div>
-                <div class="stat-value">@pendingRequests</div>
+                <div class="stat-value" data-stat="pending">0</div>
             </div>
         </div>
     </div>
@@ -48,121 +48,18 @@
 <div class="card border-0 shadow-sm overflow-hidden">
     <div class="card-header bg-body-tertiary py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="mb-0"><i class="fas fa-calendar-times me-2 text-primary"></i>Leave Directory</h5>
-        <span class="text-muted small">@totalRequests total records</span>
+        <span id="leaveRequestsRecordCount" class="text-muted small">0 total records</span>
     </div>
     <div class="card-body">
-        @if (Model?.Items != null && Model.Items.Any())
-        {
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Guard</th>
-                            <th>Leave Type</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Days</th>
-                            <th>Reason</th>
-                            <th>Status</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var leave in Model.Items)
-                        {
-                            <tr>
-                                <td>
-                                    <strong>@leave.GuardCode</strong><br>
-                                    <small class="text-muted">@leave.GuardName</small>
-                                </td>
-                                <td>@leave.LeaveType</td>
-                                <td>@leave.StartDate.ToString("dd MMM yyyy")</td>
-                                <td>@leave.EndDate.ToString("dd MMM yyyy")</td>
-                                <td><strong>@leave.TotalDays</strong></td>
-                                <td>@leave.Reason</td>
-                                <td>
-                                    <span class="badge bg-@(leave.Status == "Approved" ? "success" : leave.Status == "Rejected" ? "danger" : "warning")">
-                                        @leave.Status
-                                    </span>
-                                </td>
-                                <td class="text-end">
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="@Url.Action("Details", new { id = leave.Id })" class="btn btn-outline-primary" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </div>
-                                    @if (leave.Status == "Pending")
-                                    {
-                                        <form method="post" asp-action="Approve" class="d-inline">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@leave.Id" />
-                                            <input type="hidden" name="isApproved" value="true" />
-                                            <button type="submit" class="btn btn-sm btn-success" title="Approve">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        </form>
-                                        <form method="post" asp-action="Approve" class="d-inline">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@leave.Id" />
-                                            <input type="hidden" name="isApproved" value="false" />
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Reject">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </form>
-                                    }
-                                    <form asp-action="Delete" method="post" class="d-inline" data-confirm-message="Are you sure you want to delete (cancel) this leave request?">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@leave.Id" />
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-
-            @if (Model.TotalPages > 1)
-            {
-                <nav aria-label="Page navigation" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        @if (Model.PageNumber > 1)
-                        {
-                            <li class="page-item">
-                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize })">
-                                    <i class="fas fa-chevron-left"></i> Previous
-                                </a>
-                            </li>
-                        }
-                        @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
-                        {
-                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = i, pageSize = Model.PageSize })">@i</a>
-                            </li>
-                        }
-                        @if (Model.PageNumber < Model.TotalPages)
-                        {
-                            <li class="page-item">
-                                <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize })">
-                                    Next <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                </nav>
-            }
-        }
-        else
-        {
-            <div class="text-center py-5">
-                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No leave requests found</h5>
-                <a href="@Url.Action("Create")" class="btn btn-primary mt-3">
-                    <i class="fas fa-calendar-times me-2"></i>New Leave Request
-                </a>
-            </div>
-        }
+        <div id="leaveRequestsTableWrapper"></div>
+        <div id="leaveRequestsPaginationContainer" class="d-none mt-4">
+            <div id="leaveRequestsPaginationSummary" class="text-muted small mb-2"></div>
+            <ul id="leaveRequestsPagination" class="pagination justify-content-center mb-0"></ul>
+        </div>
     </div>
 </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/leave-requests/index.js" asp-append-version="true"></script>
+}

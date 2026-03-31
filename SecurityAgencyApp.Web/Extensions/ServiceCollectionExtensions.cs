@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json.Serialization;
 using FluentValidation;
+using Microsoft.Extensions.Options;
 using SecurityAgencyApp.Application.Common.Behaviors;
 using SecurityAgencyApp.Application.Common.Models;
 using SecurityAgencyApp.Application.Interfaces;
@@ -43,9 +44,16 @@ public static class ServiceCollectionExtensions
 
         services.AddValidatorsFromAssembly(typeof(ApiResponse<>).Assembly);
 
-        services.AddHttpClient<SecurityAgencyApp.Web.Services.IApiClient, SecurityAgencyApp.Web.Services.ApiClient>(client =>
+        services.Configure<SecurityAgencyApp.Web.Services.ApiClientOptions>(
+            configuration.GetSection(SecurityAgencyApp.Web.Services.ApiClientOptions.SectionName));
+
+        services.AddHttpClient<SecurityAgencyApp.Web.Services.IApiClient, SecurityAgencyApp.Web.Services.ApiClient>((serviceProvider, client) =>
         {
+            var apiOptions = serviceProvider.GetRequiredService<IOptions<SecurityAgencyApp.Web.Services.ApiClientOptions>>().Value;
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            if (Uri.TryCreate(apiOptions.BaseUrl, UriKind.Absolute, out var baseAddress))
+                client.BaseAddress = baseAddress;
         });
 
         services.AddSession(options =>

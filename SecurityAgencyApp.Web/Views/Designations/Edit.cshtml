@@ -8,11 +8,11 @@
     <p class="page-subtitle mb-0">Update designation details</p>
 </div>
 
-<div class="card border-0 shadow-sm enterprise-form-card">
+<div class="card border-0 shadow-sm enterprise-form-card" id="designationFormPage" data-mode="edit" data-load-endpoint="Designations/@Model.Id" data-submit-endpoint="Designations/@Model.Id" data-redirect-url="@Url.Action("Index", "Designations")">
     <div class="card-body">
-        <form asp-action="Edit" method="post" class="form">
+        <form class="form" id="designationForm">
             <input type="hidden" asp-for="Id" />
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none" id="designationFormErrors"></div>
 
             <div class="form-section">
                 <h5 class="section-title"><i class="fas fa-briefcase"></i>Designation Information</h5>
@@ -31,7 +31,7 @@
                 <div class="row g-3 mt-2">
                     <div class="col-12 col-md-6">
                         <label asp-for="DepartmentId" class="form-label fw-semibold">Department</label>
-                        <select asp-for="DepartmentId" class="form-select" asp-items="ViewBag.Departments">
+                        <select asp-for="DepartmentId" class="form-select" id="designationDepartmentId">
                             <option value="">Select Department (Optional)</option>
                         </select>
                         <span asp-validation-for="DepartmentId" class="text-danger small"></span>
@@ -54,7 +54,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="designationFormSubmitButton">
                     <i class="fas fa-save me-2"></i>Update Designation
                 </button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -66,5 +66,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/pages/designations/form.js" asp-append-version="true"></script>
 }

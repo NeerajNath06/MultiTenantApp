@@ -8,10 +8,10 @@
     <p class="page-subtitle mb-0">Add a new work shift</p>
 </div>
 
-<div class="card border-0 shadow-sm enterprise-form-card">
+<div class="card border-0 shadow-sm enterprise-form-card" id="shiftFormPage" data-mode="create" data-submit-endpoint="Shifts" data-redirect-url="@Url.Action("Index", "Shifts")">
     <div class="card-body">
-        <form asp-action="Create" method="post" class="form">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <form class="form" id="shiftForm">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none" role="alert" id="shiftFormErrors"></div>
             <div class="form-section">
                 <h5 class="section-title"><i class="fas fa-clock"></i>Shift Details</h5>
                 <div class="row g-3">
@@ -40,7 +40,7 @@
                 </div>
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Create Shift</button>
+                <button type="submit" class="btn btn-primary" id="shiftFormSubmitButton"><i class="fas fa-save me-2"></i>Create Shift</button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary"><i class="fas fa-times me-2"></i>Cancel</a>
             </div>
         </form>
@@ -48,5 +48,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/pages/shifts/form.js" asp-append-version="true"></script>
 }

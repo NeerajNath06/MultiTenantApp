@@ -1,5 +1,4 @@
 @model SecurityAgencyApp.Model.Api.UpdateSiteRequest
-@using Microsoft.AspNetCore.Mvc.Rendering
 @{
     ViewData["Title"] = "Edit Site";
 }
@@ -9,10 +8,16 @@
     <p class="page-subtitle mb-0">Update site information</p>
 </div>
 
+<div id="siteFormPage"
+     data-mode="edit"
+     data-site-id="@Model.Id"
+     data-load-endpoint="Sites/@Model.Id"
+     data-submit-endpoint="Sites/@Model.Id"
+     data-redirect-url="@Url.Action("Index")">
 <div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Edit" method="post" class="form" id="siteEditForm">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <form class="form" id="siteForm">
+            <div id="siteFormErrors" class="alert alert-danger d-none"></div>
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="ClientName" />
 
@@ -33,10 +38,7 @@
                 <div class="row g-3 mt-2">
                     <div class="col-12 col-md-6">
                         <label asp-for="ClientId" class="form-label fw-semibold">Client (link for billing)</label>
-                        @{
-                            var clients = ViewBag.Clients as IEnumerable<SecurityAgencyApp.Model.Api.ClientItemDto> ?? new List<SecurityAgencyApp.Model.Api.ClientItemDto>();
-                        }
-                        <select asp-for="ClientId" class="form-select" id="siteClientIdDropdown" asp-items="@(new SelectList(clients, nameof(SecurityAgencyApp.Model.Api.ClientItemDto.Id), nameof(SecurityAgencyApp.Model.Api.ClientItemDto.CompanyName), Model.ClientId))">
+                        <select asp-for="ClientId" class="form-select" id="siteClientIdDropdown">
                             <option value="">-- Select Client --</option>
                         </select>
                         <span class="small text-muted">Select client for this site; required before saving rate. Only clients that have this site in their contract are listed.</span>
@@ -107,20 +109,7 @@
                                 <span id="siteSupervisorsLabel">-- Select Supervisors --</span>
                                 <i class="fas fa-chevron-down ms-auto"></i>
                             </button>
-                            <ul class="dropdown-menu w-100 px-2" id="siteSupervisorsMenu" style="max-height: 220px; overflow-y: auto;">
-                                @if (ViewBag.Supervisors is IEnumerable<SelectListItem> supervisorList)
-                                {
-                                    @foreach (var item in supervisorList)
-                                    {
-                                        <li>
-                                            <label class="dropdown-item d-flex align-items-center gap-2 cursor-pointer mb-0">
-                                                <input type="checkbox" class="form-check-input site-supervisor-cb" value="@item.Value" data-name="@item.Text" />
-                                                <span>@item.Text</span>
-                                            </label>
-                                        </li>
-                                    }
-                                }
-                            </ul>
+                            <ul class="dropdown-menu w-100 px-2" id="siteSupervisorsMenu" style="max-height: 220px; overflow-y: auto;"></ul>
                             <div id="siteSupervisorsHiddenContainer"></div>
                         </div>
                     </div>
@@ -182,7 +171,7 @@
             <partial name="_SitePlanningEditor" model="Model" />
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary" id="saveSiteBtn" data-default-text="Update Site">
+                <button type="submit" class="btn btn-primary" id="siteFormSubmitButton" data-default-text="Update Site">
                     <i class="fas fa-save me-2"></i>Update Site
                 </button>
                 <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#generateReportModal">
@@ -195,15 +184,9 @@
         </form>
     </div>
 </div>
+</div>
 
 <!-- Rate plan: separate form so "Save Rate" does not submit the site form -->
-@{
-    var rate = ViewBag.SiteRate as SecurityAgencyApp.Model.Api.SiteRateDto;
-    var ratePlans = ViewBag.SiteRatePlans as IEnumerable<SecurityAgencyApp.Model.Api.SiteRateHistoryDto> ?? new List<SecurityAgencyApp.Model.Api.SiteRateHistoryDto>();
-    var effectiveFrom = rate?.EffectiveFrom.ToString("yyyy-MM-dd") ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
-    var rateDisplay = rate != null ? rate.RateAmount.ToString("0.00") : "Not set";
-    var rateClientName = rate?.ClientName ?? "—";
-}
 <div class="card border-0 shadow-sm enterprise-form-card mt-4">
     <div class="card-body">
         <h5 class="section-title"><i class="fas fa-rupee-sign"></i>Billing Rate &amp; Wages (Per Day)</h5>
@@ -211,15 +194,15 @@
         <div class="row g-3 align-items-end">
             <div class="col-6 col-lg-3">
                 <label class="form-label fw-semibold">Current Rate</label>
-                <input type="text" class="form-control" value="@rateDisplay" readonly />
+                <input type="text" class="form-control" id="siteRateCurrentRate" value="Not set" readonly />
             </div>
             <div class="col-6 col-lg-3">
                 <label class="form-label fw-semibold">For Client</label>
-                <input type="text" class="form-control" value="@rateClientName" readonly />
+                <input type="text" class="form-control" id="siteRateCurrentClient" value="-" readonly />
             </div>
             <div class="col-6 col-lg-3">
                 <label class="form-label fw-semibold">Effective From</label>
-                <input type="date" class="form-control" id="rateEffectiveFrom" value="@effectiveFrom" />
+                <input type="date" class="form-control" id="rateEffectiveFrom" value="@DateTime.UtcNow.ToString("yyyy-MM-dd")" />
             </div>
             <div class="col-6 col-lg-3">
                 <label class="form-label fw-semibold">New Rate (₹)</label>
@@ -246,63 +229,17 @@
         </div>
         <div class="row g-3 align-items-end mt-0">
             <div class="col-12 col-md-4">
-                <form id="rateForm" asp-action="SaveRate" method="post" class="d-inline">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="siteId" value="@Model.Id" />
-                    <input type="hidden" name="clientId" id="rateFormClientId" value="@(Model.ClientId?.ToString() ?? "")" />
-                    <input type="hidden" name="effectiveFrom" id="rateFormEffectiveFrom" />
-                    <input type="hidden" name="rateAmount" id="rateFormRateAmount" />
-                    <input type="hidden" name="ratePlanId" id="rateFormRatePlanId" value="" />
-                    <input type="hidden" name="epfPercent" id="rateFormEpfPercent" value="" />
-                    <input type="hidden" name="esicPercent" id="rateFormEsicPercent" value="" />
-                    <input type="hidden" name="allowancePercent" id="rateFormAllowancePercent" value="" />
-                    <input type="hidden" name="epfWageCap" id="rateFormEpfWageCap" value="" />
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i>Save Rate
-                    </button>
-                </form>
+                <button type="button" class="btn btn-primary" id="saveSiteRateButton">
+                    <i class="fas fa-save me-2"></i>Save Rate
+                </button>
                 <span class="small text-muted ms-2">(Rate + EPF/ESIC/Allowance % + EPF cap sab save honge)</span>
             </div>
         </div>
-        @if (ratePlans.Any())
-        {
-            <div class="mt-4">
-                <label class="form-label fw-semibold">Rate plans (Edit = update in place, Delete = deactivate)</label>
-                <div class="table-responsive">
-                    <table class="table table-sm table-bordered">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Effective From</th>
-                                <th>Effective To</th>
-                                <th>Rate (₹)</th>
-                                <th>Status</th>
-                                <th style="width:140px;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var rp in ratePlans)
-                            {
-                                <tr>
-                                    <td>@rp.EffectiveFrom.ToString("dd-MMM-yyyy")</td>
-                                    <td>@(rp.EffectiveTo?.ToString("dd-MMM-yyyy") ?? "—")</td>
-                                    <td>@rp.RateAmount.ToString("N2")</td>
-                                    <td>@(rp.IsActive ? "Active" : "Inactive")</td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary me-1 rate-plan-edit" data-id="@rp.Id" data-rate="@rp.RateAmount" data-from="@rp.EffectiveFrom.ToString("yyyy-MM-dd")" data-clientid="@rp.ClientId" data-epf="@(rp.EpfPercent.HasValue ? rp.EpfPercent.Value.ToString() : "")" data-esic="@(rp.EsicPercent.HasValue ? rp.EsicPercent.Value.ToString() : "")" data-allow="@(rp.AllowancePercent.HasValue ? rp.AllowancePercent.Value.ToString() : "")" data-cap="@(rp.EpfWageCap.HasValue ? rp.EpfWageCap.Value.ToString() : "")">Edit</button>
-                                        <form asp-action="DeleteRate" method="post" class="d-inline" onsubmit="return confirm('Deactivate this rate plan?');">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@rp.Id" />
-                                            <input type="hidden" name="siteId" value="@Model.Id" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        }
+        <div id="siteRateValidationMessage" class="alert alert-danger d-none mt-3 mb-0"></div>
+        <div class="mt-4">
+            <label class="form-label fw-semibold">Rate plans (Edit = update in place, Delete = deactivate)</label>
+            <div id="siteRateHistoryWrapper"></div>
+        </div>
         <p class="small text-muted mt-2 mb-0">Tip: Pehle client select karein, phir rate + EPF/ESIC % + EPF cap daal kar <b>Save Rate</b> dabayein. Wages sheet me <b>Total Deduction</b> = EPF @@ % + ESIC @@ % inhi values se aayegi. Kisi plan ko update karne ke liye list me <b>Edit</b> dabayein.</p>
     </div>
 </div>
@@ -371,191 +308,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script>
-        (function () {
-            var container = document.getElementById('siteSupervisorsHiddenContainer');
-            var label = document.getElementById('siteSupervisorsLabel');
-            var cbs = document.querySelectorAll('.site-supervisor-cb');
-            var selectedIds = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model?.SupervisorIds ?? new List<Guid>()));
-            var siteForm = document.getElementById('siteEditForm');
-            var saveSiteBtn = document.getElementById('saveSiteBtn');
-            var saveRateBtn = document.getElementById('saveRateBtn');
-            var rateValidationMessage = document.getElementById('rateValidationMessage');
-
-            function setBusy(button, text) {
-                if (!button) return;
-                button.disabled = true;
-                button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' + text;
-            }
-
-            function clearRateValidation() {
-                if (!rateValidationMessage) return;
-                rateValidationMessage.textContent = '';
-                rateValidationMessage.classList.add('d-none');
-            }
-
-            function showRateValidation(message) {
-                if (!rateValidationMessage) return;
-                rateValidationMessage.textContent = message;
-                rateValidationMessage.classList.remove('d-none');
-            }
-
-            function syncHidden() {
-                container.innerHTML = '';
-                var names = [];
-                cbs.forEach(function (cb) {
-                    if (cb.checked) {
-                        container.appendChild(Object.assign(document.createElement('input'), { type: 'hidden', name: 'SupervisorIds', value: cb.value }));
-                        names.push(cb.getAttribute('data-name'));
-                    }
-                });
-                label.textContent = names.length ? names.join(', ') : '-- Select Supervisors --';
-            }
-            cbs.forEach(function (cb) {
-                if (selectedIds.indexOf(cb.value) !== -1) cb.checked = true;
-                cb.addEventListener('change', syncHidden);
-            });
-            syncHidden();
-            document.getElementById('siteSupervisorsMenu').addEventListener('click', function (e) { e.stopPropagation(); });
-
-            // Rate form: copy dropdown client + date + amount into hidden inputs so the correct form submits
-            var rateForm = document.getElementById('rateForm');
-            var siteClientDropdown = document.getElementById('siteClientIdDropdown');
-            if (rateForm && siteClientDropdown) {
-                rateForm.addEventListener('submit', function (e) {
-                    clearRateValidation();
-                    if (!siteClientDropdown.value) {
-                        e.preventDefault();
-                        showRateValidation('Select a client before saving the site rate.');
-                        siteClientDropdown.focus();
-                        return;
-                    }
-
-                    var rateAmountInput = document.getElementById('rateAmount');
-                    if (!rateAmountInput || !rateAmountInput.value || parseFloat(rateAmountInput.value) <= 0) {
-                        e.preventDefault();
-                        showRateValidation('Enter a valid rate amount greater than zero.');
-                        rateAmountInput?.focus();
-                        return;
-                    }
-
-                    var clientVal = siteClientDropdown.value || '00000000-0000-0000-0000-000000000000';
-                    document.getElementById('rateFormClientId').value = clientVal;
-                    document.getElementById('rateFormEffectiveFrom').value = document.getElementById('rateEffectiveFrom').value || new Date().toISOString().slice(0, 10);
-                    document.getElementById('rateFormRateAmount').value = document.getElementById('rateAmount').value || '0';
-                    var epf = document.getElementById('rateEpfPercent').value;
-                    var esic = document.getElementById('rateEsicPercent').value;
-                    var allow = document.getElementById('rateAllowancePercent').value;
-                    var cap = document.getElementById('rateEpfWageCap').value;
-                    document.getElementById('rateFormEpfPercent').value = epf || '';
-                    document.getElementById('rateFormEsicPercent').value = esic || '';
-                    document.getElementById('rateFormAllowancePercent').value = allow || '';
-                    document.getElementById('rateFormEpfWageCap').value = cap || '';
-                    setBusy(saveRateBtn, 'Saving...');
-                });
-            }
-
-            // Generate Report modal: year dropdown and report buttons
-            var siteId = '@Model?.Id.ToString()';
-            var yearSelect = document.getElementById('reportYear');
-            var curYear = new Date().getFullYear();
-            var curMonth = new Date().getMonth() + 1;
-            for (var y = curYear; y >= curYear - 5; y--) {
-                var opt = document.createElement('option');
-                opt.value = y;
-                opt.textContent = y;
-                if (y === curYear) opt.selected = true;
-                yearSelect.appendChild(opt);
-            }
-            document.getElementById('reportMonth').value = curMonth;
-            var reportButtons = Array.from(document.querySelectorAll('.report-btn'));
-            reportButtons.forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    var year = document.getElementById('reportYear').value;
-                    var month = document.getElementById('reportMonth').value;
-                    var format = document.getElementById('reportFormat').value;
-                    var reportType = btn.getAttribute('data-report-type');
-                    var msgEl = document.getElementById('reportMessage');
-                    var trackingEl = document.getElementById('reportTracking');
-                    var trackBillIdEl = document.getElementById('trackBillId');
-                    var trackWageIdEl = document.getElementById('trackWageId');
-                    msgEl.classList.add('d-none');
-                    if (trackingEl) trackingEl.classList.add('d-none');
-                    var url = '@(Url.Content("~/Sites/DownloadReport"))?siteId=' + encodeURIComponent(siteId) + '&year=' + encodeURIComponent(year) + '&month=' + encodeURIComponent(month) + '&format=' + encodeURIComponent(format) + '&reportType=' + encodeURIComponent(reportType);
-                    var trackingUrl = '@(Url.Content("~/Sites/GenerateMonthlyTracking"))?siteId=' + encodeURIComponent(siteId) + '&year=' + encodeURIComponent(year) + '&month=' + encodeURIComponent(month);
-                    reportButtons.forEach(function (reportBtn) {
-                        reportBtn.disabled = true;
-                        reportBtn.setAttribute('aria-busy', 'true');
-                    });
-                    var originalLabel = btn.innerHTML;
-                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
-                    var ensureTracking = (reportType === 'full')
-                        ? fetch(trackingUrl, { credentials: 'include' })
-                            .then(function (r) { if (!r.ok) return r.text().then(function (t) { throw new Error(t || r.statusText); }); return r.json(); })
-                            .then(function (data) {
-                                if (trackingEl && trackBillIdEl && trackWageIdEl) {
-                                    trackBillIdEl.textContent = data.billId || '-';
-                                    trackWageIdEl.textContent = data.wageId || '-';
-                                    trackingEl.classList.remove('d-none');
-                                }
-                            })
-                        : Promise.resolve();
-
-                    ensureTracking.then(function () {
-                        return fetch(url, { credentials: 'include' });
-                    })
-                        .then(function (response) {
-                            if (!response.ok) return response.text().then(function (t) { throw new Error(t || response.statusText); });
-                            var cd = response.headers.get('Content-Disposition');
-                            var fileName = 'report';
-                            if (cd) {
-                                var m = cd.match(/filename\*?=(?:UTF-8'')?"?([^";\n]+)"?/i) || cd.match(/filename="?([^";\n]+)"?/i);
-                                if (m && m[1]) fileName = m[1].trim().replace(/^["']|["']$/g, '');
-                            }
-                            return response.blob().then(function (blob) {
-                                var a = document.createElement('a');
-                                a.href = URL.createObjectURL(blob);
-                                a.download = fileName;
-                                document.body.appendChild(a);
-                                a.click();
-                                document.body.removeChild(a);
-                                URL.revokeObjectURL(a.href);
-                            });
-                        })
-                        .then(function () {
-                            if (msgEl) {
-                                msgEl.classList.remove('d-none', 'alert-danger');
-                                msgEl.classList.add('alert-success');
-                                msgEl.textContent = 'Report downloaded successfully.';
-                            }
-                        })
-                        .catch(function (err) {
-                            if (msgEl) {
-                                msgEl.classList.remove('d-none', 'alert-success');
-                                msgEl.classList.add('alert-danger');
-                                msgEl.textContent = (err && err.message) ? err.message : 'Download failed.';
-                            }
-                        })
-                        .finally(function () {
-                            reportButtons.forEach(function (reportBtn) {
-                                reportBtn.disabled = false;
-                                reportBtn.setAttribute('aria-busy', 'false');
-                            });
-                            btn.innerHTML = originalLabel;
-                        });
-                });
-            });
-
-            if (siteForm && saveSiteBtn) {
-                siteForm.addEventListener('submit', function (e) {
-                    if (e.submitter && e.submitter !== saveSiteBtn) {
-                        return;
-                    }
-
-                    setBusy(saveSiteBtn, 'Saving...');
-                });
-            }
-        })();
-    </script>
+    <script src="~/js/pages/sites/form.js" asp-append-version="true"></script>
 }

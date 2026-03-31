@@ -9,46 +9,42 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Applicatio
 {
     public ApplicationDbContext CreateDbContext(string[] args)
     {
-        // Get the base path - look for appsettings.json in API project or Infrastructure project
-        var basePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "SecurityAgencyApp.API");
-        if (!Directory.Exists(basePath))
-        {
-            basePath = Directory.GetCurrentDirectory();
-        }
+        var configuration = BuildConfiguration();
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
 
-        // Build configuration
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(basePath)
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
-            .AddEnvironmentVariables()
-            .Build();
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new InvalidOperationException("Connection string 'DefaultConnection' not found in design-time configuration.");
 
-        // Get connection string
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
-
-        if (string.IsNullOrEmpty(connectionString))
-        {
-            // Fallback: try Infrastructure appsettings.json
-            var infraPath = Path.Combine(Directory.GetCurrentDirectory());
-            var infraConfig = new ConfigurationBuilder()
-                .SetBasePath(infraPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddEnvironmentVariables()
-                .Build();
-            
-            connectionString = infraConfig.GetConnectionString("DefaultConnection");
-        }
-
-        if (string.IsNullOrEmpty(connectionString))
-        {
-            throw new InvalidOperationException("Connection string 'DefaultConnection' not found in appsettings.json");
-        }
-
-        // Build DbContext options (same provider as runtime: Database:Provider in appsettings)
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
         optionsBuilder.UseConfiguredProvider(configuration);
 
         return new ApplicationDbContext(optionsBuilder.Options);
+    }
+
+    private static IConfiguration BuildConfiguration()
+    {
+        var currentDirectory = Directory.GetCurrentDirectory();
+        var candidatePaths = new[]
+        {
+            currentDirectory,
+            Path.Combine(currentDirectory, "..", "SecurityAgencyApp.Web"),
+            Path.Combine(currentDirectory, "..", "SecurityAgencyApp.API"),
+            Path.Combine(currentDirectory, "..", "SecurityAgencyApp.Infrastructure")
+        };
+
+        var basePath = candidatePaths
+            .Select(Path.GetFullPath)
+            .FirstOrDefault(path => File.Exists(Path.Combine(path, "appsettings.json")));
+
+        if (basePath is null)
+            throw new InvalidOperationException("Could not find appsettings.json for design-time DbContext creation.");
+
+        return new ConfigurationBuilder()
+            .SetBasePath(basePath)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+            .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: false)
+            .AddEnvironmentVariables()
+            .Build();
     }
 }

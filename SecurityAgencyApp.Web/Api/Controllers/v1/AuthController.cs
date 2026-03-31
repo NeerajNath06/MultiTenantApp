@@ -38,6 +38,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("login")]
     [Consumes("application/x-www-form-urlencoded")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public Task<ActionResult<ApiResponse<LoginResponseDto>>> LoginForm([FromForm] LoginCommand command)
     {
         return Login(command);
@@ -58,6 +59,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("register")]
     [Consumes("application/x-www-form-urlencoded")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public Task<ActionResult<ApiResponse<LoginResponseDto>>> RegisterForm([FromForm] RegisterAgencyCommand command)
     {
         return Register(command);
@@ -101,6 +103,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("forgot-password")]
     [Consumes("application/x-www-form-urlencoded")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public Task<ActionResult<ApiResponse<ForgotPasswordResponseDto>>> ForgotPasswordForm([FromForm] ForgotPasswordRequest request)
     {
         return ForgotPassword(request);
@@ -150,6 +153,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("reset-password")]
     [Consumes("application/x-www-form-urlencoded")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public Task<ActionResult<ApiResponse<bool>>> ResetPasswordForm([FromForm] ResetPasswordRequest request)
     {
         return ResetPassword(request);

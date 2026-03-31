@@ -35,13 +35,13 @@ public class RosterController : Controller
         if (siteId.HasValue) query["siteId"] = siteId.Value.ToString();
         if (supervisorId.HasValue) query["supervisorId"] = supervisorId.Value.ToString();
 
-        var result = await _apiClient.GetAsync<RosterResponse>("api/v1/Deployments/roster", query);
+        var result = await _apiClient.GetAsync<RosterResponse>("Deployments/roster", query);
         if (!result.Success || result.Data == null)
             return View(new RosterViewModel { DateFrom = fromDate, DateTo = toDate, Deployments = new List<RosterDeploymentDto>(), WeekDays = GetWeekDays(fromDate, toDate) });
 
         var data = result.Data;
         var weekDays = GetWeekDays(fromDate, toDate);
-        var sitesResult = await _apiClient.GetAsync<SiteListResponse>("api/v1/Sites", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
+        var sitesResult = await _apiClient.GetAsync<SiteListResponse>("Sites", new Dictionary<string, string?> { ["includeInactive"] = "false", ["pageSize"] = "1000" });
         ViewBag.Sites = sitesResult.Data?.Items ?? new List<SiteDto>();
 
         return View(new RosterViewModel

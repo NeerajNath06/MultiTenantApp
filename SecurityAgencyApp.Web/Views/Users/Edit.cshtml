@@ -8,10 +8,15 @@
     <p class="page-subtitle mb-0">Update user information</p>
 </div>
 
+<div id="userFormPage"
+     data-mode="edit"
+     data-load-endpoint="Users/@Model.Id"
+     data-submit-endpoint="Users/@Model.Id"
+     data-redirect-url="@Url.Action("Index")">
 <div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Edit" method="post" class="form">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <form id="userForm" class="form">
+            <div id="userFormErrors" class="alert alert-danger d-none" role="alert"></div>
             
             <input type="hidden" asp-for="Id" />
 
@@ -62,14 +67,14 @@
                 <div class="row g-3 mt-2">
                     <div class="col-12 col-md-6">
                         <label asp-for="DepartmentId" class="form-label fw-semibold">Department</label>
-                        <select asp-for="DepartmentId" class="form-select" asp-items="ViewBag.Departments">
+                        <select asp-for="DepartmentId" id="userDepartmentId" class="form-select">
                             <option value="">-- Select Department --</option>
                         </select>
                         <span asp-validation-for="DepartmentId" class="text-danger small"></span>
                     </div>
                     <div class="col-12 col-md-6">
                         <label asp-for="DesignationId" class="form-label fw-semibold">Designation</label>
-                        <select asp-for="DesignationId" class="form-select" asp-items="ViewBag.Designations">
+                        <select asp-for="DesignationId" id="userDesignationId" class="form-select">
                             <option value="">-- Select Designation --</option>
                         </select>
                         <span asp-validation-for="DesignationId" class="text-danger small"></span>
@@ -91,31 +96,13 @@
                     <div class="col-12">
                         <label class="form-label fw-semibold">Assign Roles</label>
                         <p class="text-muted small mb-2">Assign roles (e.g. <strong>Supervisor</strong> to allow managing assigned guards).</p>
-                        <div class="d-flex flex-wrap gap-3">
-                        @{
-                            var editRolesList = ViewBag.Roles as IEnumerable<SecurityAgencyApp.Model.Api.RoleDto>;
-                        }
-                        @if (editRolesList != null && editRolesList.Any())
-                        {
-                            @foreach (var role in editRolesList)
-                            {
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="RoleIds" value="@role.Id" id="editrole_@role.Id"
-                                           @(Model?.RoleIds != null && Model.RoleIds.Contains(role.Id) ? "checked" : "") />
-                                    <label class="form-check-label" for="editrole_@role.Id">@role.Name (@role.Code)</label>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <span class="text-muted small">No roles available.</span>
-                        }
+                        <div id="userRolesContainer" class="d-flex flex-wrap gap-3"></div>
                     </div>
                 </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" id="userFormSubmitButton" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Update User
                 </button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -125,7 +112,8 @@
         </form>
     </div>
 </div>
+</div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/pages/users/form.js" asp-append-version="true"></script>
 }

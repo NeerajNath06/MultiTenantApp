@@ -1,8 +1,6 @@
 @model SecurityAgencyApp.Model.Api.UpdatePaymentRequest
 @{
     ViewData["Title"] = "Edit Payment";
-    var bills = ViewBag.Bills as List<SecurityAgencyApp.Model.Api.BillItemDto>;
-    var clients = ViewBag.Clients as List<SecurityAgencyApp.Model.Api.ClientItemDto>;
 }
 
 <div class="page-header">
@@ -10,11 +8,16 @@
     <p class="page-subtitle mb-0">Update payment information</p>
 </div>
 
+<div id="paymentFormPage"
+     data-mode="edit"
+     data-load-endpoint="Payments/@Model.Id"
+     data-submit-endpoint="Payments/@Model.Id"
+     data-redirect-url="@Url.Action("Index")">
 <div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Edit" method="post" class="form">
+        <form id="paymentForm" class="form">
             <input type="hidden" asp-for="Id" />
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div id="paymentFormErrors" class="alert alert-danger d-none"></div>
 
             <div class="row g-3 mb-4">
                 <div class="col-md-6">
@@ -32,28 +35,14 @@
             <div class="row g-3 mb-4">
                 <div class="col-md-4">
                     <label asp-for="BillId" class="form-label fw-semibold">Bill</label>
-                    <select asp-for="BillId" class="form-select">
+                    <select asp-for="BillId" id="paymentBillId" class="form-select">
                         <option value="">Select Bill</option>
-                        @if (bills != null)
-                        {
-                            @foreach (var bill in bills)
-                            {
-                                <option value="@bill.Id" selected="@(bill.Id == Model.BillId)">@bill.BillNumber</option>
-                            }
-                        }
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label asp-for="ClientId" class="form-label fw-semibold">Client</label>
-                    <select asp-for="ClientId" class="form-select">
+                    <select asp-for="ClientId" id="paymentClientId" class="form-select">
                         <option value="">Select Client</option>
-                        @if (clients != null)
-                        {
-                            @foreach (var client in clients)
-                            {
-                                <option value="@client.Id" selected="@(client.Id == Model.ClientId)">@client.CompanyName</option>
-                            }
-                        }
                     </select>
                 </div>
                 <div class="col-md-4">
@@ -115,7 +104,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" id="paymentFormSubmitButton" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Update Payment
                 </button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -125,7 +114,8 @@
         </form>
     </div>
 </div>
+</div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/pages/payments/form.js" asp-append-version="true"></script>
 }

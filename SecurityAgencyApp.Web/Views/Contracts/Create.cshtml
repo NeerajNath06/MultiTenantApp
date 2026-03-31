@@ -1,8 +1,6 @@
 @model SecurityAgencyApp.Model.Api.CreateContractRequest
 @{
     ViewData["Title"] = "Create Contract";
-    var clients = ViewBag.Clients as List<SecurityAgencyApp.Model.Api.ClientItemDto>;
-    var sites = ViewBag.Sites as List<SecurityAgencyApp.Model.Api.SiteDto>;
 }
 
 <div class="page-header">
@@ -10,10 +8,14 @@
     <p class="page-subtitle mb-0">Create a new contract with client</p>
 </div>
 
+<div id="contractFormPage"
+     data-mode="create"
+     data-submit-endpoint="Contracts"
+     data-redirect-url="@Url.Action("Index")">
 <div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Create" method="post" id="contractForm" class="form">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <form id="contractForm" class="form">
+            <div id="contractFormErrors" class="alert alert-danger d-none" role="alert"></div>
 
             <!-- Contract Details -->
             <div class="form-section">
@@ -28,15 +30,8 @@
                     </div>
                     <div class="col-12 col-md-6">
                         <label asp-for="ClientId" class="form-label fw-semibold">Client <span class="text-danger">*</span></label>
-                        <select asp-for="ClientId" class="form-select" required>
+                        <select asp-for="ClientId" id="contractClientId" class="form-select" required>
                             <option value="">Select Client</option>
-                            @if (clients != null)
-                            {
-                                @foreach (var client in clients)
-                                {
-                                    <option value="@client.Id">@client.CompanyName</option>
-                                }
-                            }
                         </select>
                         <span asp-validation-for="ClientId" class="text-danger small"></span>
                     </div>
@@ -123,7 +118,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" id="contractFormSubmitButton" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Create Contract
                 </button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -133,7 +128,8 @@
         </form>
     </div>
 </div>
+</div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/pages/contracts/form.js" asp-append-version="true"></script>
 }

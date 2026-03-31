@@ -1,25 +1,26 @@
-@model SecurityAgencyApp.Model.Api.UserDetailDto
 @{
     ViewData["Title"] = "User Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var userId = ViewBag.UserId;
 }
 
+<div id="userDetailsPage"
+     data-user-id="@userId"
+     data-load-endpoint="Users/@userId"
+     data-index-url="@Url.Action("Index")">
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
             <h1 class="page-title">User Details</h1>
-            <p class="page-subtitle mb-0">@Model.FirstName @Model.LastName - @Model.UserName</p>
+            <p class="page-subtitle mb-0"><span data-field="fullName">-</span> - <span data-field="userName">-</span></p>
         </div>
         <div class="d-flex gap-2">
-            <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-warning">
+            <a href="@Url.Action("Edit", new { id = userId })" class="btn btn-warning">
                 <i class="fas fa-edit me-2"></i>Edit
             </a>
-            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline" data-confirm-message="Are you sure you want to delete this user?">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-danger">
-                    <i class="fas fa-trash me-2"></i>Delete
-                </button>
-            </form>
+            <button type="button" id="userDeleteButton" class="btn btn-danger">
+                <i class="fas fa-trash me-2"></i>Delete
+            </button>
             <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to List
             </a>
@@ -34,65 +35,57 @@
                 <h5 class="section-title"><i class="fas fa-user"></i>Account Information</h5>
                 <dl class="row mb-0">
                     <dt class="col-sm-4">Username</dt>
-                    <dd class="col-sm-8">@Model.UserName</dd>
+                    <dd class="col-sm-8" data-field="userName">-</dd>
 
                     <dt class="col-sm-4">Email</dt>
-                    <dd class="col-sm-8">@Model.Email</dd>
+                    <dd class="col-sm-8" data-field="email">-</dd>
 
                     <dt class="col-sm-4">Name</dt>
-                    <dd class="col-sm-8">@Model.FirstName @Model.LastName</dd>
+                    <dd class="col-sm-8" data-field="fullName">-</dd>
 
                     <dt class="col-sm-4">Phone</dt>
-                    <dd class="col-sm-8">@(Model.PhoneNumber ?? "-")</dd>
+                    <dd class="col-sm-8" data-field="phoneNumber">-</dd>
 
                     <dt class="col-sm-4">Created Date</dt>
-                    <dd class="col-sm-8">@Model.CreatedDate.ToString("dd MMM yyyy")</dd>
+                    <dd class="col-sm-8" data-field="createdDate">-</dd>
                 </dl>
             </div>
             <div class="col-md-6">
                 <h5 class="section-title"><i class="fas fa-id-card"></i>Employment Information</h5>
                 <dl class="row mb-0">
                     <dt class="col-sm-4">Department</dt>
-                    <dd class="col-sm-8">@(Model.DepartmentName ?? "-")</dd>
+                    <dd class="col-sm-8" data-field="departmentName">-</dd>
 
                     <dt class="col-sm-4">Designation</dt>
-                    <dd class="col-sm-8">@(Model.DesignationName ?? "-")</dd>
+                    <dd class="col-sm-8" data-field="designationName">-</dd>
 
                     <dt class="col-sm-4">Aadhar Number</dt>
-                    <dd class="col-sm-8">@(Model.AadharNumber ?? "-")</dd>
+                    <dd class="col-sm-8" data-field="aadharNumber">-</dd>
 
                     <dt class="col-sm-4">PAN Number</dt>
-                    <dd class="col-sm-8">@(Model.PANNumber ?? "-")</dd>
+                    <dd class="col-sm-8" data-field="panNumber">-</dd>
 
                     <dt class="col-sm-4">UAN (PF/EPF)</dt>
-                    <dd class="col-sm-8">@(Model.UAN ?? "-")</dd>
+                    <dd class="col-sm-8" data-field="uan">-</dd>
 
                     <dt class="col-sm-4">Status</dt>
                     <dd class="col-sm-8">
-                        @if (Model.IsActive)
-                        {
-                            <span class="badge bg-success">Active</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-danger">Inactive</span>
-                        }
+                        <span class="badge bg-secondary" data-field="statusBadge">-</span>
                     </dd>
                 </dl>
             </div>
         </div>
 
-        @if (Model.Roles != null && Model.Roles.Any())
-        {
-            <div class="form-section mt-4">
-                <h5 class="section-title"><i class="fas fa-user-tag"></i>Roles</h5>
-                <div class="d-flex flex-wrap gap-2">
-                    @foreach (var role in Model.Roles)
-                    {
-                        <span class="badge bg-primary">@role</span>
-                    }
-                </div>
+        <div class="form-section mt-4">
+            <h5 class="section-title"><i class="fas fa-user-tag"></i>Roles</h5>
+            <div id="userRolesBadges" class="d-flex flex-wrap gap-2">
+                <span class="text-muted">No roles assigned</span>
             </div>
-        }
+        </div>
     </div>
 </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/users/details.js" asp-append-version="true"></script>
+}

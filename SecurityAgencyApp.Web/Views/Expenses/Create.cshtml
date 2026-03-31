@@ -1,8 +1,6 @@
 @model SecurityAgencyApp.Model.Api.CreateExpenseRequest
 @{
     ViewData["Title"] = "Add Expense";
-    var sites = ViewBag.Sites as List<SecurityAgencyApp.Model.Api.SiteDto>;
-    var guards = ViewBag.Guards as List<SecurityAgencyApp.Model.Api.GuardItemDto>;
 }
 
 <div class="page-header">
@@ -12,8 +10,12 @@
 
 <div class="card border-0 shadow-sm enterprise-form-card">
     <div class="card-body">
-        <form asp-action="Create" method="post" class="form">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <div id="expenseFormPage"
+             data-mode="create"
+             data-submit-endpoint="Expenses"
+             data-redirect-url="@Url.Action("Index")">
+        <form id="expenseForm" class="form">
+            <div id="expenseFormErrors" class="alert alert-danger d-none"></div>
 
             <div class="row g-3 mb-4">
                 <div class="col-md-6">
@@ -58,28 +60,14 @@
             <div class="row g-3 mb-4">
                 <div class="col-md-4">
                     <label asp-for="SiteId" class="form-label fw-semibold">Site (Optional)</label>
-                    <select asp-for="SiteId" class="form-select">
+                    <select id="expenseSiteId" asp-for="SiteId" class="form-select">
                         <option value="">Select Site</option>
-                        @if (sites != null)
-                        {
-                            @foreach (var site in sites)
-                            {
-                                <option value="@site.Id">@site.SiteName</option>
-                            }
-                        }
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label asp-for="GuardId" class="form-label fw-semibold">Guard (Optional)</label>
-                    <select asp-for="GuardId" class="form-select">
+                    <select id="expenseGuardId" asp-for="GuardId" class="form-select">
                         <option value="">Select Guard</option>
-                        @if (guards != null)
-                        {
-                            @foreach (var guard in guards)
-                            {
-                                <option value="@guard.Id">@guard.GuardCode - @guard.FirstName @guard.LastName</option>
-                            }
-                        }
                     </select>
                 </div>
                 <div class="col-md-4">
@@ -111,7 +99,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
+                <button id="expenseFormSubmitButton" type="submit" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Add Expense
                 </button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -119,9 +107,11 @@
                 </a>
             </div>
         </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/pages/expenses/form.js" asp-append-version="true"></script>
 }

@@ -1,25 +1,25 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using SecurityAgencyApp.Model;
 using SecurityAgencyApp.Web.Filters;
 using SecurityAgencyApp.Model.Api;
-using SecurityAgencyApp.Web.Services;
 
 namespace SecurityAgencyApp.Web.Controllers;
 
 [Authorize]
 public class HomeController : Controller
 {
-    private readonly IApiClient _apiClient;
-
-    public HomeController(IApiClient apiClient)
+    public IActionResult Index()
     {
-        _apiClient = apiClient;
+        return View(new DashboardDataDto());
     }
 
-    public async Task<IActionResult> Index()
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
     {
-        var result = await _apiClient.GetAsync<DashboardDataDto>("api/v1/Dashboard");
-        if (result.Success && result.Data != null)
-            return View(result.Data);
-        return View(new DashboardDataDto());
+        return View(new ErrorViewModel
+        {
+            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+        });
     }
 }

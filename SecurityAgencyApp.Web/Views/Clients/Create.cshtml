@@ -9,10 +9,10 @@
     <p class="page-subtitle mb-0">Add a new client to the system</p>
 </div>
 
-<div class="card border-0 shadow-sm enterprise-form-card">
+<div class="card border-0 shadow-sm enterprise-form-card" id="clientFormPage" data-mode="create" data-submit-endpoint="Clients" data-redirect-url="@Url.Action("Index", "Clients")">
     <div class="card-body">
-        <form asp-action="Create" method="post" class="form">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <form class="form" id="clientForm">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none" role="alert" id="clientFormErrors"></div>
 
             <div class="form-section">
                 <h5 class="section-title">
@@ -200,7 +200,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="clientFormSubmitButton">
                     <i class="fas fa-save me-2"></i>Create Client
                 </button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -212,5 +212,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/pages/clients/form.js" asp-append-version="true"></script>
 }

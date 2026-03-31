@@ -8,10 +8,10 @@
     <p class="page-subtitle mb-0">Add a new department to the organization</p>
 </div>
 
-<div class="card border-0 shadow-sm enterprise-form-card">
+<div class="card border-0 shadow-sm enterprise-form-card" id="departmentFormPage" data-mode="create" data-submit-endpoint="Departments" data-redirect-url="@Url.Action("Index", "Departments")">
     <div class="card-body">
-        <form asp-action="Create" method="post" class="form">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <form class="form" id="departmentForm">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none" role="alert" id="departmentFormErrors"></div>
 
             <div class="form-section">
                 <h5 class="section-title"><i class="fas fa-sitemap"></i>Department Information</h5>
@@ -37,7 +37,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="departmentFormSubmitButton">
                     <i class="fas fa-save me-2"></i>Create Department
                 </button>
                 <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -49,5 +49,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/pages/departments/form.js" asp-append-version="true"></script>
 }

@@ -1,11 +1,7 @@
 @model SecurityAgencyApp.Model.Api.SubMenuListResponse
 @{
     ViewData["Title"] = "SubMenus Management";
-    var menus = ViewBag.Menus as List<SecurityAgencyApp.Model.Api.MenuDto>;
     var selectedMenuId = ViewBag.SelectedMenuId as Guid?;
-    var totalSubMenus = Model?.Items?.Count ?? 0;
-    var activeSubMenus = Model?.Items?.Count(s => s.IsActive) ?? 0;
-    var linkedMenus = Model?.Items?.Select(s => s.MenuName).Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().Count() ?? 0;
 }
 
 <div class="page-header">
@@ -14,40 +10,23 @@
             <h1 class="page-title">SubMenus</h1>
             <p class="page-subtitle mb-0">Manage submenu items</p>
         </div>
-        <div class="d-flex gap-2">
-            @if (menus != null && menus.Any())
-            {
-                <select id="menuFilter" class="form-select" style="width: auto;" onchange="filterByMenu()">
-                    <option value="">All Menus</option>
-                    @foreach (var menu in menus)
-                    {
-                        if (selectedMenuId.HasValue && selectedMenuId.Value == menu.Id)
-                        {
-                            <option value="@menu.Id" selected>@(menu.DisplayName ?? menu.Name)</option>
-                        }
-                        else
-                        {
-                            <option value="@menu.Id">@(menu.DisplayName ?? menu.Name)</option>
-                        }
-                    }
-                </select>
-            }
-            @if (selectedMenuId.HasValue)
-            {
-                <a href="@Url.Action("Create", new { menuId = selectedMenuId.Value })" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Add New SubMenu
-                </a>
-            }
+        <div class="d-flex gap-2" id="subMenusActions">
+            <select id="menuFilter" class="form-select" style="width: auto;">
+                <option value="">All Menus</option>
+            </select>
+            <a href="@Url.Action("Create", new { menuId = selectedMenuId })" class="btn btn-primary @(selectedMenuId.HasValue ? "" : "d-none")" id="subMenusCreateButton">
+                <i class="fas fa-plus me-2"></i>Add New SubMenu
+            </a>
         </div>
     </div>
 </div>
 
-<div class="row g-3 mb-4">
+<div class="row g-3 mb-4" id="subMenusStats">
     <div class="col-12 col-md-6 col-xl-4">
         <div class="card stat-card h-100">
             <div class="card-body">
                 <div class="stat-label">Total Submenus</div>
-                <div class="stat-value">@totalSubMenus</div>
+                <div class="stat-value" data-stat="total">0</div>
             </div>
         </div>
     </div>
@@ -55,7 +34,7 @@
         <div class="card stat-card h-100">
             <div class="card-body">
                 <div class="stat-label">Active Items</div>
-                <div class="stat-value">@activeSubMenus</div>
+                <div class="stat-value" data-stat="active">0</div>
             </div>
         </div>
     </div>
@@ -63,118 +42,32 @@
         <div class="card stat-card h-100">
             <div class="card-body">
                 <div class="stat-label">Linked Menus</div>
-                <div class="stat-value">@linkedMenus</div>
+                <div class="stat-value" data-stat="menus">0</div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm overflow-hidden">
+<div class="card border-0 shadow-sm overflow-hidden" id="subMenusIndexPage"
+     data-index-url="@Url.Action("Index", "SubMenus")"
+     data-selected-menu-id="@(selectedMenuId?.ToString() ?? string.Empty)"
+     data-edit-base="@Url.Action("Edit", "SubMenus", new { id = "__id__" })"
+     data-create-base="@Url.Action("Create", "SubMenus", new { menuId = "__id__" })">
     <div class="card-header bg-body-tertiary py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="mb-0"><i class="fas fa-list-ul me-2 text-primary"></i>Submenu Directory</h5>
-        <span class="text-muted small">@totalSubMenus visible records</span>
+        <span class="text-muted small" id="subMenusRecordCount">0 visible records</span>
     </div>
     <div class="card-body">
-        @if (Model?.Items != null && Model.Items.Any())
-        {
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Menu</th>
-                            <th>Name</th>
-                            <th>Display Name</th>
-                            <th>Icon</th>
-                            <th>Route</th>
-                            <th>Order</th>
-                            <th>Status</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var subMenu in Model.Items)
-                        {
-                            <tr>
-                                <td>
-                                    <span class="badge bg-info">@subMenu.MenuName</span>
-                                </td>
-                                <td>
-                                    <div class="fw-semibold">@subMenu.Name</div>
-                                </td>
-                                <td>@(subMenu.DisplayName ?? "-")</td>
-                                <td>
-                                    @if (!string.IsNullOrEmpty(subMenu.Icon))
-                                    {
-                                        <i class="@subMenu.Icon"></i>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">-</span>
-                                    }
-                                </td>
-                                <td>@(subMenu.Route ?? "-")</td>
-                                <td>
-                                    <span class="badge bg-secondary">@subMenu.DisplayOrder</span>
-                                </td>
-                                <td>
-                                    @if (subMenu.IsActive)
-                                    {
-                                        <span class="badge bg-success">
-                                            <i class="fas fa-check-circle me-1"></i>Active
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger">
-                                            <i class="fas fa-times-circle me-1"></i>Inactive
-                                        </span>
-                                    }
-                                </td>
-                                <td class="text-end">
-                                    <div class="btn-group" role="group">
-                                        <a href="@Url.Action("Edit", new { id = subMenu.Id })" class="btn btn-sm btn-outline-warning" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <form asp-action="Delete" method="post" class="d-inline" data-confirm-message="Are you sure you want to delete this submenu?">
-                                            <input type="hidden" name="id" value="@subMenu.Id" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        else
-        {
+        <div id="subMenusTableWrapper">
             <div class="text-center py-5">
                 <i class="fas fa-list-ul fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No submenus found</h5>
-                <p class="text-muted">Get started by creating your first submenu.</p>
-                @if (menus != null && menus.Any())
-                {
-                    <a href="@Url.Action("Create", "Menus")" class="btn btn-primary mt-3">
-                        <i class="fas fa-plus me-2"></i>Create Menu First
-                    </a>
-                }
+                <h5 class="text-muted">Loading submenus...</h5>
+                <p class="text-muted">Fetching latest data from API.</p>
             </div>
-        }
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    <script>
-        function filterByMenu() {
-            const menuId = document.getElementById('menuFilter').value;
-            if (menuId) {
-                window.location.href = '@Url.Action("Index")?menuId=' + menuId;
-            } else {
-                window.location.href = '@Url.Action("Index")';
-            }
-        }
-    </script>
+    <script src="~/js/pages/submenus/index.js" asp-append-version="true"></script>
 }

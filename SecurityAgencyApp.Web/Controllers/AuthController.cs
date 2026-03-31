@@ -43,7 +43,7 @@ public class AuthController : Controller
         try
         {
             // Use API client for registration
-            var result = await _apiClient.PostAsync<ApiResponse<RegisterAgencyResponseDto>>("api/v1/Auth/register", command);
+            var result = await _apiClient.PostAsync<ApiResponse<RegisterAgencyResponseDto>>("Auth/register", command);
 
             if (result.Success && result.Data != null)
             {
@@ -65,6 +65,7 @@ public class AuthController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginCommand command, string? returnUrl = null)
+    
     {
         if (!ModelState.IsValid)
         {
@@ -72,7 +73,7 @@ public class AuthController : Controller
         }
 
         // Call API for login
-        var result = await _apiClient.PostAsync<LoginResponse>("api/v1/Auth/login", new
+        var result = await _apiClient.PostAsync<LoginResponse>("Auth/login", new
         {
             userName = command.UserName,
             password = command.Password,
@@ -130,7 +131,7 @@ public class AuthController : Controller
             return View();
         }
 
-        var result = await _apiClient.PostAsync<ForgotPasswordResponse>("api/v1/Auth/forgot-password", new { email = email.Trim() });
+        var result = await _apiClient.PostAsync<ForgotPasswordResponse>("Auth/forgot-password", new { email = email.Trim() });
         if (result.Success && result.Data != null)
         {
             TempData["ForgotPasswordEmail"] = result.Data.Email;
@@ -176,7 +177,7 @@ public class AuthController : Controller
             return View();
         }
 
-        var result = await _apiClient.PostAsync<object>("api/v1/Auth/reset-password", new { email = email.Trim(), newPassword });
+        var result = await _apiClient.PostAsync<object>("Auth/reset-password", new { email = email.Trim(), newPassword });
         if (result.Success)
         {
             TempData["ResetPasswordMessage"] = result.Message ?? "Password updated. You can now login.";
